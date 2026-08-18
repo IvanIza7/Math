@@ -1,0 +1,6 @@
+{
+  "name": "Entrenador Anti-Adivinanza de Matemáticas",
+  "description": "Single Page Application pedagógica anti-adivinanza para estudiantes de bachillerato. Implementa La Ley del Arsenal Real con Guía Mágica de 5 módulos, Arena Combo Trials, Planificador de Clase de 1 hora y seguimiento de asistencia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

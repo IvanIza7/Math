@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap');
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background-color: #F4F7FC;
+    color: #1E1E24;
+    overflow-x: hidden;
+    transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html.dark body {
+    background-color: #0F1117;
+    color: #F4F7FC;
+  }
+}
+
+/* Theme switch fluid fade transition across surfaces and borders */
+.theme-transition-all,
+.theme-transition-all * {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.font-jakarta {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.font-mono, .font-jetbrains {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Scrollbar hide utility */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+@layer utilities {
+  .card-soft-shadow {
+    box-shadow: 0 8px 24px rgba(111, 120, 219, 0.08);
+  }
+
+  .card-pop-shadow {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Interactive Pill Buttons */
+  .pill-btn {
+    transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.15s ease;
+  }
+
+  .pill-btn:active {
+    transform: translateY(1px) scale(0.97);
+  }
+}
+
+/* KaTeX custom styling for light and dark mode */
+.katex {
+  font-size: 1.05em;
+}
+
+.katex-display {
+  margin: 0.5em 0 !important;
+}
+
+html.dark .katex {
+  color: #F8FAFC !important;
+}
+
+html.dark .katex .mord,
+html.dark .katex .mbin,
+html.dark .katex .mrel,
+html.dark .katex .mopen,
+html.dark .katex .mclose,
+html.dark .katex .mpunct,
+html.dark .katex .minner {
+  color: #F8FAFC !important;
+}
+
