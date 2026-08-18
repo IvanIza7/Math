@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from './config/supabase';
+import { LoginScreen } from './components/auth/LoginScreen';
+import { User } from '@supabase/supabase-js';
 import { UserStats, UserProfile, MainTab, AttendanceRecord } from './types';
 import { ThemeProvider } from './context/ThemeContext';
 import { FloatingNav } from './components/FloatingNav';
@@ -10,8 +13,9 @@ import { ComboTrialsModule } from './components/modules/ComboTrialsModule';
 import { PlanDeClaseModule } from './components/modules/PlanDeClaseModule';
 import { ProgresoModule } from './components/modules/ProgresoModule';
 
-function AppContent() {
+function AppContent({ user }: { user: User }) {
   const [activeTab, setActiveTab] = useState<MainTab>('guia');
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // User Profile State (Stored in localStorage)
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
@@ -31,14 +35,90 @@ function AppContent() {
     };
   });
 
-  // Save User Profile to localStorage
+  // Sync with Supabase on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingData(true);
+      try {
+        const [profileRes, statsRes] = await Promise.all([
+          supabase.from('user_profiles').select('*').eq('id', user.id).single(),
+          supabase.from('user_stats').select('*').eq('id', user.id).single()
+        ]);
+        
+        if (profileRes.data) {
+          setUserProfile({
+            name: profileRes.data.name,
+            handle: profileRes.data.handle,
+            avatarId: profileRes.data.avatar_id,
+            academicGoal: profileRes.data.academic_goal,
+            bio: profileRes.data.bio,
+            favoriteArea: profileRes.data.favorite_area,
+          });
+        }
+        
+        if (statsRes.data) {
+          setUserStats(prev => ({
+            ...prev,
+            xp: statsRes.data.xp,
+            level: statsRes.data.level,
+            streak: statsRes.data.streak,
+            perfectTrialsCount: statsRes.data.perfect_trials_count,
+            illegalMovesCaughtCount: statsRes.data.illegal_moves_caught_count,
+            trialsCompleted: statsRes.data.trials_completed || [],
+            badgesUnlocked: statsRes.data.badges_unlocked || [],
+            completedTopics: statsRes.data.completed_topics || [],
+          }));
+        }
+        
+        const { data: attendanceData } = await supabase
+          .from('attendance_records')
+          .select('*')
+          .eq('user_id', user.id);
+          
+        if (attendanceData) {
+          setUserStats(prev => ({
+            ...prev,
+            attendanceRecords: attendanceData.map(r => ({
+              id: r.id,
+              dateStr: r.date_str,
+              timestamp: r.timestamp,
+              sessionNumber: r.session_number,
+              topicCovered: r.topic_covered,
+              notes: r.notes,
+              status: r.status as any
+            }))
+          }));
+        }
+        
+      } catch (err) {
+        console.error('Error fetching data from Supabase', err);
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    
+    fetchData();
+  }, [user.id]);
+
+  // Save User Profile to Supabase & localStorage
   useEffect(() => {
     try {
       localStorage.setItem('math_user_profile_data', JSON.stringify(userProfile));
+      if (!isLoadingData) {
+        supabase.from('user_profiles').upsert({
+          id: user.id,
+          name: userProfile.name,
+          handle: userProfile.handle,
+          avatar_id: userProfile.avatarId,
+          academic_goal: userProfile.academicGoal,
+          bio: userProfile.bio,
+          favorite_area: userProfile.favoriteArea,
+        }).then(({error}) => { if (error) console.error(error) });
+      }
     } catch {
       // ignore
     }
-  }, [userProfile]);
+  }, [userProfile, isLoadingData, user.id]);
 
   // Gamification User Stats (Stored in localStorage)
   const [userStats, setUserStats] = useState<UserStats>(() => {
@@ -75,10 +155,23 @@ function AppContent() {
   useEffect(() => {
     try {
       localStorage.setItem('math_anti_guessing_stats', JSON.stringify(userStats));
+      if (!isLoadingData) {
+        supabase.from('user_stats').upsert({
+          id: user.id,
+          xp: userStats.xp,
+          level: userStats.level,
+          streak: userStats.streak,
+          perfect_trials_count: userStats.perfectTrialsCount,
+          illegal_moves_caught_count: userStats.illegalMovesCaughtCount,
+          trials_completed: userStats.trialsCompleted,
+          badges_unlocked: userStats.badgesUnlocked,
+          completed_topics: userStats.completedTopics,
+        }).then(({error}) => { if (error) console.error(error) });
+      }
     } catch {
       // ignore
     }
-  }, [userStats]);
+  }, [userStats, isLoadingData, user.id]);
 
   // Modal States
   const [isAttendanceOpen, setIsAttendanceOpen] = useState<boolean>(false);
@@ -98,7 +191,7 @@ function AppContent() {
     });
   };
 
-  const handleAddAttendance = (
+  const handleAddAttendance = async (
     status: 'completed' | 'cancelled' | 'absence' | 'none',
     dateStr: string,
     notes?: string
@@ -108,27 +201,39 @@ function AppContent() {
     const mins = String(now.getMinutes()).padStart(2, '0');
     const timestamp = `${dateStr} ${hours}:${mins}`;
 
-    setUserStats((prev) => {
-      const existingFilter = prev.attendanceRecords.filter((r) => r.dateStr !== dateStr);
-      const completedCount = existingFilter.filter((r) => r.status === 'completed').length;
-      const sessionNumber = status === 'completed' ? completedCount + 1 : completedCount;
+    const existingFilter = userStats.attendanceRecords.filter((r) => r.dateStr !== dateStr);
+    const completedCount = existingFilter.filter((r) => r.status === 'completed').length;
+    const sessionNumber = status === 'completed' ? completedCount + 1 : completedCount;
 
-      const newRecord: AttendanceRecord = {
-        id: `att-${Date.now()}`,
-        dateStr,
-        timestamp,
-        sessionNumber,
-        topicCovered: status === 'completed' ? `Clase #${sessionNumber} Impartida` : status === 'cancelled' ? 'Clase Cancelada' : 'Ausencia del Alumno',
-        notes: notes || (status === 'completed' ? 'Clase presencial realizada' : 'Registro de asistencia'),
-        status,
-      };
+    const newRecord: AttendanceRecord = {
+      id: `att-${Date.now()}`,
+      dateStr,
+      timestamp,
+      sessionNumber,
+      topicCovered: status === 'completed' ? `Clase #${sessionNumber} Impartida` : status === 'cancelled' ? 'Clase Cancelada' : 'Ausencia del Alumno',
+      notes: notes || (status === 'completed' ? 'Clase presencial realizada' : 'Registro de asistencia'),
+      status,
+    };
 
-      return {
-        ...prev,
-        streak: status === 'completed' ? prev.streak + 1 : prev.streak,
-        attendanceRecords: [...existingFilter, newRecord],
-      };
-    });
+    // Optimistic UI Update
+    setUserStats((prev) => ({
+      ...prev,
+      streak: status === 'completed' ? prev.streak + 1 : prev.streak,
+      attendanceRecords: [...existingFilter, newRecord],
+    }));
+    
+    // Also save to Supabase directly since attendance is a separate table
+    if (!isLoadingData) {
+      await supabase.from('attendance_records').insert({
+        user_id: user.id,
+        date_str: newRecord.dateStr,
+        timestamp: newRecord.timestamp,
+        session_number: newRecord.sessionNumber,
+        topic_covered: newRecord.topicCovered,
+        notes: newRecord.notes,
+        status: newRecord.status
+      });
+    }
   };
 
   return (
@@ -201,9 +306,39 @@ function AppContent() {
 }
 
 export default function App() {
+  const [session, setSession] = useState<any>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setIsLoadingSession(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (isLoadingSession) {
+    return (
+      <div className="min-h-screen bg-[#F4F7FC] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <LoginScreen onLoginSuccess={() => {}} />;
+  }
+
   return (
     <ThemeProvider>
-      <AppContent />
+      <AppContent user={session.user} />
     </ThemeProvider>
   );
 }
