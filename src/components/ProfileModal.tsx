@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ChevronRight, Star, Flame, Award, Sparkles, Trophy, Zap } from 'lucide-react';
+import { X, ChevronRight, Star, Flame, Award, Sparkles, Trophy, Zap, LogOut } from 'lucide-react';
+import { supabase } from '../config/supabase';
 import { CatlyneAvatar, StreakCheeringCharacter } from './Illustrations';
 import { UserStats } from '../types';
 import { playSound } from '../utils/sound';
@@ -250,6 +251,21 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   </motion.div>
                 ))}
               </div>
+            </div>
+            {/* Logout Button */}
+            <div className="pt-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={async () => {
+                  playSound('click');
+                  await supabase.auth.signOut();
+                }}
+                className="w-full bg-red-50 hover:bg-red-100 border-2 border-red-200 text-red-600 rounded-2xl p-3 flex items-center justify-center gap-2 font-bold transition-colors cursor-pointer"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Cerrar Sesión</span>
+              </motion.button>
             </div>
           </motion.div>
         </motion.div>

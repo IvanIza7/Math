@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, ChevronRight, Edit3, Check, X, Sparkles, User, GraduationCap, Heart, BookOpen, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Edit3, Check, X, Sparkles, User, GraduationCap, Heart, BookOpen, Sun, Moon, LogOut } from 'lucide-react';
 import { UserAvatar, StreakCheeringCharacter, HexagonBadgeSvg, AVATAR_OPTIONS } from './Illustrations';
+import { supabase } from '../config/supabase';
 import { UserStats, UserProfile } from '../types';
 import { playSound } from '../utils/sound';
 import { useTheme } from '../context/ThemeContext';
@@ -391,6 +392,20 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Volver</span>
+          </button>
+        </div>
+
+        {/* Logout Button */}
+        <div className="pt-4 mt-2">
+          <button
+            onClick={async () => {
+              playSound('click');
+              await supabase.auth.signOut();
+            }}
+            className="w-full py-3.5 bg-[#FF4757] hover:bg-[#FF6B81] text-white dark:text-[#1E1E24] dark:bg-[#FF6B81] dark:hover:bg-[#FF4757] font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] shadow-md cursor-pointer transition-transform active:scale-95 flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Cerrar Sesión</span>
           </button>
         </div>
       </motion.div>
