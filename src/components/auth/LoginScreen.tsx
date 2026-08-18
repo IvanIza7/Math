@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase } from '../../config/supabase';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -48,9 +48,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     setIsLoading(true);
 
     try {
-      // Dummy email for Supabase Auth
       const dummyEmail = `mathapp.dummy.${username.toLowerCase().replace(/[^a-z0-9]/g, '')}@gmail.com`;
-      // Supabase requires 6 chars minimum password. We append 'xy' to the 4-digit pin.
       const supabasePassword = `${pin}xy`;
 
       if (isLogin) {
@@ -95,18 +93,17 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     }
   };
 
-  // Helper to render PIN boxes
   const renderPinBoxes = (currentPin: string, isFocused: boolean) => {
     const activeIndex = currentPin.length < 4 ? currentPin.length : 3;
     
     return (
-      <div className="flex gap-[29px]">
+      <div className="flex gap-2 sm:gap-[29px] justify-between sm:justify-start w-full">
         {[0, 1, 2, 3].map((index) => {
           const isActive = isFocused && index === activeIndex;
           return (
             <div
               key={index}
-              className={`w-[67px] h-[60px] bg-[#f8faf9] border-2 rounded-[15px] flex items-center justify-center transition-colors ${
+              className={`w-full max-w-[67px] h-12 sm:h-[60px] bg-[#f8faf9] border-2 rounded-[15px] flex items-center justify-center transition-colors ${
                 isActive ? 'border-[#f5c518]' : 'border-[#000]'
               }`}
             >
@@ -117,7 +114,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     transition={{ type: 'spring', stiffness: 700, damping: 22 }}
-                    className="w-[14px] h-[14px] bg-[#000] rounded-full"
+                    className="w-3 h-3 sm:w-[14px] sm:h-[14px] bg-[#000] rounded-full"
                   />
                 )}
               </AnimatePresence>
@@ -129,11 +126,16 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex justify-center overflow-hidden font-poppins text-[#000]">
-      <div className="w-full max-w-[402px] bg-[#f8faf9] flex flex-col relative">
+    <div className="fixed inset-0 bg-[#f8faf9] flex justify-center overflow-hidden font-poppins text-[#000] touch-none">
+      <motion.div 
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.3}
+        className="w-full max-w-[402px] h-full bg-[#f8faf9] flex flex-col relative"
+      >
         
-        {/* Top Image Section */}
-        <div className="h-[312px] w-full flex items-center justify-center relative shrink-0 overflow-hidden">
+        {/* Responsive Image Section */}
+        <div className="flex-1 min-h-[20vh] max-h-[312px] w-full flex items-center justify-center relative overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.img
               key={isLogin ? 'login-img' : 'register-img'}
@@ -143,13 +145,13 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 1.05, y: -10 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full h-full object-contain p-2"
+              className="w-full h-full object-contain p-4"
             />
           </AnimatePresence>
         </div>
 
-        {/* Form Card Section */}
-        <div className="h-[562px] w-full bg-[rgba(121,229,91,0.85)] rounded-t-[50px] border-t-2 border-x-2 border-b-2 sm:border-b-0 border-[#000] relative overflow-hidden shrink-0 shadow-2xl">
+        {/* Responsive Form Card Section */}
+        <div className="flex-none bg-[rgba(121,229,91,0.85)] rounded-t-[40px] sm:rounded-t-[50px] border-t-2 border-x-2 border-b-2 sm:border-b-0 border-[#000] relative overflow-hidden shadow-2xl flex flex-col h-auto min-h-[55vh] pb-6">
           
           <AnimatePresence mode="wait">
             <motion.div
@@ -158,116 +160,124 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: isLogin ? 402 : -402, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="absolute inset-0"
+              className="w-full h-full flex flex-col px-5 py-6 sm:px-[21px]"
             >
-              <form onSubmit={handleSubmit} className="w-full h-full relative">
+              <form onSubmit={handleSubmit} className="w-full h-full flex flex-col gap-4 sm:gap-5 justify-between">
                 
-                {/* Username */}
-                <label className="absolute top-[13px] left-[21px] font-semibold text-[32px] leading-normal">
-                  Usuario
-                </label>
-                <input
-                  type="text"
-                  placeholder="Nombre de usuario"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  onFocus={() => setIsUsernameFocused(true)}
-                  onBlur={() => setIsUsernameFocused(false)}
-                  className={`absolute top-[78px] left-[21px] w-[355px] h-[60px] bg-[#f8faf9] border-2 rounded-[15px] px-[10px] font-poppins text-[20px] font-normal text-[#000] placeholder:text-[rgba(0,0,0,0.21)] outline-none transition-colors ${
-                    isUsernameFocused ? 'border-[#f5c518]' : 'border-[#000]'
-                  }`}
-                  disabled={isLoading}
-                />
+                <div className="space-y-4 sm:space-y-5">
+                  {/* Username */}
+                  <div className="flex flex-col gap-1 sm:gap-2">
+                    <label className="font-semibold text-2xl sm:text-[32px] leading-none ml-1">
+                      Usuario
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Nombre de usuario"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      onFocus={() => setIsUsernameFocused(true)}
+                      onBlur={() => setIsUsernameFocused(false)}
+                      className={`w-full h-12 sm:h-[60px] bg-[#f8faf9] border-2 rounded-[15px] px-3 sm:px-[10px] font-poppins text-lg sm:text-[20px] font-normal text-[#000] placeholder:text-[rgba(0,0,0,0.21)] outline-none transition-colors ${
+                        isUsernameFocused ? 'border-[#f5c518]' : 'border-[#000]'
+                      }`}
+                      disabled={isLoading}
+                    />
+                  </div>
 
-                {/* PIN */}
-                <label className="absolute top-[138px] left-[21px] font-semibold text-[32px] leading-normal">
-                  PIN
-                </label>
-                <div 
-                  className="absolute top-[198px] left-[21px] w-[355px] h-[60px] cursor-text"
-                  onClick={() => pinInputRef.current?.focus()}
-                >
-                  {renderPinBoxes(pin, isPinFocused)}
-                  <input
-                    ref={pinInputRef}
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={4}
-                    value={pin}
-                    onChange={(e) => handlePinChange(e, setPin)}
-                    onFocus={() => setIsPinFocused(true)}
-                    onBlur={() => setIsPinFocused(false)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10"
-                    disabled={isLoading}
-                  />
-                </div>
-
-                {/* Confirm PIN (Only in Register) */}
-                {!isLogin && (
-                  <>
-                    <label className="absolute top-[258px] left-[23px] font-semibold text-[32px] leading-normal">
-                      Confirmar PIN
+                  {/* PIN */}
+                  <div className="flex flex-col gap-1 sm:gap-2">
+                    <label className="font-semibold text-2xl sm:text-[32px] leading-none ml-1">
+                      PIN
                     </label>
                     <div 
-                      className="absolute top-[318px] left-[21px] w-[355px] h-[60px] cursor-text"
-                      onClick={() => confirmPinInputRef.current?.focus()}
+                      className="w-full relative cursor-text"
+                      onClick={() => pinInputRef.current?.focus()}
                     >
-                      {renderPinBoxes(confirmPin, isConfirmPinFocused)}
+                      {renderPinBoxes(pin, isPinFocused)}
                       <input
-                        ref={confirmPinInputRef}
+                        ref={pinInputRef}
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
                         maxLength={4}
-                        value={confirmPin}
-                        onChange={(e) => handlePinChange(e, setConfirmPin)}
-                        onFocus={() => setIsConfirmPinFocused(true)}
-                        onBlur={() => setIsConfirmPinFocused(false)}
+                        value={pin}
+                        onChange={(e) => handlePinChange(e, setPin)}
+                        onFocus={() => setIsPinFocused(true)}
+                        onBlur={() => setIsPinFocused(false)}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10"
                         disabled={isLoading}
                       />
                     </div>
-                  </>
-                )}
-
-                {/* Error Message */}
-                {error && (
-                  <div className="absolute top-[300px] left-[21px] w-[355px] bg-red-100 border-2 border-red-500 text-red-700 text-sm p-2 rounded-lg flex items-center gap-2 z-20">
-                    <AlertCircle size={16} />
-                    <span className="font-nunito font-bold leading-tight">{error}</span>
                   </div>
-                )}
 
-                {/* Submit Button */}
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  type="submit"
-                  disabled={isLoading}
-                  className={`absolute ${isLogin ? 'top-[337px]' : 'top-[406px]'} left-[23px] w-[355px] h-[60px] bg-[#f5c518] border-2 border-[#000] rounded-[50px] font-poppins text-[20px] font-normal tracking-[0.6px] text-[#000] flex items-center justify-center outline-none`}
-                >
-                  {isLoading ? <Loader2 className="animate-spin" size={24} /> : (isLogin ? 'Entrar' : 'Registrarse')}
-                </motion.button>
+                  {/* Confirm PIN (Only in Register) */}
+                  {!isLogin && (
+                    <div className="flex flex-col gap-1 sm:gap-2">
+                      <label className="font-semibold text-2xl sm:text-[32px] leading-none ml-1">
+                        Confirmar PIN
+                      </label>
+                      <div 
+                        className="w-full relative cursor-text"
+                        onClick={() => confirmPinInputRef.current?.focus()}
+                      >
+                        {renderPinBoxes(confirmPin, isConfirmPinFocused)}
+                        <input
+                          ref={confirmPinInputRef}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={4}
+                          value={confirmPin}
+                          onChange={(e) => handlePinChange(e, setConfirmPin)}
+                          onFocus={() => setIsConfirmPinFocused(true)}
+                          onBlur={() => setIsConfirmPinFocused(false)}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-text z-10"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                  )}
 
-                {/* Footer Navigation */}
-                <div className="absolute top-[470px] left-[28px] w-full flex items-center gap-[6px]">
-                  <span className="font-nunito font-normal text-[20px] leading-[19.5px] text-[#000]">
-                    {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsLogin(!isLogin);
-                      setError('');
-                      setUsername('');
-                      setPin('');
-                      setConfirmPin('');
-                    }}
+                  {/* Error Message */}
+                  {error && (
+                    <div className="w-full bg-red-100 border-2 border-red-500 text-red-700 text-sm p-2 rounded-lg flex items-center gap-2">
+                      <AlertCircle size={16} className="shrink-0" />
+                      <span className="font-nunito font-bold leading-tight">{error}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-4 mt-2 sm:mt-6">
+                  {/* Submit Button */}
+                  <motion.button
+                    whileTap={{ scale: 0.97 }}
+                    type="submit"
                     disabled={isLoading}
-                    className="font-nunito font-bold text-[20px] leading-[19.5px] text-[#000] hover:underline outline-none"
+                    className={`w-full h-[52px] sm:h-[60px] bg-[#f5c518] border-2 border-[#000] rounded-[50px] font-poppins text-lg sm:text-[20px] font-normal tracking-[0.6px] text-[#000] flex items-center justify-center outline-none shrink-0`}
                   >
-                    {isLogin ? 'Regístrate aquí.' : 'Inicia Sesión aquí.'}
-                  </button>
+                    {isLoading ? <Loader2 className="animate-spin" size={24} /> : (isLogin ? 'Entrar' : 'Registrarse')}
+                  </motion.button>
+
+                  {/* Footer Navigation */}
+                  <div className="w-full flex items-center gap-[6px] pl-2 justify-center sm:justify-start">
+                    <span className="font-nunito font-normal text-base sm:text-[20px] text-[#000]">
+                      {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsLogin(!isLogin);
+                        setError('');
+                        setUsername('');
+                        setPin('');
+                        setConfirmPin('');
+                      }}
+                      disabled={isLoading}
+                      className="font-nunito font-bold text-base sm:text-[20px] text-[#000] hover:underline outline-none"
+                    >
+                      {isLogin ? 'Regístrate aquí.' : 'Inicia Sesión aquí.'}
+                    </button>
+                  </div>
                 </div>
 
               </form>
@@ -275,7 +285,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
           </AnimatePresence>
 
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
