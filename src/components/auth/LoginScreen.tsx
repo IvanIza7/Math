@@ -97,14 +97,16 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     const activeIndex = currentPin.length < 4 ? currentPin.length : 3;
     
     return (
-      <div className="flex gap-2 sm:gap-[29px] justify-between sm:justify-start w-full">
+      <div className="flex gap-3 sm:gap-5 justify-between sm:justify-start w-full">
         {[0, 1, 2, 3].map((index) => {
           const isActive = isFocused && index === activeIndex;
           return (
             <div
               key={index}
-              className={`w-full max-w-[67px] h-12 sm:h-[60px] bg-[#f8faf9] border-2 rounded-[15px] flex items-center justify-center transition-colors ${
-                isActive ? 'border-[#f5c518]' : 'border-[#000]'
+              className={`w-full max-w-[67px] h-14 sm:h-[60px] bg-[#f8faf9] border-2 rounded-[15px] flex items-center justify-center transition-all duration-200 ${
+                isActive 
+                  ? 'border-[#f5c518] translate-y-1 translate-x-1 shadow-none' 
+                  : 'border-[#000] shadow-[4px_4px_0px_0px_#000]'
               }`}
             >
               <AnimatePresence>
@@ -114,7 +116,7 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     transition={{ type: 'spring', stiffness: 700, damping: 22 }}
-                    className="w-3 h-3 sm:w-[14px] sm:h-[14px] bg-[#000] rounded-full"
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#000] rounded-full"
                   />
                 )}
               </AnimatePresence>
@@ -142,16 +144,16 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               src={isLogin ? loginImg : registerImg}
               alt="Ilustración"
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              animate={{ opacity: 1, scale: 1.15, y: 0 }}
               exit={{ opacity: 0, scale: 1.05, y: -10 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full h-full object-contain p-4"
+              className="w-full h-full object-contain p-0 pb-4 origin-bottom"
             />
           </AnimatePresence>
         </div>
 
         {/* Responsive Form Card Section */}
-        <div className="flex-none bg-[rgba(121,229,91,0.85)] rounded-t-[40px] sm:rounded-t-[50px] border-t-2 border-x-2 border-b-2 sm:border-b-0 border-[#000] relative overflow-hidden shadow-2xl flex flex-col h-auto min-h-[55vh] pb-6">
+        <div className="flex-none bg-[#79E55B] rounded-t-[40px] sm:rounded-t-[50px] border-t-2 border-x-2 border-b-2 sm:border-b-0 border-[#000] relative overflow-hidden shadow-[0px_-8px_20px_rgba(0,0,0,0.08)] flex flex-col h-auto min-h-[55vh] pb-6">
           
           <AnimatePresence mode="wait">
             <motion.div
@@ -160,14 +162,26 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: isLogin ? 402 : -402, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 320, damping: 32 }}
-              className="w-full h-full flex flex-col px-5 py-6 sm:px-[21px]"
+              className="w-full h-full flex flex-col px-7 py-8 sm:px-10 sm:py-10"
             >
-              <form onSubmit={handleSubmit} className="w-full h-full flex flex-col gap-4 sm:gap-5 justify-between">
+              <form onSubmit={handleSubmit} className="w-full h-full flex flex-col gap-4 sm:gap-6 justify-between">
                 
+                {/* Header Text */}
+                <div className="text-center space-y-1 mb-1 sm:mb-2">
+                  <h1 className="text-2xl sm:text-[28px] font-black uppercase tracking-tight text-[#000]">
+                    {isLogin ? '¡Hola de nuevo!' : 'Crea tu Cuenta'}
+                  </h1>
+                  <p className="text-xs sm:text-sm font-bold text-[#000]/70 leading-tight">
+                    {isLogin 
+                      ? 'Ingresa tu PIN para continuar practicando.' 
+                      : 'Únete para dominar las matemáticas sin adivinar.'}
+                  </p>
+                </div>
+
                 <div className="space-y-4 sm:space-y-5">
                   {/* Username */}
-                  <div className="flex flex-col gap-1 sm:gap-2">
-                    <label className="font-semibold text-2xl sm:text-[32px] leading-none ml-1">
+                  <div className="flex flex-col gap-1.5 sm:gap-2">
+                    <label className="font-bold text-sm sm:text-base uppercase tracking-widest ml-1 text-[#000]/80">
                       Usuario
                     </label>
                     <input
@@ -177,16 +191,18 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                       onChange={(e) => setUsername(e.target.value)}
                       onFocus={() => setIsUsernameFocused(true)}
                       onBlur={() => setIsUsernameFocused(false)}
-                      className={`w-full h-12 sm:h-[60px] bg-[#f8faf9] border-2 rounded-[15px] px-3 sm:px-[10px] font-poppins text-lg sm:text-[20px] font-normal text-[#000] placeholder:text-[rgba(0,0,0,0.21)] outline-none transition-colors ${
-                        isUsernameFocused ? 'border-[#f5c518]' : 'border-[#000]'
+                      className={`w-full h-14 sm:h-[60px] bg-[#f8faf9] border-2 rounded-[15px] px-4 sm:px-5 font-poppins text-lg sm:text-[20px] font-medium text-[#000] placeholder:text-[rgba(0,0,0,0.25)] outline-none transition-all duration-200 ${
+                        isUsernameFocused 
+                          ? 'border-[#f5c518] translate-y-1 translate-x-1 shadow-none' 
+                          : 'border-[#000] shadow-[4px_4px_0px_0px_#000]'
                       }`}
                       disabled={isLoading}
                     />
                   </div>
 
                   {/* PIN */}
-                  <div className="flex flex-col gap-1 sm:gap-2">
-                    <label className="font-semibold text-2xl sm:text-[32px] leading-none ml-1">
+                  <div className="flex flex-col gap-1.5 sm:gap-2">
+                    <label className="font-bold text-sm sm:text-base uppercase tracking-widest ml-1 text-[#000]/80">
                       PIN
                     </label>
                     <div 
@@ -212,8 +228,8 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
                   {/* Confirm PIN (Only in Register) */}
                   {!isLogin && (
-                    <div className="flex flex-col gap-1 sm:gap-2">
-                      <label className="font-semibold text-2xl sm:text-[32px] leading-none ml-1">
+                    <div className="flex flex-col gap-1.5 sm:gap-2">
+                      <label className="font-bold text-sm sm:text-base uppercase tracking-widest ml-1 text-[#000]/80">
                         Confirmar PIN
                       </label>
                       <div 
@@ -240,27 +256,30 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
 
                   {/* Error Message */}
                   {error && (
-                    <div className="w-full bg-red-100 border-2 border-red-500 text-red-700 text-sm p-2 rounded-lg flex items-center gap-2">
-                      <AlertCircle size={16} className="shrink-0" />
-                      <span className="font-nunito font-bold leading-tight">{error}</span>
-                    </div>
+                    <motion.div 
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="w-full bg-red-100 border-2 border-red-500 text-red-700 text-sm font-bold px-4 py-3 rounded-[12px] flex items-center gap-2 shadow-[2px_2px_0px_0px_#ef4444]"
+                    >
+                      <AlertCircle size={18} className="shrink-0" />
+                      <span className="font-nunito leading-tight">{error}</span>
+                    </motion.div>
                   )}
                 </div>
 
-                <div className="flex flex-col gap-4 mt-2 sm:mt-6">
+                <div className="flex flex-col gap-5 mt-4 sm:mt-6">
                   {/* Submit Button */}
-                  <motion.button
-                    whileTap={{ scale: 0.97 }}
+                  <button
                     type="submit"
                     disabled={isLoading}
-                    className={`w-full h-[52px] sm:h-[60px] bg-[#f5c518] border-2 border-[#000] rounded-[50px] font-poppins text-lg sm:text-[20px] font-normal tracking-[0.6px] text-[#000] flex items-center justify-center outline-none shrink-0`}
+                    className={`w-full h-[56px] sm:h-[60px] bg-[#f5c518] hover:bg-[#ffe366] border-2 border-[#000] rounded-[50px] font-poppins text-lg sm:text-[20px] font-bold tracking-[1px] text-[#000] flex items-center justify-center outline-none shrink-0 transition-all duration-150 shadow-[4px_4px_0px_0px_#000] active:translate-y-1 active:translate-x-1 active:shadow-none`}
                   >
-                    {isLoading ? <Loader2 className="animate-spin" size={24} /> : (isLogin ? 'Entrar' : 'Registrarse')}
-                  </motion.button>
+                    {isLoading ? <Loader2 className="animate-spin" size={24} /> : (isLogin ? 'ENTRAR' : 'REGISTRARSE')}
+                  </button>
 
                   {/* Footer Navigation */}
-                  <div className="w-full flex items-center gap-[6px] pl-2 justify-center sm:justify-start">
-                    <span className="font-nunito font-normal text-base sm:text-[20px] text-[#000]">
+                  <div className="w-full flex items-center gap-[6px] justify-center">
+                    <span className="font-nunito font-normal text-base sm:text-[18px] text-[#000]">
                       {isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?'}
                     </span>
                     <button
@@ -273,9 +292,9 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
                         setConfirmPin('');
                       }}
                       disabled={isLoading}
-                      className="font-nunito font-bold text-base sm:text-[20px] text-[#000] hover:underline outline-none"
+                      className="font-nunito font-bold text-base sm:text-[18px] text-[#000] hover:text-white transition-colors outline-none cursor-pointer"
                     >
-                      {isLogin ? 'Regístrate aquí.' : 'Inicia Sesión aquí.'}
+                      {isLogin ? 'Regístrate aquí' : 'Inicia Sesión aquí'}
                     </button>
                   </div>
                 </div>

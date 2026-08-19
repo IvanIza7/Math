@@ -81,14 +81,12 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* Dark Mode Quick Switch with Micro-Animation */}
-        <motion.button
-          whileTap={{ scale: 0.88, rotate: isDarkMode ? -25 : 25 }}
-          whileHover={{ scale: 1.06 }}
+        <button
           onClick={() => {
             playSound('click');
             toggleDarkMode();
           }}
-          className={`w-9 h-9 rounded-full border-2 border-[#1E1E24] dark:border-[#3E4259] flex items-center justify-center shadow-xs cursor-pointer shrink-0 transition-colors ${
+          className={`w-9 h-9 rounded-full border-2 border-[#1E1E24] dark:border-[#3E4259] flex items-center justify-center shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#000000] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none cursor-pointer shrink-0 transition-all ${
             isDarkMode ? 'bg-[#38BDF8] text-[#0F172A]' : 'bg-[#FFF9E6] text-[#D97706]'
           }`}
           title={isDarkMode ? 'Cambiar a Tema Claro' : 'Cambiar a Modo Oscuro'}
@@ -116,19 +114,6 @@ export const Header: React.FC<HeaderProps> = ({
               </motion.div>
             )}
           </AnimatePresence>
-        </motion.button>
-
-        {/* Far Right: Notification Bell */}
-        <button
-          onClick={() => {
-            playSound('click');
-            onOpenNotifications();
-          }}
-          className="relative w-9 h-9 rounded-full bg-[#F4F7FC] dark:bg-[#202334] hover:bg-[#E8F0FE] dark:hover:bg-[#2C3048] border-2 border-[#1E1E24] dark:border-[#3E4259] flex items-center justify-center text-[#1E1E24] dark:text-white shadow-xs transition-colors cursor-pointer shrink-0"
-          title={APP_TEXTS.header.notificationsTitle}
-        >
-          <Bell className="w-4 h-4 text-[#1E1E24] dark:text-white" />
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#EF4444] border-2 border-white dark:border-[#161822]" />
         </button>
       </div>
 

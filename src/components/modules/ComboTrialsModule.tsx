@@ -5,6 +5,10 @@ import { ARENA_CHALLENGES, ArenaChallenge } from '../../data/arenaChallengesData
 import { ArenaChallengeRunner } from '../ArenaChallengeRunner';
 import { CrossMathGame } from '../CrossMathGame';
 import { AsedioLinealGame } from '../AsedioLinealGame';
+import { PracticeSetup } from '../PracticeSetup';
+import { PracticeQuiz } from '../PracticeQuiz';
+import { PracticeResults } from '../PracticeResults';
+import { PracticePreset } from '../../types';
 import { playSound } from '../../utils/sound';
 import { saveActiveHeroSession } from '../../utils/activeSession';
 
@@ -12,7 +16,7 @@ interface ComboTrialsModuleProps {
   onAwardXp: (amount: number) => void;
   onOpenArsenal?: () => void;
   onIllegalMove?: (reason: string, choice: any) => void;
-  initialGameMode?: 'desafios' | 'asedio' | 'crossmath';
+  initialGameMode?: 'desafios' | 'asedio' | 'crossmath' | 'practica';
   initialAsedioLevel?: number;
 }
 
@@ -27,11 +31,15 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
   initialGameMode = 'desafios',
   initialAsedioLevel = 0,
 }) => {
-  const [activeTab, setActiveTab] = useState<'desafios' | 'asedio' | 'crossmath'>(initialGameMode);
+  const [activeTab, setActiveTab] = useState<'desafios' | 'asedio' | 'crossmath' | 'practica'>(initialGameMode);
   const [activeChallenge, setActiveChallenge] = useState<ArenaChallenge | null>(null);
   const [isCrossMathActive, setIsCrossMathActive] = useState<boolean>(false);
   const [isAsedioActive, setIsAsedioActive] = useState<boolean>(false);
   const [asedioStartLevel, setAsedioStartLevel] = useState<number>(initialAsedioLevel);
+
+  // Practice Flow State
+  const [activePracticePreset, setActivePracticePreset] = useState<PracticePreset | null>(null);
+  const [practiceSessionData, setPracticeSessionData] = useState<any>(null);
 
   // Storage of completed challenges with scores
   const [completedRecords, setCompletedRecords] = useState<Record<string, ChallengeRecord>>(() => {
@@ -124,6 +132,29 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     );
   }
 
+  if (activePracticePreset) {
+    return (
+      <PracticeQuiz 
+        preset={activePracticePreset}
+        onBack={() => setActivePracticePreset(null)}
+        onFinish={(sessionData) => {
+          setActivePracticePreset(null);
+          setPracticeSessionData(sessionData);
+          onAwardXp(50); // Small XP reward for practice
+        }}
+      />
+    );
+  }
+
+  if (practiceSessionData) {
+    return (
+      <PracticeResults 
+        sessionData={practiceSessionData}
+        onBack={() => setPracticeSessionData(null)}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#F7CA38] text-[#1E1E24] pb-16 font-jakarta relative overflow-hidden">
       {/* Top Yellow Header Section with signature Memphis styling */}
@@ -182,9 +213,9 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
               playSound('click');
               setActiveTab('desafios');
             }}
-            className={`flex-1 py-2 rounded-full text-center text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
+            className={`flex-1 py-2 rounded-full text-center text-xs cursor-pointer flex items-center justify-center gap-1 active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${
               activeTab === 'desafios'
-                ? 'bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] shadow-xs font-black'
+                ? 'bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] font-black'
                 : 'text-[#8A909F] hover:text-[#1E1E24] font-bold border-2 border-transparent'
             }`}
           >
@@ -200,9 +231,9 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
               playSound('click');
               setActiveTab('asedio');
             }}
-            className={`flex-1 py-2 rounded-full text-center text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
+            className={`flex-1 py-2 rounded-full text-center text-xs cursor-pointer flex items-center justify-center gap-1 active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${
               activeTab === 'asedio'
-                ? 'bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] shadow-xs font-black'
+                ? 'bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] font-black'
                 : 'text-[#8A909F] hover:text-[#1E1E24] font-bold border-2 border-transparent'
             }`}
           >
@@ -218,13 +249,28 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
               playSound('click');
               setActiveTab('crossmath');
             }}
-            className={`flex-1 py-2 rounded-full text-center text-xs transition-all cursor-pointer flex items-center justify-center gap-1 ${
+            className={`flex-1 py-2 rounded-full text-center text-xs cursor-pointer flex items-center justify-center gap-1 active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${
               activeTab === 'crossmath'
-                ? 'bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] shadow-xs font-black'
+                ? 'bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] font-black'
                 : 'text-[#8A909F] hover:text-[#1E1E24] font-bold border-2 border-transparent'
             }`}
           >
-            <span>Cross Math</span>
+            <span>Cross</span>
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => {
+              playSound('click');
+              setActiveTab('practica');
+            }}
+            className={`flex-1 py-2 rounded-full text-center text-xs cursor-pointer flex items-center justify-center gap-1 active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${
+              activeTab === 'practica'
+                ? 'bg-[#BAFF29] text-[#1E1E24] border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] font-black'
+                : 'text-[#8A909F] hover:text-[#1E1E24] font-bold border-2 border-transparent'
+            }`}
+          >
+            <span>Práctica</span>
           </motion.button>
         </div>
       </motion.div>
@@ -295,119 +341,104 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
 
         {/* Section Header */}
         <div className="flex items-center justify-between pt-1">
-          <span className="text-xs font-black uppercase tracking-wider text-[#1E1E24]">
+          <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider text-[#1E1E24]">
             {activeTab === 'desafios'
               ? 'Banco de Desafíos Oficiales'
               : activeTab === 'asedio'
               ? 'Asedio Lineal · Clash Math'
-              : 'Puzzles Cross Math'}
+              : activeTab === 'crossmath'
+              ? 'Puzzles Cross Math'
+              : 'Entrenamiento Libre'}
           </span>
-          <span className="text-[10px] font-bold text-[#8A909F]">
+          <span className="text-[9px] sm:text-[10px] font-bold text-[#8A909F]">
             {activeTab === 'desafios'
-              ? '5 preguntas aleatorias por intento'
+              ? '5 preguntas aleatorias'
               : activeTab === 'asedio'
-              ? '3 Ligas · 30 Escenarios'
-              : 'Fácil · Medio · Difícil'}
+              ? '30 Escenarios'
+              : activeTab === 'crossmath'
+              ? 'Fácil · Medio · Difícil'
+              : 'Ajustes Personalizados'}
           </span>
         </div>
 
         {/* Desafíos Cards List */}
         {activeTab === 'desafios' ? (
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {ARENA_CHALLENGES.map((challenge, idx) => {
               const record = completedRecords[challenge.id];
               const isCompleted = record?.completed ?? false;
-              const bestScore = record?.bestScore ?? 0;
 
               return (
                 <motion.div
                   key={challenge.id}
-                  whileHover={{ scale: 1.01, y: -2 }}
-                  className={`border-2 border-[#1E1E24] rounded-3xl p-4 transition-all shadow-xs flex flex-col justify-between space-y-3 ${
+                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    playSound('click');
+                    setActiveChallenge(challenge);
+                    // Save active session
+                    saveActiveHeroSession({
+                      id: `active-${challenge.id}`,
+                      type: 'arena-challenge',
+                      title: challenge.title,
+                      subtitle: `${challenge.totalExercises} ejercicios · Meta 3/5`,
+                      badge: 'ARENA · EN PROGRESO',
+                      progressText: '5 preguntas por intento',
+                      progressPercent: isCompleted ? 100 : 50,
+                      totalSteps: 5,
+                      currentStep: 1,
+                      bgGradient: 'bg-gradient-to-br from-[#F7CA38] via-[#FBBF24] to-[#F59E0B]',
+                      textColor: 'text-[#1E1E24]',
+                      badgeBg: 'bg-[#1E1E24] text-white font-black',
+                      ctaBg: 'bg-[#1E1E24] text-white font-black',
+                      theme: 'arithmetic',
+                      actionPayload: { challengeId: challenge.id },
+                      lastUpdated: Date.now(),
+                    });
+                  }}
+                  className={`border-2 border-[#1E1E24] rounded-3xl p-3 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer shadow-xs group ${
                     isCompleted ? 'bg-[#F0FDF4]' : 'bg-white'
                   }`}
                 >
-                  {/* Top Bar of the Card */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="w-8 h-8 rounded-xl bg-[#F7CA38] border-2 border-[#1E1E24] font-black text-xs flex items-center justify-center shadow-2xs">
-                        {idx + 1}
-                      </span>
-                      <div>
-                        <span className="text-[10px] font-black uppercase tracking-wider text-[#8A909F] block">
-                          DESAFÍO {idx + 1}
-                        </span>
-                        <h3 className="font-black text-sm text-[#1E1E24] leading-tight">
-                          {challenge.shortTitle}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {isCompleted ? (
-                      <span className="bg-[#22C55E] text-white border border-[#1E1E24] px-2.5 py-1 rounded-full text-[10px] font-black flex items-center gap-1 shadow-2xs">
-                        <CheckCircle className="w-3 h-3" />
-                        Completado ({bestScore}/5)
-                      </span>
-                    ) : (
-                      <span className="bg-[#FFF9E6] text-[#854D0E] border border-[#1E1E24] px-2.5 py-0.5 rounded-full text-[10px] font-black">
-                        50 Ejercicios
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Description & Requirements */}
-                  <div className="bg-[#F8FAFC] border border-[#1E1E24]/20 rounded-2xl p-2.5 text-xs text-[#4A4E69] font-medium flex items-center justify-between">
-                    <span>{challenge.description}</span>
-                    <span className="bg-white border border-[#1E1E24]/30 px-2 py-0.5 rounded-md text-[10px] font-black text-[#1E1E24] shrink-0 ml-2">
-                      Meta: ≥ 3/5
+                  {/* Top Bar */}
+                  <div className="flex items-center justify-between text-[11px] font-bold mb-2">
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border border-[#1E1E24] ${
+                      isCompleted ? 'bg-[#22C55E] text-white' : 'bg-[#FFF9E6] text-[#854D0E]'
+                    }`}>
+                      D-{idx + 1}
                     </span>
+                    {isCompleted && (
+                      <CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" />
+                    )}
                   </div>
 
-                  {/* Interactive Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => {
-                      playSound('click');
-                      setActiveChallenge(challenge);
-                      // Save active session
-                      saveActiveHeroSession({
-                        id: `active-${challenge.id}`,
-                        type: 'arena-challenge',
-                        title: challenge.title,
-                        subtitle: `${challenge.totalExercises} ejercicios · Meta 3/5`,
-                        badge: 'ARENA · EN PROGRESO',
-                        progressText: '5 preguntas por intento',
-                        progressPercent: isCompleted ? 100 : 50,
-                        totalSteps: 5,
-                        currentStep: 1,
-                        bgGradient: 'bg-gradient-to-br from-[#F7CA38] via-[#FBBF24] to-[#F59E0B]',
-                        textColor: 'text-[#1E1E24]',
-                        badgeBg: 'bg-[#1E1E24] text-white font-black',
-                        ctaBg: 'bg-[#1E1E24] text-white font-black',
-                        theme: 'arithmetic',
-                        actionPayload: { challengeId: challenge.id },
-                        lastUpdated: Date.now(),
-                      });
-                    }}
-                    className={`w-full py-3 rounded-full border-2 border-[#1E1E24] font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md transition-all ${
-                      isCompleted
-                        ? 'bg-[#22C55E] hover:bg-[#16a34a] text-white'
-                        : 'bg-[#F7CA38] hover:bg-[#ffce38] text-[#1E1E24]'
-                    }`}
-                  >
-                    {isCompleted ? (
-                      <>
-                        <CheckCircle className="w-4 h-4 text-white stroke-[2.5]" />
-                        <span>Completado · Practicar de nuevo</span>
-                      </>
-                    ) : (
-                      <>
-                        <Play className="w-3.5 h-3.5 fill-[#1E1E24]" />
-                        <span>Iniciar Desafío (5 Preguntas)</span>
-                      </>
-                    )}
-                  </motion.button>
+                  {/* Artwork Preview Box */}
+                  <div className="my-1 h-20 rounded-2xl bg-[#FFF9E6] border-2 border-[#1E1E24] flex items-center justify-center p-2">
+                    <div className="flex items-center gap-1">
+                      {[idx === 0 ? '-3' : idx === 1 ? '½' : idx === 2 ? 'x²' : 'a²', idx === 0 ? '×' : idx === 1 ? '+' : idx === 2 ? '·' : '-', idx === 0 ? '-4' : idx === 1 ? '¾' : idx === 2 ? 'x³' : 'b²'].map((val, i) => (
+                        <div
+                          key={i}
+                          className={`w-6 h-6 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black shadow-2xs ${
+                            i === 1 ? 'bg-white text-[#8A909F]' : 'bg-[#F7CA38] text-[#1E1E24]'
+                          }`}
+                        >
+                          {val}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#1E1E24]/15">
+                    <div className="pr-1 flex-1">
+                      <h3 className="font-black text-[10px] text-[#1E1E24] leading-tight uppercase line-clamp-2">
+                        {challenge.shortTitle}
+                      </h3>
+                    </div>
+                    <div className="w-6 h-6 shrink-0 bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px_#1E1E24] group-active:translate-y-0.5 group-active:translate-x-0.5 group-active:shadow-none transition-all">
+                      <ChevronRight className="w-3 h-3 stroke-[3]" />
+                    </div>
+                  </div>
                 </motion.div>
               );
             })}
@@ -469,14 +500,14 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                   playSound('click');
                   setIsAsedioActive(true);
                 }}
-                className="w-full py-3.5 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-400 text-slate-950 border-2 border-white font-black text-xs uppercase tracking-wider rounded-full shadow-lg cursor-pointer flex items-center justify-center gap-2 transition-transform active:scale-95"
+                className="w-full py-3.5 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-400 text-slate-950 border-2 border-slate-900 font-black text-xs uppercase tracking-wider rounded-full shadow-[4px_4px_0px_0px_#0F172A] cursor-pointer flex items-center justify-center gap-2 active:translate-y-1 active:translate-x-1 active:shadow-none transition-all"
               >
                 <Flame className="w-4 h-4 text-red-600 fill-current" />
                 <span>Entrar a la Arena de Asedio</span>
               </button>
             </motion.div>
           </div>
-        ) : (
+        ) : activeTab === 'crossmath' ? (
           /* Cross Math Hub Tab */
           <div className="space-y-3">
             <motion.div
@@ -546,11 +577,20 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                   </span>
                 </div>
 
-                <div className="w-9 h-9 bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-full flex items-center justify-center shadow-xs">
+                <div className="w-9 h-9 bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_#1E1E24] group-active:translate-y-1 group-active:translate-x-1 group-active:shadow-none transition-all">
                   <ChevronRight className="w-4 h-4 stroke-[2.5]" />
                 </div>
               </div>
             </motion.div>
+          </div>
+        ) : (
+          /* Practica Tab */
+          <div className="space-y-3">
+            <PracticeSetup 
+              onStartQuiz={(preset) => {
+                setActivePracticePreset(preset);
+              }}
+            />
           </div>
         )}
       </motion.div>

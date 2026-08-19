@@ -224,10 +224,10 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     playSound('click');
                     if (onOpenBadgesFull) onOpenBadgesFull();
                   }}
-                  className="text-xs font-black text-[#6F78DB] hover:underline cursor-pointer flex items-center gap-0.5"
+                  className="flex items-center gap-1 px-3 py-1 bg-white border-2 border-[#1E1E24] rounded-full text-[11px] font-black text-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer"
                 >
                   <span>Ver Todas</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
                 </button>
               </div>
 
@@ -254,18 +254,16 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             </div>
             {/* Logout Button */}
             <div className="pt-2">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <button
                 onClick={async () => {
                   playSound('click');
                   await supabase.auth.signOut();
                 }}
-                className="w-full bg-red-50 hover:bg-red-100 border-2 border-red-200 text-red-600 rounded-2xl p-3 flex items-center justify-center gap-2 font-bold transition-colors cursor-pointer"
+                className="w-full bg-white border-2 border-[#1E1E24] text-[#EF4444] rounded-2xl p-3 flex items-center justify-center gap-2 font-black shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all cursor-pointer"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-5 h-5 stroke-[3]" />
                 <span>Cerrar Sesión</span>
-              </motion.button>
+              </button>
             </div>
           </motion.div>
         </motion.div>

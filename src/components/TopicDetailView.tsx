@@ -175,44 +175,6 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
           </button>
         </motion.div>
 
-        {/* Concept Summary Broken Down into Colorful Cards */}
-        <div className="space-y-2.5">
-          <span className="text-xs font-black uppercase tracking-wider text-[#8A909F] flex items-center gap-1.5">
-            <Lightbulb className="w-3.5 h-3.5 text-[#F7CA38]" />
-            <span>Conceptos Fundamentales</span>
-          </span>
-
-          <div className="grid grid-cols-1 gap-2">
-            {topic.conceptSummary
-              .split('. ')
-              .filter((sentence) => sentence.trim().length > 0)
-              .map((sentence, sIdx) => {
-                const colors = [
-                  { bg: 'bg-[#FFF9E6]', border: 'border-[#F59E0B]', text: 'text-[#78350F]', badge: 'bg-[#F59E0B]' },
-                  { bg: 'bg-[#EFF6FF]', border: 'border-[#3B82F6]', text: 'text-[#1E3A8A]', badge: 'bg-[#3B82F6]' },
-                  { bg: 'bg-[#F0FDF4]', border: 'border-[#10B981]', text: 'text-[#065F46]', badge: 'bg-[#10B981]' },
-                  { bg: 'bg-[#FAF5FF]', border: 'border-[#A855F7]', text: 'text-[#581C87]', badge: 'bg-[#A855F7]' },
-                ];
-                const col = colors[sIdx % colors.length];
-
-                return (
-                  <div
-                    key={sIdx}
-                    className={`${col.bg} border-2 ${col.border} rounded-2xl p-3.5 shadow-2xs flex items-start gap-2.5`}
-                  >
-                    <span
-                      className={`w-5 h-5 rounded-full ${col.badge} text-white font-black text-[10px] flex items-center justify-center shrink-0 mt-0.5 shadow-2xs`}
-                    >
-                      {sIdx + 1}
-                    </span>
-                    <p className={`text-xs sm:text-sm font-bold ${col.text} leading-relaxed`}>
-                      {sentence.endsWith('.') ? sentence : `${sentence}.`}
-                    </p>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
 
         {/* Laboratorio Interactivo por Tema */}
         <TopicInteractiveLab
@@ -221,36 +183,7 @@ export const TopicDetailView: React.FC<TopicDetailViewProps> = ({
           onAwardXp={onAwardXp}
         />
 
-        {/* Key Concepts (Conceptos Clave) */}
-        {topic.keyConcepts && topic.keyConcepts.length > 0 && (
-          <div className="space-y-2">
-            <span className="text-xs font-black uppercase tracking-wider text-[#8A909F] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#6F78DB]" />
-              <span>Conceptos Clave</span>
-            </span>
 
-            <div className="grid grid-cols-1 gap-2.5">
-              {topic.keyConcepts.map((kc, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white border-2 border-[#1E1E24] rounded-2xl p-3.5 shadow-xs flex flex-col gap-1"
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="px-2.5 py-0.5 rounded-md text-[11px] font-black text-[#1E1E24] border border-[#1E1E24]/30"
-                      style={{ backgroundColor: kc.bgPill || '#FEF08A' }}
-                    >
-                      {kc.term}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#4A4E69] font-medium leading-relaxed pl-0.5">
-                    {kc.definition}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Subtopics Checklist */}
         {topic.subtopics && topic.subtopics.length > 0 && (

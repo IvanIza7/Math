@@ -134,3 +134,26 @@ export interface ClassSessionPlan {
   stages: ClassPlanStage[];
   bossTrialId: string;
 }
+
+export interface PracticePreset {
+  id: string;
+  name: string;
+  minDigits: number;
+  maxDigits: number;
+  minRows: number;
+  maxRows: number;
+  allowSubtraction: boolean;
+  inputDirection: 'left_to_right' | 'right_to_left';
+  numQuestions: number;
+}
+
+export interface PracticeSession {
+  id: string;
+  presetId?: string;
+  totalTime: number;
+  fastestAnswer: number;
+  slowestAnswer: number;
+  accuracy: number;
+  numQuestions: number;
+  dateStr: string;
+}

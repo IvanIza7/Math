@@ -191,9 +191,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
             <button
               onClick={handleOpenEdit}
-              className="text-[11px] font-black text-[#1E1E24] dark:text-white hover:underline flex items-center gap-1 cursor-pointer bg-white dark:bg-[#282B3E] px-2.5 py-0.5 rounded-full border border-[#1E1E24] dark:border-[#3E4259] shadow-2xs"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1E1E24] border-2 border-[#1E1E24] dark:border-[#4A4E69] rounded-full text-[11px] font-black text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#4A4E69] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer group"
             >
-              <Edit3 className="w-3 h-3" /> Editar
+              <Edit3 className="w-3 h-3 stroke-[3]" /> Editar
             </button>
           </div>
 
@@ -344,9 +344,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 playSound('click');
                 if (onOpenBadgesFull) onOpenBadgesFull();
               }}
-              className="text-xs font-bold text-[#8A909F] dark:text-gray-400 hover:text-[#1E1E24] dark:hover:text-white hover:underline cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1 bg-white dark:bg-[#1E1E24] border-2 border-[#1E1E24] dark:border-[#4A4E69] rounded-full text-[11px] font-black text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#4A4E69] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer"
             >
-              Ver Todas
+              <span>Ver Todas</span>
+              <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
             </button>
           </div>
 
@@ -373,28 +374,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
         </div>
 
-        {/* Action Buttons: Edit Profile and Back to Home */}
-        <div className="pt-4 grid grid-cols-2 gap-3">
-          <button
-            onClick={handleOpenEdit}
-            className="py-3.5 bg-white dark:bg-[#1E202E] hover:bg-[#F8FAFC] dark:hover:bg-[#282B3E] text-[#1E1E24] dark:text-white font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] dark:border-[#3E4259] shadow-xs cursor-pointer transition-transform active:scale-95 flex items-center justify-center gap-2"
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>Editar Datos</span>
-          </button>
-
-          <button
-            onClick={() => {
-              playSound('click');
-              onBack();
-            }}
-            className="py-3.5 bg-[#F7CA38] hover:bg-[#ffce38] text-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] shadow-md cursor-pointer transition-transform active:scale-95 flex items-center justify-center gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver</span>
-          </button>
-        </div>
-
         {/* Logout Button */}
         <div className="pt-4 mt-2">
           <button
@@ -402,9 +381,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               playSound('click');
               await supabase.auth.signOut();
             }}
-            className="w-full py-3.5 bg-[#FF4757] hover:bg-[#FF6B81] text-white dark:text-[#1E1E24] dark:bg-[#FF6B81] dark:hover:bg-[#FF4757] font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] shadow-md cursor-pointer transition-transform active:scale-95 flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-white dark:bg-[#1E1E24] text-[#EF4444] font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] dark:border-[#4A4E69] shadow-[4px_4px_0px_0px_#1E1E24] dark:shadow-[4px_4px_0px_0px_#000000] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 stroke-[3]" />
             <span>Cerrar Sesión</span>
           </button>
         </div>

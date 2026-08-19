@@ -253,9 +253,10 @@ export const ProgresoModule: React.FC<ProgresoModuleProps> = ({
                 playSound('click');
                 onOpenBadgesModal();
               }}
-              className="text-xs font-black text-[#6F78DB] dark:text-[#8D96F5] hover:underline cursor-pointer"
+              className="flex items-center gap-1 px-3 py-1 bg-white dark:bg-[#1E1E24] border-2 border-[#1E1E24] dark:border-[#4A4E69] rounded-full text-[11px] font-black text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#4A4E69] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer"
             >
-              Ver Todas
+              <span>Ver Todas</span>
+              <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
             </button>
           </div>
 

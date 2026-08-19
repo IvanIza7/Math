@@ -249,17 +249,17 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => scrollCarousel('left')}
-                    className="w-6 h-6 rounded-full bg-white dark:bg-[#1E202E] border border-[#1E1E24]/20 dark:border-white/20 flex items-center justify-center text-[#1E1E24] dark:text-white shadow-2xs hover:bg-[#F7CA38] dark:hover:bg-[#F7CA38] dark:hover:text-[#1E1E24] transition-colors cursor-pointer"
+                    className="w-6 h-6 rounded-full bg-white dark:bg-[#1E202E] border-2 border-[#1E1E24] flex items-center justify-center text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer"
                     title="Anterior"
                   >
-                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <ChevronLeft className="w-3.5 h-3.5 stroke-[3]" />
                   </button>
                   <button
                     onClick={() => scrollCarousel('right')}
-                    className="w-6 h-6 rounded-full bg-white dark:bg-[#1E202E] border border-[#1E1E24]/20 dark:border-white/20 flex items-center justify-center text-[#1E1E24] dark:text-white shadow-2xs hover:bg-[#F7CA38] dark:hover:bg-[#F7CA38] dark:hover:text-[#1E1E24] transition-colors cursor-pointer"
+                    className="w-6 h-6 rounded-full bg-white dark:bg-[#1E202E] border-2 border-[#1E1E24] flex items-center justify-center text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer"
                     title="Siguiente"
                   >
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <ChevronRight className="w-3.5 h-3.5 stroke-[3]" />
                   </button>
                 </div>
               </div>
@@ -326,19 +326,27 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                       <div>
                         <button
                           onClick={() => handleResumeSession(session)}
-                          className={`px-3.5 py-1 rounded-full text-xs font-black tracking-tight border-2 border-[#1E1E24] shadow-2xs transition-transform hover:scale-105 active:scale-95 cursor-pointer inline-flex items-center gap-1 ${session.ctaBg}`}
+                          className={`px-3.5 py-1 rounded-full text-xs font-black tracking-tight border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer inline-flex items-center gap-1 ${session.ctaBg}`}
                         >
                           <span>¡Vamos!</span>
-                          <Play className="w-2.5 h-2.5 fill-current ml-0.5" />
+                          <Play className="w-2.5 h-2.5 fill-current ml-0.5 stroke-[3]" />
                         </button>
                       </div>
                     </div>
 
                     {/* Right Column: Illustration fitting the compact card */}
-                    <div className="w-24 sm:w-28 h-full flex items-center justify-center shrink-0 relative overflow-hidden">
-                      <div className="scale-80 sm:scale-85 origin-center">
-                        <HeroMemphisIllustration theme={session.theme} />
-                      </div>
+                    <div className="w-24 sm:w-28 h-full flex items-center justify-center shrink-0 relative overflow-hidden p-2">
+                      <img 
+                        src={
+                          session.type === 'asedio' ? '/src/assets/asedio.jpg' :
+                          session.type === 'crossmath' ? '/src/assets/crossmath.jpg' :
+                          session.type === 'arena-challenge' ? '/src/assets/desafio_leyessignos.jpg' :
+                          session.title.includes('Axiomas') ? '/src/assets/axiomasreales.jpg' :
+                          '/src/assets/quiz_leyessignosycombos.jpg'
+                        }
+                        alt={session.title}
+                        className="w-full h-full object-contain mix-blend-multiply"
+                      />
                     </div>
                   </motion.div>
                 ))}
@@ -359,11 +367,10 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
 
                 <button
                   onClick={toggleAllVolumes}
-                  className="text-[11px] font-bold text-[#6F78DB] dark:text-[#8D96F5] hover:underline cursor-pointer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1E1E24] border-2 border-[#1E1E24] dark:border-[#4A4E69] rounded-full text-[11px] font-black text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#4A4E69] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer group"
                 >
-                  {expandedVolumeCodes.length === volumes.length
-                    ? 'Colapsar Todos'
-                    : 'Expandir Todos'}
+                  {expandedVolumeCodes.length === volumes.length ? 'Colapsar todos' : 'Expandir todos'}
+                  <ChevronDown className={`w-3 h-3 stroke-[3] transition-transform ${expandedVolumeCodes.length === volumes.length ? 'rotate-180' : ''}`} />
                 </button>
               </div>
 
@@ -380,7 +387,7 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                       {/* Volume Header Banner */}
                       <div
                         onClick={() => toggleVolumeExpand(volume.code)}
-                        className={`p-4 flex items-center justify-between cursor-pointer select-none transition-colors ${
+                        className={`p-4 flex items-center justify-between cursor-pointer select-none transition-colors group ${
                           volume.code === 'VOL-01'
                             ? 'bg-[#FFF9E6] dark:bg-[#2A2416]'
                             : volume.code === 'VOL-02'
@@ -413,13 +420,16 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                           </div>
                         </div>
 
-                        <motion.div
-                          animate={{ rotate: isExpanded ? 180 : 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="w-7 h-7 rounded-full bg-white dark:bg-[#1E202E] border border-[#1E1E24]/20 dark:border-white/20 flex items-center justify-center text-[#1E1E24] dark:text-white"
+                        <div
+                          className="w-8 h-8 rounded-full bg-white dark:bg-[#1E202E] border-2 border-[#1E1E24] dark:border-white/20 flex items-center justify-center text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#000000] group-active:translate-y-0.5 group-active:translate-x-0.5 group-active:shadow-none transition-all"
                         >
-                          <ChevronDown className="w-4 h-4" />
-                        </motion.div>
+                          <motion.div
+                             animate={{ rotate: isExpanded ? 180 : 0 }}
+                             transition={{ duration: 0.2 }}
+                          >
+                            <ChevronDown className="w-4 h-4 stroke-[3]" />
+                          </motion.div>
+                        </div>
                       </div>
 
                       {/* Topics List within Volume */}
@@ -453,8 +463,8 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                                       <h4 className="font-bold text-xs text-[#1E1E24] dark:text-white line-clamp-1">
                                         {topic.title}
                                       </h4>
-                                      <span className="text-[10px] text-[#8A909F] dark:text-gray-400 font-semibold block">
-                                        {topic.subtopics?.length || 3} Subtemas conceptuales
+                                      <span className="text-[10px] text-[#8A909F] dark:text-gray-400 font-semibold block line-clamp-1">
+                                        {topic.conceptSummary}
                                       </span>
                                     </div>
                                   </div>

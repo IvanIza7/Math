@@ -38,7 +38,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol1-t1',
         title: 'Clasificación y representación numérica',
-        conceptSummary: 'Conjunto de Números Reales (R) compuesto por Racionales (Enteros [Naturales y Negativos] y Fraccionarios) e Irracionales (√2, π). Tabla posicional con periodos (Billones, Millares de Millones, Millones, Millares, Unidades) y submultiplicadores decimales.',
+        conceptSummary: 'Conjunto de Números Reales (R) compuesto por Racionales (Enteros [Naturales y Negativos] y Fraccionarios) e Irracionales (√2, π).',
         subtopics: [
           'Definición de Números Reales (R) y subconjuntos (N, Z, Q, I)',
           'Tabla posicional: Billones, Millones, Millares y Unidades',
@@ -63,7 +63,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol1-t2',
         title: 'Operaciones básicas y propiedades',
-        conceptSummary: 'Partes de las operaciones básicas: Suma, Resta, Multiplicación, División, Potenciación y Radicación. Concepto de Raíz Cuadrada (√a=b ⟺ b²=a). Leyes de los signos para suma, resta, multiplicación y división.',
+        conceptSummary: 'Partes de las operaciones básicas: Suma, Resta, Multiplicación, División, Potenciación y Radicación.',
         subtopics: [
           'Partes de las operaciones (Sumandos, Minuendo/Sustraendo, Factores, Divisor/Dividendo)',
           'Potenciación (Base, Exponente) y Radicación (Índice, Radicando)',
@@ -88,7 +88,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol1-t3',
         title: 'Teoría de números',
-        conceptSummary: 'Múltiplo y Divisor. Número Primo (solo divisible entre sí mismo y la unidad). Criterios de divisibilidad (2, 3, 5, 6, 9 y terminaciones en 0, 00, 000). m.c.m., M.C.D. y Notación Científica.',
+        conceptSummary: 'Múltiplo y Divisor.',
         subtopics: [
           'Múltiplo vs Divisor y definición de Número Primo',
           'Criterios de divisibilidad (2, 3, 5, 6, 9 y ceros)',
@@ -115,7 +115,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol1-t4',
         title: 'Decimales y Fracciones',
-        conceptSummary: 'División decimal con punto. Fracciones Propias, Impropias y Mixtas. Conversión de fracciones. Algoritmos de suma/resta, multiplicación y división de fracciones. Razón Geométrica.',
+        conceptSummary: 'División decimal con punto.',
         subtopics: [
           'División decimal y desplazamiento del punto',
           'Fracciones Propias, Impropias y Mixtas',
@@ -141,7 +141,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol1-t5',
         title: 'Probabilidad y representación de datos',
-        conceptSummary: 'Diagrama de Árbol para enumerar resultados posibles de experimentos. Diagrama Cartesiano para espacio muestral de dos eventos.',
+        conceptSummary: 'Diagrama de Árbol para enumerar resultados posibles de experimentos.',
         subtopics: [
           'Diagrama de Árbol para enumeración secuencial',
           'Diagrama Cartesiano para espacios muestrales bidimensionales'
@@ -173,7 +173,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t1',
         title: 'Conceptos fundamentales',
-        conceptSummary: 'Lenguaje Algebraico. Clasificación por número de términos: Monomio y Polinomio (binomio, trinomio). Partes del término algebraico: Signo, Coeficiente, Literal y Exponente. Valor Numérico.',
+        conceptSummary: 'Lenguaje Algebraico.',
         subtopics: [
           'Traducción de lenguaje verbal a expresiones algebraicas',
           'Monomios, Binomios, Trinomios y Polinomios',
@@ -198,7 +198,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t2',
         title: 'Operaciones algebraicas',
-        conceptSummary: 'Términos Semejantes y reducción. Reglas de Supresión de Paréntesis (+ conserva signos, - cambia signos). Leyes de exponentes para multiplicación (suma exponentes) y división (resta exponentes).',
+        conceptSummary: 'Términos Semejantes y reducción.',
         subtopics: [
           'Términos Semejantes (mismas literales y mismos exponentes)',
           'Reducción de términos semejantes',
@@ -223,7 +223,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t3',
         title: 'Fracciones Algebraicas',
-        conceptSummary: 'Cociente de expresiones algebraicas. Métodos de Simplificación por descomposición en factores. Algoritmos de suma, resta, multiplicación en línea y división por el recíproco.',
+        conceptSummary: 'Cociente de expresiones algebraicas.',
         subtopics: [
           'Definición de fracción algebraica y dominio',
           'Simplificación por cancelación de factores comunes',
@@ -245,7 +245,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t4',
         title: 'Ecuaciones de Primer Grado',
-        conceptSummary: 'Ecuación de primer grado. Miembros e incógnita. Reglas de despeje por transposición (operaciones inversas). Tratamiento de signos de agrupación y coeficientes fraccionarios con m.c.m.',
+        conceptSummary: 'Ecuación de primer grado.',
         subtopics: [
           'Concepto de igualdad y miembros de una ecuación',
           'Despeje por operaciones inversas',
@@ -266,7 +266,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t5',
         title: 'Sistemas de Ecuaciones Lineales (2x2)',
-        conceptSummary: 'Sistema de dos ecuaciones de primer grado con dos incógnitas. Métodos de solución: Suma o Resta (reducción), Sustitución e Igualación.',
+        conceptSummary: 'Sistema de dos ecuaciones de primer grado con dos incógnitas.',
         subtopics: [
           'Concepto de sistema 2x2 y solución simultánea (x, y)',
           'Método de Reducción (Suma o Resta)',
@@ -288,7 +288,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t6',
         title: 'Ecuaciones de Segundo Grado (Cuadráticas)',
-        conceptSummary: 'Exponente máximo 2. Formas incompletas (ax²+b=0 y ax²+bx=0) y completas (ax²+bx+c=0). Resolución por Factorización y por Fórmula General. Racionalización de soluciones.',
+        conceptSummary: 'Exponente máximo 2.',
         subtopics: [
           'Formas incompletas puras y mixtas',
           'Forma completa ax² + bx + c = 0',
@@ -310,7 +310,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol2-t7',
         title: 'Productos Notables y Factorización',
-        conceptSummary: 'Productos Notables: Binomio al cuadrado ((a±b)²=a²±2ab+b²), Binomios conjugados ((a+b)(a-b)=a²-b²), Binomios con término común. Factorización: Factor común, Trinomio cuadrado perfecto, Diferencia de cuadrados, Trinomio x²+bx+c.',
+        conceptSummary: 'Productos Notables: Binomio al cuadrado ((a±b)²=a²±2ab+b²), Binomios conjugados ((a+b)(a-b)=a²-b²), Binomios con término común.',
         subtopics: [
           'Binomio al cuadrado y Trinomio Cuadrado Perfecto (T.C.P.)',
           'Binomios conjugados y Diferencia de Cuadrados',
@@ -347,7 +347,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol3-t1',
         title: 'Plano Cartesiano y Regiones',
-        conceptSummary: 'Sistema de coordenadas por dos rectas perpendiculares (Eje x Abscisas, Eje y Ordenadas). IV Cuadrantes. Localización de puntos (x, y). Desigualdades e Inecuaciones en el plano (regiones sombreadas y fronteras).',
+        conceptSummary: 'Sistema de coordenadas por dos rectas perpendiculares (Eje x Abscisas, Eje y Ordenadas).',
         subtopics: [
           'Eje X (Abscisas), Eje Y (Ordenadas) y Origen (0,0)',
           'División en los IV Cuadrantes y signos de (x,y)',
@@ -385,7 +385,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol4-t1',
         title: 'Rectas, Ángulos y Figuras Planas',
-        conceptSummary: 'Rectas Paralelas y Perpendiculares. Mediatriz. Clasificación de Ángulos por su medida: Agudos (<90°), Rectos (90°), Obtusos (90°-180°), Llanos (180°), Entrantes (>180°) y Perigonales (360°). Clasificación de Cuadriláteros: Paralelogramos, Trapecios y Trapezoides.',
+        conceptSummary: 'Rectas Paralelas y Perpendiculares.',
         subtopics: [
           'Rectas Paralelas, Perpendiculares y Mediatriz',
           'Clasificación de Ángulos: Agudo, Recto, Obtuso, Llano, Entrante y Perigonal',
@@ -420,7 +420,7 @@ export const VOLUMES_DATA: VolumeData[] = [
       {
         id: 'vol5-t1',
         title: 'Razones Trigonométricas y Resolución de Triángulos',
-        conceptSummary: 'Razones en triángulos rectángulos: Seno (co/h), Coseno (ca/h), Tangente (co/ca), Cotangente (ca/co), Secante (h/ca) y Cosecante (h/co). Ángulos notables (30°, 45°, 60°). Teorema de Pitágoras (c = √(a²+b²)).',
+        conceptSummary: 'Razones en triángulos rectángulos: Seno (co/h), Coseno (ca/h), Tangente (co/ca), Cotangente (ca/co), Secante (h/ca) y Cosecante (h/co).',
         subtopics: [
           'Definición de las 6 razones trigonométricas en triángulo rectángulo',
           'Valores de funciones trigonométricas para ángulos notables (30°, 45°, 60°)',
