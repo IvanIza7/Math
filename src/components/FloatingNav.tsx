@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, Swords, Target, Calendar, LayoutGrid } from 'lucide-react';
+import { BookOpen, Swords, Target, Calendar, LayoutGrid, Wand2 } from 'lucide-react';
 import { MainTab } from '../types';
 import { playSound } from '../utils/sound';
 import { APP_TEXTS } from '../config/appText';
@@ -24,6 +24,11 @@ export const FloatingNav: React.FC<FloatingNavProps> = ({
       id: 'arena' as MainTab,
       label: APP_TEXTS.navigation.arena,
       icon: Swords,
+    },
+    {
+      id: 'formulario' as MainTab,
+      label: APP_TEXTS.navigation.formulario,
+      icon: Wand2,
     },
     {
       id: 'plan' as MainTab,

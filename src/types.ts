@@ -62,6 +62,8 @@ export interface AttendanceRecord {
   status?: 'completed' | 'cancelled' | 'absence' | 'none';
 }
 
+export type Role = "student" | "admin";
+
 export interface UserProfile {
   name: string;
   handle: string;
@@ -69,6 +71,41 @@ export interface UserProfile {
   academicGoal: string;
   bio: string;
   favoriteArea: string;
+  role?: Role;
+}
+
+export interface ProgressEvent {
+  id: string;
+  studentId: string;
+  eventType: 'SESSION_COMPLETED' | 'TOPIC_STARTED' | 'TOPIC_COMPLETED' | 'TOPIC_MASTERED' | 'TRIAL_STARTED' | 'TRIAL_STEP_COMPLETED' | 'TRIAL_COMPLETED' | 'TRIAL_FAILED' | 'ILLEGAL_MOVE' | 'DEMO_COMPLETED' | 'BOSS_TRIAL_COMPLETED' | 'ATTENDANCE_REGISTERED';
+  entityId: string;
+  timestamp: string;
+  xpDelta?: number;
+  metadata?: any;
+}
+
+export interface AdminActionLog {
+  id: string;
+  adminId: string;
+  actionType: 'DESBLOQUEO' | 'BLOQUEO' | 'EDICION' | 'RECALCULO' | 'ASIGNACION';
+  contentId: string;
+  targetStudentId?: string;
+  timestamp: string;
+  metadata?: any;
+}
+
+export interface ContentAccessRule {
+  id: string;
+  contentId: string;
+  globalStatus: 'available' | 'locked' | 'archived';
+  requiredContentIds: string[];
+}
+
+export interface StudentContentOverride {
+  id: string;
+  studentId: string;
+  contentId: string;
+  overrideStatus: 'available' | 'locked';
 }
 
 export interface UserStats {
@@ -83,7 +120,7 @@ export interface UserStats {
   completedTopics: string[];
 }
 
-export type MainTab = 'guia' | 'arena' | 'trials' | 'plan' | 'mas';
+export type MainTab = 'guia' | 'arena' | 'formulario' | 'trials' | 'plan' | 'mas' | 'admin';
 
 export type NumberSetType = 'N' | 'Z' | 'Q' | 'I' | 'R';
 

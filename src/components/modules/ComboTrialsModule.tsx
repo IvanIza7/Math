@@ -11,6 +11,7 @@ import { PracticeResults } from '../PracticeResults';
 import { PracticePreset } from '../../types';
 import { playSound } from '../../utils/sound';
 import { saveActiveHeroSession } from '../../utils/activeSession';
+import { IntegrativeExam } from '../IntegrativeExam';
 
 interface ComboTrialsModuleProps {
   onAwardXp: (amount: number) => void;
@@ -35,6 +36,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
   const [activeChallenge, setActiveChallenge] = useState<ArenaChallenge | null>(null);
   const [isCrossMathActive, setIsCrossMathActive] = useState<boolean>(false);
   const [isAsedioActive, setIsAsedioActive] = useState<boolean>(false);
+  const [isPuenteExamActive, setIsPuenteExamActive] = useState<boolean>(false);
   const [asedioStartLevel, setAsedioStartLevel] = useState<number>(initialAsedioLevel);
 
   // Practice Flow State
@@ -127,6 +129,15 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     return (
       <CrossMathGame
         onBack={() => setIsCrossMathActive(false)}
+        onAwardXp={onAwardXp}
+      />
+    );
+  }
+
+  if (isPuenteExamActive) {
+    return (
+      <IntegrativeExam 
+        onBack={() => setIsPuenteExamActive(false)}
         onAwardXp={onAwardXp}
       />
     );
@@ -442,6 +453,56 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                 </motion.div>
               );
             })}
+            
+            {/* Puente al Bachillerato Card */}
+            <motion.div
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => {
+                playSound('click');
+                setIsPuenteExamActive(true);
+                // Save active session
+                saveActiveHeroSession({
+                  id: `active-puente-bachillerato`,
+                  type: 'arena-challenge',
+                  title: 'Puente al Bachillerato',
+                  subtitle: '50 ejercicios · Reto Integrador',
+                  badge: 'ARENA · EN PROGRESO',
+                  progressText: '50 preguntas por intento',
+                  progressPercent: 0,
+                  totalSteps: 50,
+                  currentStep: 1,
+                  bgGradient: 'bg-gradient-to-br from-[#9333EA] via-[#A855F7] to-[#C084FC]',
+                  textColor: 'text-white',
+                  badgeBg: 'bg-white text-[#9333EA] font-black',
+                  ctaBg: 'bg-white text-[#9333EA] font-black',
+                  theme: 'arithmetic',
+                  actionPayload: { challengeId: 'puente' },
+                  lastUpdated: Date.now(),
+                });
+              }}
+              className={`col-span-2 border-2 border-[#1E1E24] rounded-3xl p-3 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer shadow-xs group bg-[#FDF4FF]`}
+            >
+              <div className="flex items-center justify-between text-[11px] font-bold mb-2">
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border border-[#1E1E24] bg-[#9333EA] text-white`}>
+                  RETO FINAL
+                </span>
+              </div>
+              <div className="my-1 h-20 rounded-2xl bg-white border-2 border-[#1E1E24] flex items-center justify-center p-2 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_50%,_#9333EA_1px,_transparent_1px)]" style={{ backgroundSize: '12px 12px' }}></div>
+                <h3 className="font-black text-lg text-[#9333EA] z-10 text-center tracking-tight leading-none uppercase">Puente al<br/>Bachillerato</h3>
+              </div>
+              <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#1E1E24]/15">
+                <div className="pr-1 flex-1">
+                  <h3 className="font-black text-[10px] text-[#1E1E24] leading-tight uppercase line-clamp-2">
+                    50 Ejercicios Integradores
+                  </h3>
+                </div>
+                <div className="w-6 h-6 shrink-0 bg-[#9333EA] text-white border-2 border-[#1E1E24] rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px_#1E1E24] group-active:translate-y-0.5 group-active:translate-x-0.5 group-active:shadow-none transition-all">
+                  <ChevronRight className="w-3 h-3 stroke-[3]" />
+                </div>
+              </div>
+            </motion.div>
           </div>
         ) : activeTab === 'asedio' ? (
           /* Asedio Lineal Feature Card */

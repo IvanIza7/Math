@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from './config/supabase';
 import { LoginScreen } from './components/auth/LoginScreen';
 import { User } from '@supabase/supabase-js';
-import { UserStats, UserProfile, MainTab, AttendanceRecord } from './types';
+import { UserStats, UserProfile, MainTab, AttendanceRecord, ProgressEvent } from './types';
 import { ThemeProvider } from './context/ThemeContext';
+import { ProgressEngine } from './engine/ProgressEngine';
 import { FloatingNav } from './components/FloatingNav';
 import { AttendanceModal } from './components/AttendanceModal';
 import { ArsenalModal } from './components/ArsenalModal';
@@ -12,10 +13,15 @@ import { EncyclopediaLayout } from './components/EncyclopediaLayout';
 import { ComboTrialsModule } from './components/modules/ComboTrialsModule';
 import { PlanDeClaseModule } from './components/modules/PlanDeClaseModule';
 import { ProgresoModule } from './components/modules/ProgresoModule';
+import { FormulaViewModule } from './components/modules/FormulaViewModule';
+import { MagicFormulaModal } from './components/MagicFormulaModal';
+import { AdminPanelModule } from './components/modules/AdminPanelModule';
+import { Wand2 } from 'lucide-react';
 
 function AppContent({ user }: { user: User }) {
   const [activeTab, setActiveTab] = useState<MainTab>('guia');
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isMagicFormulaOpen, setIsMagicFormulaOpen] = useState(false);
 
   // User Profile State (Stored in localStorage)
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
@@ -32,17 +38,22 @@ function AppContent({ user }: { user: User }) {
       academicGoal: 'Bachillerato · Examen UNAM',
       bio: 'Dominando el álgebra y las matemáticas sin adivinar ✨',
       favoriteArea: 'Álgebra',
+      role: 'admin',
     };
   });
+
+  // Internal Events State
+  const [events, setEvents] = useState<ProgressEvent[]>([]);
 
   // Sync with Supabase on mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoadingData(true);
       try {
-        const [profileRes, statsRes] = await Promise.all([
+        const [profileRes, statsRes, eventsRes] = await Promise.all([
           supabase.from('user_profiles').select('*').eq('id', user.id).single(),
-          supabase.from('user_stats').select('*').eq('id', user.id).single()
+          supabase.from('user_stats').select('*').eq('id', user.id).single(),
+          supabase.from('progress_events').select('*').eq('student_id', user.id).order('created_at', { ascending: true })
         ]);
         
         if (profileRes.data) {
@@ -53,12 +64,12 @@ function AppContent({ user }: { user: User }) {
             academicGoal: profileRes.data.academic_goal,
             bio: profileRes.data.bio,
             favoriteArea: profileRes.data.favorite_area,
+            role: profileRes.data.role || 'admin', // Force admin for testing
           });
         }
-        
+        let baseStats: Partial<UserStats> = {};
         if (statsRes.data) {
-          setUserStats(prev => ({
-            ...prev,
+          baseStats = {
             xp: statsRes.data.xp,
             level: statsRes.data.level,
             streak: statsRes.data.streak,
@@ -67,28 +78,43 @@ function AppContent({ user }: { user: User }) {
             trialsCompleted: statsRes.data.trials_completed || [],
             badgesUnlocked: statsRes.data.badges_unlocked || [],
             completedTopics: statsRes.data.completed_topics || [],
-          }));
+          };
         }
         
+        let loadedEvents: ProgressEvent[] = [];
+        if (eventsRes.data) {
+          loadedEvents = eventsRes.data.map(e => ({
+            id: e.id,
+            studentId: e.student_id,
+            eventType: e.event_type as ProgressEvent['eventType'],
+            entityId: e.entity_id,
+            timestamp: e.created_at,
+            xpDelta: e.xp_delta,
+            metadata: e.metadata
+          }));
+          setEvents(loadedEvents);
+        }
+
         const { data: attendanceData } = await supabase
           .from('attendance_records')
           .select('*')
           .eq('user_id', user.id);
-          
         if (attendanceData) {
-          setUserStats(prev => ({
-            ...prev,
-            attendanceRecords: attendanceData.map(r => ({
-              id: r.id,
-              dateStr: r.date_str,
-              timestamp: r.timestamp,
-              sessionNumber: r.session_number,
-              topicCovered: r.topic_covered,
-              notes: r.notes,
-              status: r.status as any
-            }))
+          const attendanceRecs = attendanceData.map(r => ({
+            id: r.id,
+            dateStr: r.date_str,
+            timestamp: r.timestamp,
+            sessionNumber: r.session_number,
+            topicCovered: r.topic_covered,
+            notes: r.notes,
+            status: r.status as any
           }));
+          baseStats.attendanceRecords = attendanceRecs;
         }
+
+        // Compute actual state using engine
+        const computedState = ProgressEngine.calculateStateFromEvents(loadedEvents, baseStats);
+        setUserStats(computedState);
         
       } catch (err) {
         console.error('Error fetching data from Supabase', err);
@@ -178,16 +204,66 @@ function AppContent({ user }: { user: User }) {
   const [isArsenalOpen, setIsArsenalOpen] = useState<boolean>(false);
   const [isBadgesOpen, setIsBadgesOpen] = useState<boolean>(false);
 
-  const handleAwardXp = (amount: number) => {
-    setUserStats((prev) => {
-      const newXp = prev.xp + amount;
-      const newLevel = Math.floor(newXp / 500) + 1;
-      return {
-        ...prev,
-        xp: newXp,
-        level: newLevel,
-        perfectTrialsCount: prev.perfectTrialsCount + 1,
-      };
+  const handleSaveAttendance = (record: AttendanceRecord) => {
+    // Also save to Supabase attendance_records directly
+    supabase.from('attendance_records').insert({
+      id: record.id,
+      user_id: user.id,
+      date_str: record.dateStr,
+      timestamp: record.timestamp,
+      session_number: record.sessionNumber,
+      topic_covered: record.topicCovered,
+      notes: record.notes,
+      status: record.status
+    }).then(({error}) => {
+      if (error) console.error('Error saving attendance', error);
+    });
+
+    // Create and save event
+    const evt = ProgressEngine.createEvent(user.id, 'ATTENDANCE_REGISTERED', record.id, 0, { record });
+    saveEventAndRecalculate(evt);
+  };
+
+  const handleAwardXp = (amount: number, reason: string) => {
+    // Emits a generic event (like TRIAL_COMPLETED or TOPIC_COMPLETED depending on reason)
+    const evtType = reason === 'trials' ? 'TRIAL_COMPLETED' : 'TOPIC_COMPLETED';
+    const evt = ProgressEngine.createEvent(user.id, evtType, `gen_${Date.now()}`, amount);
+    saveEventAndRecalculate(evt);
+  };
+
+  const saveEventAndRecalculate = (evt: ProgressEvent) => {
+    // 1. Save to Supabase
+    supabase.from('progress_events').insert({
+      id: evt.id,
+      student_id: evt.studentId,
+      event_type: evt.eventType,
+      entity_id: evt.entityId,
+      xp_delta: evt.xpDelta,
+      created_at: evt.timestamp,
+      metadata: evt.metadata
+    }).then(({error}) => {
+      if (error) console.error('Error saving event', error);
+    });
+
+    // 2. Update local events and recalculate
+    setEvents(prev => {
+      const newEvents = [...prev, evt];
+      
+      // Calculate new state
+      const computedState = ProgressEngine.calculateStateFromEvents(newEvents, {
+        xp: userStats.xp,
+        level: userStats.level,
+        streak: userStats.streak,
+        trialsCompleted: userStats.trialsCompleted,
+        badgesUnlocked: userStats.badgesUnlocked,
+        perfectTrialsCount: userStats.perfectTrialsCount,
+        illegalMovesCaughtCount: userStats.illegalMovesCaughtCount,
+        completedTopics: userStats.completedTopics,
+        attendanceRecords: userStats.attendanceRecords
+      });
+
+      setUserStats(computedState);
+      return newEvents;
     });
   };
 
@@ -245,19 +321,22 @@ function AppContent({ user }: { user: User }) {
             userStats={userStats}
             userProfile={userProfile}
             onUpdateProfile={(updated) => setUserProfile(updated)}
-            onAwardXp={handleAwardXp}
+            onAwardXp={(amount) => handleAwardXp(amount, 'general')}
             onOpenNotifications={() => setIsBadgesOpen(true)}
             onOpenBadges={() => setIsBadgesOpen(true)}
+            onAdminClick={() => setActiveTab('admin')}
           />
         )}
 
         {(activeTab === 'arena' || activeTab === 'trials') && (
           <ComboTrialsModule
-            onAwardXp={handleAwardXp}
+            onAwardXp={(amount) => handleAwardXp(amount, 'trials')}
             onOpenArsenal={() => setIsArsenalOpen(true)}
             completedTrialIds={userStats.trialsCompleted}
           />
         )}
+
+        {activeTab === 'formulario' && <FormulaViewModule />}
 
         {activeTab === 'plan' && (
           <PlanDeClaseModule
@@ -274,6 +353,27 @@ function AppContent({ user }: { user: User }) {
             onOpenBadgesModal={() => setIsBadgesOpen(true)}
             onOpenAttendanceModal={() => setIsAttendanceOpen(true)}
           />
+        )}
+
+        {activeTab === 'admin' && (
+          userProfile.role === 'admin' ? (
+            <AdminPanelModule
+              onBack={() => setActiveTab('guia')}
+              onSaveAttendance={handleSaveAttendance}
+              attendanceRecords={userStats.attendanceRecords}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center min-h-screen text-center p-6">
+              <h1 className="text-4xl font-black mb-4">403</h1>
+              <p className="font-bold text-gray-500">Acceso denegado. No tienes permisos de administrador.</p>
+              <button 
+                onClick={() => setActiveTab('guia')}
+                className="mt-6 px-6 py-3 bg-[#1E1E24] text-white font-black rounded-xl"
+              >
+                Volver
+              </button>
+            </div>
+          )
         )}
       </main>
 
@@ -301,6 +401,19 @@ function AppContent({ user }: { user: User }) {
         onClose={() => setIsBadgesOpen(false)}
         userStats={userStats}
       />
+
+      <MagicFormulaModal 
+        isOpen={isMagicFormulaOpen}
+        onClose={() => setIsMagicFormulaOpen(false)}
+      />
+
+      {/* Floating Magic Formula Button */}
+      <button
+        onClick={() => setIsMagicFormulaOpen(true)}
+        className="fixed bottom-24 right-4 z-40 w-14 h-14 bg-[#BAFF29] rounded-full border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] flex items-center justify-center cursor-pointer active:translate-y-1 active:translate-x-1 active:shadow-none transition-all group"
+      >
+        <Wand2 className="w-6 h-6 text-[#1E1E24] group-hover:rotate-12 transition-transform" />
+      </button>
     </div>
   );
 }

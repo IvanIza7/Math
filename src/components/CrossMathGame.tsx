@@ -604,7 +604,7 @@ const CellBox: React.FC<{
 };
 
 const OpBox: React.FC<{ op: string }> = ({ op }) => (
-  <div className="w-6 sm:w-7 h-10 flex items-center justify-center font-black text-sm text-[#1E1E24]">
+  <div className="w-6 sm:w-7 h-10 flex items-center justify-center font-black text-xl text-[#1E1E24]">
     {op === '*' ? '×' : op === '/' ? '÷' : op}
   </div>
 );

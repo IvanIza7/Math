@@ -1,38 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
-  ChevronRight,
-  CheckCircle,
-  Lock,
-  BookOpen,
-  ChevronDown,
-  Sparkles,
-  ArrowLeft,
-  Flame,
-  Star,
-  Play,
-  Zap,
-  RotateCcw,
-  Trophy,
-  ChevronLeft,
+  ChevronRight, CheckCircle, Lock, BookOpen, ChevronDown, Sparkles, ArrowLeft, Flame, Star, Play, Zap, RotateCcw, Trophy, ChevronLeft,
 } from 'lucide-react';
-import { VOLUMES_DATA, VolumeTopic, VolumeData } from '../data/curriculum';
 import { ENCYCLOPEDIA_QUIZZES } from '../data/quizQuestions';
 import { ARENA_CHALLENGES, ArenaChallenge } from '../data/arenaChallengesData';
+import { ENCYCLOPEDIA_CARDS, EncyclopediaCard } from '../data/encyclopediaCards';
+import { VOLUMES_DATA } from '../data/curriculum';
 import { Header } from './Header';
 import { ProfileView } from './ProfileView';
-import { TopicDetailView } from './TopicDetailView';
 import { InteractiveQuizScreen, QuizQuestion } from './InteractiveQuizScreen';
 import { ArenaChallengeRunner } from './ArenaChallengeRunner';
 import { AsedioLinealGame } from './AsedioLinealGame';
 import { CrossMathGame } from './CrossMathGame';
-import {
-  CatlyneAvatar,
-  HeroMemphisIllustration,
-  TopicThumbnail,
-} from './Illustrations';
+import { TopicCard } from './TopicCard';
+import { TopicModal } from './TopicModal';
+import { InteractiveLabModal } from './InteractiveLabModal';
 import { UserStats, UserProfile } from '../types';
-import { MathView } from '../utils/math';
 import { playSound } from '../utils/sound';
 import { getActiveHeroSessions, ActiveHeroItem } from '../utils/activeSession';
 import { APP_TEXTS } from '../config/appText';
@@ -44,6 +28,7 @@ interface EncyclopediaLayoutProps {
   onAwardXp: (amount: number) => void;
   onOpenNotifications?: () => void;
   onOpenBadges?: () => void;
+  onAdminClick?: () => void;
 }
 
 export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
@@ -53,33 +38,27 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
   onAwardXp,
   onOpenNotifications = () => {},
   onOpenBadges = () => {},
+  onAdminClick,
 }) => {
   const [activeHeroSessions, setActiveHeroSessions] = useState<ActiveHeroItem[]>(() =>
     getActiveHeroSessions()
   );
-  const [activeSessionIndex, setActiveSessionIndex] = useState<number>(0);
   const carouselRef = useRef<HTMLDivElement>(null);
-
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
-  const [expandedVolumeCodes, setExpandedVolumeCodes] = useState<string[]>(['VOL-01']);
-  const [selectedTopicData, setSelectedTopicData] = useState<{
-    topic: VolumeTopic;
-    volume: VolumeData;
-  } | null>(null);
 
   // Active game modal states for resuming
-  const [activeQuiz, setActiveQuiz] = useState<{ title: string; questions: QuizQuestion[] } | null>(
-    null
-  );
+  const [activeQuiz, setActiveQuiz] = useState<{ title: string; questions: QuizQuestion[] } | null>(null);
   const [activeArenaChallenge, setActiveArenaChallenge] = useState<ArenaChallenge | null>(null);
   const [activeAsedioLevel, setActiveAsedioLevel] = useState<number | null>(null);
   const [isCrossMathActive, setIsCrossMathActive] = useState<boolean>(false);
 
-  const [completedTopicIds, setCompletedTopicIds] = useState<string[]>(['vol1-t1', 'vol1-t2']);
+  // Cards state
+  const [selectedCard, setSelectedCard] = useState<EncyclopediaCard | null>(null);
+  const [isLabOpen, setIsLabOpen] = useState(false);
+  const [activeLabTab, setActiveLabTab] = useState<'sets' | 'towers' | 'algebra'>('sets');
 
-  useEffect(() => {
-    setActiveHeroSessions(getActiveHeroSessions());
-  }, [activeQuiz, activeArenaChallenge, activeAsedioLevel, isCrossMathActive]);
+  // Accordion state
+  const [expandedVolumeCodes, setExpandedVolumeCodes] = useState<string[]>(['VOL-01']);
 
   const toggleVolumeExpand = (volCode: string) => {
     playSound('click');
@@ -97,17 +76,17 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
     }
   };
 
-  const volumes = VOLUMES_DATA;
+  useEffect(() => {
+    setActiveHeroSessions(getActiveHeroSessions());
+  }, [activeQuiz, activeArenaChallenge, activeAsedioLevel, isCrossMathActive]);
 
   const startQuizForVolume = (volCode: string, title: string) => {
     const questions = ENCYCLOPEDIA_QUIZZES[volCode] || ENCYCLOPEDIA_QUIZZES['VOL-01'];
     setActiveQuiz({ title, questions });
   };
 
-  // Handle Resuming from Netflix Carousel
   const handleResumeSession = (session: ActiveHeroItem) => {
     playSound('click');
-
     if (session.type === 'asedio') {
       const levelNum = session.actionPayload?.levelNumber || 1;
       setActiveAsedioLevel(levelNum - 1);
@@ -131,55 +110,34 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
     }
   };
 
-  // Resume Modals
-  if (activeAsedioLevel !== null) {
-    return (
-      <AsedioLinealGame
-        onBack={() => setActiveAsedioLevel(null)}
-        onAwardXp={onAwardXp}
-        initialLevelIndex={activeAsedioLevel}
-      />
-    );
-  }
+  const handleOpenLab = (widgetType: string) => {
+    if (widgetType === 'number-sets' || widgetType === 'sign-laws') setActiveLabTab('sets');
+    else if (widgetType === 'divisibility-towers') setActiveLabTab('towers');
+    else setActiveLabTab('algebra');
+    
+    setIsLabOpen(true);
+  };
 
-  if (activeArenaChallenge) {
-    return (
-      <ArenaChallengeRunner
-        challenge={activeArenaChallenge}
-        onClose={() => setActiveArenaChallenge(null)}
-        onComplete={(score, total, passed) => {
-          if (passed) onAwardXp(75);
-          else onAwardXp(15);
-        }}
-      />
-    );
-  }
+  // Group cards by category maintaining original order
+  const categories = Array.from(new Set(ENCYCLOPEDIA_CARDS.map(c => c.categoria)));
 
-  if (isCrossMathActive) {
-    return (
-      <CrossMathGame
-        onBack={() => setIsCrossMathActive(false)}
-        onAwardXp={onAwardXp}
-      />
-    );
-  }
-
-  if (activeQuiz) {
-    return (
-      <InteractiveQuizScreen
-        title={activeQuiz.title}
-        questions={activeQuiz.questions}
-        onClose={() => setActiveQuiz(null)}
-        onComplete={(xp) => {
-          onAwardXp(xp);
-          setActiveQuiz(null);
-        }}
-      />
-    );
-  }
+  if (activeAsedioLevel !== null) return <AsedioLinealGame onBack={() => setActiveAsedioLevel(null)} onAwardXp={onAwardXp} initialLevelIndex={activeAsedioLevel} />;
+  if (activeArenaChallenge) return <ArenaChallengeRunner challenge={activeArenaChallenge} onClose={() => setActiveArenaChallenge(null)} onComplete={(score, total, passed) => onAwardXp(passed ? 75 : 15)} />;
+  if (isCrossMathActive) return <CrossMathGame onBack={() => setIsCrossMathActive(false)} onAwardXp={onAwardXp} />;
+  if (activeQuiz) return <InteractiveQuizScreen title={activeQuiz.title} questions={activeQuiz.questions} onClose={() => setActiveQuiz(null)} onComplete={(xp) => { onAwardXp(xp); setActiveQuiz(null); }} />;
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F4F7FC] dark:bg-[#0F1117] text-[#1E1E24] dark:text-[#F4F7FC] no-scrollbar max-w-md mx-auto relative font-jakarta transition-colors duration-200">
+      
+
+      
+      <InteractiveLabModal
+        isOpen={isLabOpen}
+        onClose={() => setIsLabOpen(false)}
+        onAwardXp={onAwardXp}
+        initialTab={activeLabTab}
+      />
+
       <AnimatePresence initial={false} mode="wait">
         {isProfileOpen ? (
           <ProfileView
@@ -192,26 +150,15 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
               setIsProfileOpen(false);
               onOpenBadges();
             }}
+            onAdminClick={onAdminClick}
           />
-        ) : selectedTopicData ? (
-          <TopicDetailView
-            key={`topic-detail-${selectedTopicData.topic.id}`}
-            topic={selectedTopicData.topic}
-            volume={selectedTopicData.volume}
-            onBack={() => setSelectedTopicData(null)}
-            onStartQuiz={(topicTitle) => {
-              const vCode = selectedTopicData.volume.code;
-              setSelectedTopicData(null);
-              startQuizForVolume(vCode, topicTitle);
-            }}
-            onMarkCompleted={(topicId) => {
-              if (!completedTopicIds.includes(topicId)) {
-                setCompletedTopicIds((prev) => [...prev, topicId]);
-              }
-              onAwardXp(50);
-            }}
-            isCompleted={completedTopicIds.includes(selectedTopicData.topic.id)}
-            onAwardXp={onAwardXp}
+        ) : selectedCard !== null ? (
+          <TopicModal 
+            key="topic-screen"
+            isOpen={selectedCard !== null} 
+            onClose={() => setSelectedCard(null)} 
+            card={selectedCard}
+            onOpenLab={handleOpenLab}
           />
         ) : (
           <motion.div
@@ -270,7 +217,7 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                 className="flex items-stretch gap-3.5 overflow-x-auto px-5 pb-2 snap-x snap-mandatory no-scrollbar"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {activeHeroSessions.map((session, idx) => (
+                {activeHeroSessions.map((session) => (
                   <motion.div
                     key={session.id}
                     whileHover={{ scale: 1.01 }}
@@ -335,17 +282,17 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                     </div>
 
                     {/* Right Column: Illustration fitting the compact card */}
-                    <div className="w-24 sm:w-28 h-full flex items-center justify-center shrink-0 relative overflow-hidden p-2">
+                    <div className="w-32 sm:w-40 h-[110%] flex items-center justify-end shrink-0 relative overflow-visible -mr-2">
                       <img 
                         src={
-                          session.type === 'asedio' ? '/src/assets/asedio.jpg' :
-                          session.type === 'crossmath' ? '/src/assets/crossmath.jpg' :
-                          session.type === 'arena-challenge' ? '/src/assets/desafio_leyessignos.jpg' :
-                          session.title.includes('Axiomas') ? '/src/assets/axiomasreales.jpg' :
-                          '/src/assets/quiz_leyessignosycombos.jpg'
+                          session.type === 'asedio' ? '/src/assets/asedio-removebg-preview.png' :
+                          session.type === 'crossmath' ? '/src/assets/crossmath-removebg-preview.png' :
+                          session.type === 'arena-challenge' ? '/src/assets/desafio_leyessignos-removebg-preview.png' :
+                          session.title.includes('Axiomas') ? '/src/assets/axiomasreales-removebg-preview.png' :
+                          '/src/assets/quiz_leyessignosycombos-removebg-preview.png'
                         }
                         alt={session.title}
-                        className="w-full h-full object-contain mix-blend-multiply"
+                        className="w-[130%] h-[130%] object-contain drop-shadow-md origin-right"
                       />
                     </div>
                   </motion.div>
@@ -353,15 +300,15 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
               </div>
             </div>
 
-            {/* Module List Cards */}
-            <div className="px-5 pt-4 space-y-3">
-              <div className="flex items-center justify-between">
+            {/* Accordion of Volumes wrapping Grid of Cards */}
+            <div className="px-5 pt-4 pb-8 space-y-4">
+              <div className="flex items-center justify-between mb-2">
                 <div>
                   <span className="text-xs font-black uppercase tracking-wider text-[#8A909F] dark:text-gray-400 block">
                     Enciclopedia de Matemáticas
                   </span>
-                  <span className="text-xs font-black text-[#6F78DB] dark:text-[#8D96F5]">
-                    {volumes.length} Volúmenes Disponibles
+                  <span className="text-[10px] font-black text-[#6F78DB] dark:text-[#8D96F5]">
+                    {ENCYCLOPEDIA_CARDS.length} TEMAS EN {VOLUMES_DATA.length} VOLÚMENES
                   </span>
                 </div>
 
@@ -369,65 +316,60 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                   onClick={toggleAllVolumes}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1E1E24] border-2 border-[#1E1E24] dark:border-[#4A4E69] rounded-full text-[11px] font-black text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#4A4E69] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer group"
                 >
-                  {expandedVolumeCodes.length === volumes.length ? 'Colapsar todos' : 'Expandir todos'}
-                  <ChevronDown className={`w-3 h-3 stroke-[3] transition-transform ${expandedVolumeCodes.length === volumes.length ? 'rotate-180' : ''}`} />
+                  {expandedVolumeCodes.length === VOLUMES_DATA.length ? 'Colapsar todos' : 'Expandir todos'}
+                  <ChevronDown className={`w-3 h-3 stroke-[3] transition-transform ${expandedVolumeCodes.length === VOLUMES_DATA.length ? 'rotate-180' : ''}`} />
                 </button>
               </div>
 
-              {/* Volumes Accordion List */}
-              <div className="space-y-3">
-                {volumes.map((volume) => {
+              <div className="space-y-4">
+                {VOLUMES_DATA.map((volume) => {
                   const isExpanded = expandedVolumeCodes.includes(volume.code);
-
+                  const categoryCards = ENCYCLOPEDIA_CARDS.filter(c => c.categoria === volume.title);
+                  
                   return (
                     <motion.div
                       key={volume.code}
-                      className="border-2 border-[#1E1E24] dark:border-[#2C2C3C] rounded-3xl overflow-hidden shadow-xs transition-all bg-white dark:bg-[#161822]"
+                      className="border-2 border-[#1E1E24] dark:border-[#2C2C3C] rounded-3xl overflow-hidden shadow-[4px_4px_0px_0px_#1E1E24] transition-all bg-white dark:bg-[#161822]"
                     >
                       {/* Volume Header Banner */}
                       <div
                         onClick={() => toggleVolumeExpand(volume.code)}
-                        className={`p-4 flex items-center justify-between cursor-pointer select-none transition-colors group ${
-                          volume.code === 'VOL-01'
-                            ? 'bg-[#FFF9E6] dark:bg-[#2A2416]'
-                            : volume.code === 'VOL-02'
-                            ? 'bg-[#EEF2FF] dark:bg-[#1B2038]'
-                            : volume.code === 'VOL-03'
-                            ? 'bg-[#F0FDF4] dark:bg-[#14291E]'
-                            : 'bg-[#FAF5FF] dark:bg-[#251A33]'
-                        }`}
+                        className={`p-4 sm:p-5 flex items-center justify-between cursor-pointer select-none transition-colors group relative overflow-hidden`}
+                        style={{ backgroundColor: isExpanded ? volume.bgShade : '#ffffff' }}
                       >
-                        <div className="flex items-center gap-3">
+                        {isExpanded && <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,_#1E1E24_1px,_transparent_1px)]" style={{ backgroundSize: '8px 8px' }}></div>}
+                        
+                        <div className="flex items-center gap-4 relative z-10">
                           <div
-                            className="w-11 h-11 rounded-2xl border-2 border-[#1E1E24] flex items-center justify-center text-sm font-black shadow-xs text-white"
+                            className="w-12 h-12 rounded-2xl border-2 border-[#1E1E24] flex items-center justify-center text-lg font-black shadow-[2px_2px_0px_0px_#1E1E24] text-white shrink-0"
                             style={{ backgroundColor: volume.color }}
                           >
                             {volume.label}
                           </div>
 
                           <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-black uppercase tracking-wider text-[#8A909F] dark:text-gray-400">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-[#1E1E24] px-2 py-0.5 rounded border border-[#1E1E24]/20 bg-black/5">
                                 {volume.code}
                               </span>
-                              <span className="text-[10px] font-bold text-[#4A4E69] dark:text-gray-300">
-                                {volume.subtitle}
-                              </span>
                             </div>
-                            <h3 className="font-black text-sm text-[#1E1E24] dark:text-white leading-tight">
+                            <h3 className="font-black text-lg text-[#1E1E24] dark:text-white leading-tight">
                               {volume.title}
                             </h3>
+                            <span className="text-[11px] font-bold text-[#4A4E69] dark:text-gray-300">
+                              {volume.subtitle}
+                            </span>
                           </div>
                         </div>
 
                         <div
-                          className="w-8 h-8 rounded-full bg-white dark:bg-[#1E202E] border-2 border-[#1E1E24] dark:border-white/20 flex items-center justify-center text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#000000] group-active:translate-y-0.5 group-active:translate-x-0.5 group-active:shadow-none transition-all"
+                          className="w-10 h-10 shrink-0 rounded-full bg-white dark:bg-[#1E202E] border-2 border-[#1E1E24] dark:border-white/20 flex items-center justify-center text-[#1E1E24] dark:text-white shadow-[2px_2px_0px_0px_#1E1E24] dark:shadow-[2px_2px_0px_0px_#000000] group-active:translate-y-0.5 group-active:translate-x-0.5 group-active:shadow-none transition-all z-10"
                         >
                           <motion.div
                              animate={{ rotate: isExpanded ? 180 : 0 }}
                              transition={{ duration: 0.2 }}
                           >
-                            <ChevronDown className="w-4 h-4 stroke-[3]" />
+                            <ChevronDown className="w-5 h-5 stroke-[3]" />
                           </motion.div>
                         </div>
                       </div>
@@ -440,46 +382,17 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.25 }}
-                            className="divide-y divide-[#1E1E24]/10 dark:divide-white/10"
+                            className="border-t-2 border-[#1E1E24] dark:border-white/10 bg-[#f8faf9] p-4 sm:p-5"
                           >
-                            {volume.topics.map((topic, tIdx) => {
-                              const isCompleted = completedTopicIds.includes(topic.id);
-
-                              return (
-                                <div
-                                  key={topic.id}
-                                  onClick={() => {
-                                    playSound('click');
-                                    setSelectedTopicData({ topic, volume });
-                                  }}
-                                  className="p-3.5 flex items-center justify-between hover:bg-[#F8FAFC] dark:hover:bg-[#1E202E] transition-colors cursor-pointer"
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-xl bg-[#F4F7FC] dark:bg-[#202334] border border-[#1E1E24]/20 dark:border-white/10 flex items-center justify-center text-xs font-black text-[#1E1E24] dark:text-white shrink-0">
-                                      {tIdx + 1}
-                                    </div>
-
-                                    <div>
-                                      <h4 className="font-bold text-xs text-[#1E1E24] dark:text-white line-clamp-1">
-                                        {topic.title}
-                                      </h4>
-                                      <span className="text-[10px] text-[#8A909F] dark:text-gray-400 font-semibold block line-clamp-1">
-                                        {topic.conceptSummary}
-                                      </span>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex items-center gap-2">
-                                    {isCompleted && (
-                                      <span className="w-5 h-5 rounded-full bg-[#22C55E] text-white flex items-center justify-center text-[10px] font-black shadow-2xs">
-                                        ✓
-                                      </span>
-                                    )}
-                                    <ChevronRight className="w-4 h-4 text-[#8A909F] dark:text-gray-400" />
-                                  </div>
-                                </div>
-                              );
-                            })}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              {categoryCards.map((card) => (
+                                <TopicCard 
+                                  key={card.id}
+                                  card={card}
+                                  onClick={() => setSelectedCard(card)}
+                                />
+                              ))}
+                            </div>
                           </motion.div>
                         )}
                       </AnimatePresence>

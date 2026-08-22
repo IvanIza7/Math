@@ -47,37 +47,56 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
   const generateQuestions = () => {
     const qs: Question[] = [];
     for (let i = 0; i < preset.numQuestions; i++) {
-      // Decide rows randomly between minRows and maxRows
       const rows = Math.floor(Math.random() * (preset.maxRows - preset.minRows + 1)) + preset.minRows;
+      const digits = Math.floor(Math.random() * (preset.maxDigits - preset.minDigits + 1)) + preset.minDigits;
       
-      const terms: number[] = [];
-      const operators: string[] = [];
+      let valid = false;
+      let terms: number[] = [];
+      let operators: string[] = [];
       let currentAnswer = 0;
 
-      for (let r = 0; r < rows; r++) {
-        // Generate number between minDigits and maxDigits
-        const digits = Math.floor(Math.random() * (preset.maxDigits - preset.minDigits + 1)) + preset.minDigits;
-        const maxNum = Math.pow(10, digits) - 1;
-        const minNum = Math.pow(10, digits - 1); // Ensure it has exactly 'digits' digits, unless it's 1 digit (0-9)
-        const term = digits === 1 ? Math.floor(Math.random() * 10) : Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
+      while (!valid) {
+        let rawTerms: number[] = [];
+        for (let r = 0; r < rows; r++) {
+          const maxNum = Math.pow(10, digits) - 1;
+          const minNum = Math.pow(10, digits - 1);
+          const term = digits === 1 ? Math.floor(Math.random() * 10) : Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
+          rawTerms.push(term);
+        }
+        
+        rawTerms.sort((a, b) => b - a);
+        
+        let mainOp = '+';
+        if (preset.allowSubtraction && Math.random() > 0.5) {
+          mainOp = '-';
+        }
 
-        if (r === 0) {
-          terms.push(term);
-          currentAnswer = term;
+        let sumRest = 0;
+        for (let r = 1; r < rows; r++) sumRest += rawTerms[r];
+
+        if (mainOp === '-') {
+           if (rawTerms[0] >= sumRest) {
+              valid = true;
+              currentAnswer = rawTerms[0] - sumRest;
+           }
         } else {
-          // If subtraction is allowed, 50% chance unless we would go negative (optional constraint, but let's allow negative for now if they are advanced, or limit to positive if we want simple arithmetic. The prompt didn't specify no negatives, but usually basic math doesn't have negatives. Let's ensure currentAnswer >= term for subtraction)
-          let op = '+';
-          if (preset.allowSubtraction && Math.random() > 0.5) {
-             // If we want to avoid negatives:
-             if (currentAnswer >= term) {
-               op = '-';
-             }
-          }
-          
-          operators.push(op);
-          terms.push(term);
-          if (op === '+') currentAnswer += term;
-          else currentAnswer -= term;
+           const maxNum = Math.pow(10, preset.maxDigits) - 1;
+           const minNum = Math.pow(10, preset.maxDigits - 1);
+           
+           if (rows * minNum > maxNum) {
+              valid = true;
+              currentAnswer = rawTerms[0] + sumRest;
+           } else {
+              if (rawTerms[0] + sumRest <= maxNum) {
+                valid = true;
+                currentAnswer = rawTerms[0] + sumRest;
+              }
+           }
+        }
+
+        if (valid) {
+           terms = rawTerms;
+           operators = Array(rows - 1).fill(mainOp);
         }
       }
 
@@ -97,24 +116,32 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
     }
 
     if (key === 'enter') {
-      checkAnswer();
+      checkAnswer(inputVal);
       return;
     }
 
     // Add number based on direction
     if (inputVal.length < 10) {
+      let nextVal = inputVal;
       if (inputDirection === 'right_to_left') {
-        setInputVal(prev => key + prev); // Appends to the left
+        nextVal = key + nextVal; // Appends to the left
       } else {
-        setInputVal(prev => prev + key); // Appends to the right
+        nextVal = nextVal + key; // Appends to the right
       }
+      setInputVal(nextVal);
       setIsError(false);
+      
+      // Auto-check on correct
+      const currentQ = questions[currentIdx];
+      if (parseInt(nextVal, 10) === currentQ.answer) {
+        setTimeout(() => checkAnswer(nextVal), 50);
+      }
     }
   };
 
-  const checkAnswer = () => {
+  const checkAnswer = (valToCheck: string) => {
     const currentQ = questions[currentIdx];
-    if (parseInt(inputVal, 10) === currentQ.answer) {
+    if (parseInt(valToCheck, 10) === currentQ.answer) {
       // Success!
       playSound('success');
       setIsSuccess(true);
@@ -163,7 +190,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
   const currentQ = questions[currentIdx];
 
   return (
-    <div className="fixed inset-0 bg-[#F2F3F7] flex flex-col font-poppins text-[#1E1E24] overflow-hidden">
+    <div className="fixed inset-0 bg-[#F2F3F7] flex flex-col font-poppins text-[#1E1E24] overflow-hidden z-50">
       
       {/* Header */}
       <div className="bg-white border-b-2 border-[#1E1E24] p-4 flex items-center justify-between shrink-0 shadow-sm z-10">
@@ -205,18 +232,21 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -50 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="flex flex-col items-end text-5xl sm:text-7xl font-black tracking-tighter"
           >
-            {currentQ.terms.map((term, i) => (
-              <div key={i} className="flex items-center gap-4">
-                {i > 0 && (
-                  <span className={`${currentQ.operators[i-1] === '-' ? 'text-red-500' : 'text-blue-500'}`}>
-                    {currentQ.operators[i-1]}
-                  </span>
-                )}
-                <span>{term.toString().padStart(preset.maxDigits, '\u00A0')}</span>
-              </div>
-            ))}
+            <div className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 items-center text-5xl sm:text-7xl font-black tracking-tighter tabular-nums mb-4">
+              {currentQ.terms.map((term, i) => {
+                const isLast = i === currentQ.terms.length - 1;
+                const op = isLast ? currentQ.operators[0] : '';
+                return (
+                  <React.Fragment key={i}>
+                    <div className={`text-right font-black ${currentQ.operators[0] === '-' ? 'text-red-500' : 'text-blue-500'}`}>
+                      {op}
+                    </div>
+                    <div className="text-right">{term}</div>
+                  </React.Fragment>
+                );
+              })}
+            </div>
             <div className="w-full h-1.5 sm:h-2 bg-[#1E1E24] mt-2 mb-4 rounded-full" />
             
             {/* Input Box */}

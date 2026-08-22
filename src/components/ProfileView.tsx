@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, ChevronRight, Edit3, Check, X, Sparkles, User, GraduationCap, Heart, BookOpen, Sun, Moon, LogOut } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Edit3, Check, X, Sparkles, User, GraduationCap, Heart, BookOpen, Sun, Moon, LogOut, Settings } from 'lucide-react';
 import { UserAvatar, StreakCheeringCharacter, HexagonBadgeSvg, AVATAR_OPTIONS } from './Illustrations';
 import { supabase } from '../config/supabase';
 import { UserStats, UserProfile } from '../types';
@@ -14,6 +14,7 @@ interface ProfileViewProps {
   userProfile?: UserProfile;
   onUpdateProfile?: (updated: UserProfile) => void;
   onOpenBadgesFull?: () => void;
+  onAdminClick?: () => void;
 }
 
 const MATH_AREAS = [
@@ -35,9 +36,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     academicGoal: 'Bachillerato · Examen de Admisión',
     bio: 'Dominando los axiomas de números reales sin adivinar ✨',
     favoriteArea: 'Álgebra',
-  },
+  } as UserProfile,
   onUpdateProfile,
   onOpenBadgesFull,
+  onAdminClick,
 }) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
@@ -386,6 +388,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <LogOut className="w-4 h-4 stroke-[3]" />
             <span>Cerrar Sesión</span>
           </button>
+
+          {userProfile.role === 'admin' && (
+            <button
+              onClick={() => {
+                playSound('click');
+                if (onAdminClick) onAdminClick();
+              }}
+              className="w-full py-3.5 bg-[#BAFF29] dark:bg-[#BAFF29] text-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2 mt-4"
+            >
+              <Settings className="w-4 h-4 stroke-[3]" />
+              <span>Panel de Administrador</span>
+            </button>
+          )}
         </div>
       </motion.div>
 

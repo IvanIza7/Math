@@ -17,10 +17,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
 
   // New Preset Form State
   const [name, setName] = useState('Mi Práctica');
-  const [minDigits, setMinDigits] = useState(1);
-  const [maxDigits, setMaxDigits] = useState(2);
-  const [minRows, setMinRows] = useState(2);
-  const [maxRows, setMaxRows] = useState(2);
+  const [digits, setDigits] = useState(2);
+  const [rows, setRows] = useState(2);
   const [allowSubtraction, setAllowSubtraction] = useState(false);
   const [inputDirection, setInputDirection] = useState<'left_to_right' | 'right_to_left'>('right_to_left');
   const [numQuestions, setNumQuestions] = useState(10);
@@ -80,16 +78,12 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
     e.preventDefault();
     playSound('click');
     
-    // Validation
-    if (minDigits > maxDigits) setMaxDigits(minDigits);
-    if (minRows > maxRows) setMaxRows(minRows);
-
     const newPreset: Omit<PracticePreset, 'id'> = {
       name,
-      minDigits,
-      maxDigits,
-      minRows,
-      maxRows,
+      minDigits: digits,
+      maxDigits: digits,
+      minRows: rows,
+      maxRows: rows,
       allowSubtraction,
       inputDirection,
       numQuestions
@@ -190,7 +184,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
                     <div>
                       <h4 className="font-black text-base text-[#1E1E24] uppercase">{preset.name}</h4>
                       <p className="text-[11px] font-bold text-[#4A4E69]">
-                        {preset.numQuestions} Preguntas • {preset.minRows}-{preset.maxRows} Filas • {preset.minDigits}-{preset.maxDigits} Dígitos
+                        {preset.numQuestions} Preguntas • {preset.minRows === preset.maxRows ? preset.minRows : `${preset.minRows}-${preset.maxRows}`} Filas • {preset.minDigits === preset.maxDigits ? preset.minDigits : `${preset.minDigits}-${preset.maxDigits}`} Dígitos
                       </p>
                     </div>
                     <button 
@@ -243,31 +237,33 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-black uppercase tracking-wider text-[#8A909F]">Dígitos Min (1-10)</label>
-                <input type="number" min={1} max={10} value={minDigits} onChange={e => setMinDigits(Number(e.target.value))} className="w-full bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl px-3 py-2 font-bold text-sm outline-none" />
+            <div className="flex flex-col gap-3 pt-2">
+              <div className="flex items-center justify-between bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl p-3">
+                <span className="text-[11px] font-black uppercase text-[#1E1E24]">Número de dígitos:</span>
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => digits > 1 && setDigits(digits - 1)} className="w-8 h-8 rounded-lg bg-white border-2 border-[#1E1E24] flex items-center justify-center font-black shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none">-</button>
+                  <span className="font-black w-4 text-center">{digits}</span>
+                  <button type="button" onClick={() => digits < 10 && setDigits(digits + 1)} className="w-8 h-8 rounded-lg bg-[#BAFF29] border-2 border-[#1E1E24] flex items-center justify-center font-black shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none">+</button>
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-black uppercase tracking-wider text-[#8A909F]">Dígitos Max (1-10)</label>
-                <input type="number" min={1} max={10} value={maxDigits} onChange={e => setMaxDigits(Number(e.target.value))} className="w-full bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl px-3 py-2 font-bold text-sm outline-none" />
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-black uppercase tracking-wider text-[#8A909F]">Filas Min (2-5)</label>
-                <input type="number" min={2} max={5} value={minRows} onChange={e => setMinRows(Number(e.target.value))} className="w-full bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl px-3 py-2 font-bold text-sm outline-none" />
+              <div className="flex items-center justify-between bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl p-3">
+                <span className="text-[11px] font-black uppercase text-[#1E1E24]">Número de filas:</span>
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => rows > 2 && setRows(rows - 1)} className="w-8 h-8 rounded-lg bg-white border-2 border-[#1E1E24] flex items-center justify-center font-black shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none">-</button>
+                  <span className="font-black w-4 text-center">{rows}</span>
+                  <button type="button" onClick={() => rows < 5 && setRows(rows + 1)} className="w-8 h-8 rounded-lg bg-[#BAFF29] border-2 border-[#1E1E24] flex items-center justify-center font-black shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none">+</button>
+                </div>
               </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[11px] font-black uppercase tracking-wider text-[#8A909F]">Filas Max (2-5)</label>
-                <input type="number" min={2} max={5} value={maxRows} onChange={e => setMaxRows(Number(e.target.value))} className="w-full bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl px-3 py-2 font-bold text-sm outline-none" />
-              </div>
-            </div>
 
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-black uppercase tracking-wider text-[#8A909F]">Preguntas (5-20)</label>
-              <input type="number" min={5} max={20} value={numQuestions} onChange={e => setNumQuestions(Number(e.target.value))} className="w-full bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl px-3 py-2 font-bold text-sm outline-none" />
+              <div className="flex items-center justify-between bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl p-3">
+                <span className="text-[11px] font-black uppercase text-[#1E1E24]">Número de preguntas:</span>
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => numQuestions > 5 && setNumQuestions(numQuestions - 1)} className="w-8 h-8 rounded-lg bg-white border-2 border-[#1E1E24] flex items-center justify-center font-black shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none">-</button>
+                  <span className="font-black w-6 text-center">{numQuestions}</span>
+                  <button type="button" onClick={() => numQuestions < 20 && setNumQuestions(numQuestions + 1)} className="w-8 h-8 rounded-lg bg-[#BAFF29] border-2 border-[#1E1E24] flex items-center justify-center font-black shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none">+</button>
+                </div>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 bg-[#f8faf9] border-2 border-[#1E1E24] p-3 rounded-xl">
@@ -278,8 +274,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
             <div className="flex flex-col gap-2">
               <label className="text-[11px] font-black uppercase tracking-wider text-[#8A909F]">Dirección de Escritura</label>
               <div className="flex gap-2">
-                <button type="button" onClick={() => setInputDirection('right_to_left')} className={`flex-1 py-2 rounded-xl border-2 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${inputDirection === 'right_to_left' ? 'bg-[#1E1E24] text-white border-[#1E1E24]' : 'bg-[#f8faf9] text-[#1E1E24] border-[#1E1E24]/30'}`}>Derecha a Izq ⬅️</button>
-                <button type="button" onClick={() => setInputDirection('left_to_right')} className={`flex-1 py-2 rounded-xl border-2 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${inputDirection === 'left_to_right' ? 'bg-[#1E1E24] text-white border-[#1E1E24]' : 'bg-[#f8faf9] text-[#1E1E24] border-[#1E1E24]/30'}`}>Izquierda a Der ➡️</button>
+                <button type="button" onClick={() => setInputDirection('right_to_left')} className={`flex-1 py-2 rounded-xl border-2 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${inputDirection === 'right_to_left' ? 'bg-[#1E1E24] text-white border-[#1E1E24]' : 'bg-[#f8faf9] text-[#1E1E24] border-[#1E1E24]/30'}`}>&lt;- Derecha a Izq</button>
+                <button type="button" onClick={() => setInputDirection('left_to_right')} className={`flex-1 py-2 rounded-xl border-2 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all ${inputDirection === 'left_to_right' ? 'bg-[#1E1E24] text-white border-[#1E1E24]' : 'bg-[#f8faf9] text-[#1E1E24] border-[#1E1E24]/30'}`}>Izquierda a Der -&gt;</button>
               </div>
             </div>
           </div>

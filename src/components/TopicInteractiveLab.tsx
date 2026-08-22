@@ -461,17 +461,29 @@ export const TopicInteractiveLab: React.FC<TopicInteractiveLabProps> = ({
                     {(selectedSet === 'Q' || selectedSet === 'ALL') && (
                       <g>
                         <circle cx={250 + 0.5 * 40} cy="50" r="4.5" fill="#F59E0B" stroke="#1E1E24" strokeWidth="1.5" />
-                        <text x={250 + 0.5 * 40} y="34" textAnchor="middle" fill="#B45309" fontSize="9" fontWeight="bold">
-                          1/2
-                        </text>
+                        <foreignObject x={250 + 0.5 * 40 - 10} y="20" width="20" height="25">
+                          <div className="flex flex-col items-center leading-none text-[8px] font-black text-[#B45309]">
+                            <span className="border-b-[1.5px] border-[#B45309] px-[1px]">1</span>
+                            <span>2</span>
+                          </div>
+                        </foreignObject>
+                        
                         <circle cx={250 - 1.5 * 40} cy="50" r="4.5" fill="#F59E0B" stroke="#1E1E24" strokeWidth="1.5" />
-                        <text x={250 - 1.5 * 40} y="34" textAnchor="middle" fill="#B45309" fontSize="9" fontWeight="bold">
-                          -3/2
-                        </text>
+                        <foreignObject x={250 - 1.5 * 40 - 15} y="20" width="30" height="25">
+                          <div className="flex flex-col items-center leading-none text-[8px] font-black text-[#B45309] relative">
+                            <span className="absolute -left-1 top-1/2 -translate-y-1/2">-</span>
+                            <span className="border-b-[1.5px] border-[#B45309] px-[1px]">3</span>
+                            <span>2</span>
+                          </div>
+                        </foreignObject>
+
                         <circle cx={250 + 1.75 * 40} cy="50" r="4.5" fill="#F59E0B" stroke="#1E1E24" strokeWidth="1.5" />
-                        <text x={250 + 1.75 * 40} y="34" textAnchor="middle" fill="#B45309" fontSize="9" fontWeight="bold">
-                          7/4
-                        </text>
+                        <foreignObject x={250 + 1.75 * 40 - 10} y="20" width="20" height="25">
+                          <div className="flex flex-col items-center leading-none text-[8px] font-black text-[#B45309]">
+                            <span className="border-b-[1.5px] border-[#B45309] px-[1px]">7</span>
+                            <span>4</span>
+                          </div>
+                        </foreignObject>
                       </g>
                     )}
 

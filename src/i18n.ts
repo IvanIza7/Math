@@ -34,6 +34,7 @@ export const i18n = {
   navigation: {
     home: 'Inicio',
     arena: 'Arena',
+    formulario: 'Fórmulas',
     classes: 'Clases',
     progress: 'Progreso',
     arsenal: 'Arsenal',

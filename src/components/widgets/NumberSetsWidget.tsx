@@ -275,17 +275,24 @@ export const NumberSetsWidget: React.FC<NumberSetsWidgetProps> = ({ onAwardXp })
                 {selectedSet === 'Q' && (
                   <>
                     <div className="absolute left-[44%] top-1/2 -translate-y-1/2 flex flex-col items-center">
-                      <div className="w-5 h-5 rounded-full bg-[#FEF3C7] border-2 border-[#F59E0B] flex items-center justify-center shadow-xs">
-                        <span className="text-[9px] font-black text-[#92400E]">½</span>
+                      <div className="w-6 h-6 rounded-full bg-[#FEF3C7] border-2 border-[#F59E0B] flex items-center justify-center shadow-xs">
+                        <div className="flex flex-col items-center leading-none text-[8px] font-black text-[#92400E]">
+                          <span className="border-b-[1.5px] border-[#92400E] px-[1px]">1</span>
+                          <span>2</span>
+                        </div>
                       </div>
-                      <span className="text-[9px] font-black text-[#92400E] mt-5">0.5</span>
+                      <span className="text-[9px] font-black text-[#92400E] mt-6">0.5</span>
                     </div>
 
                     <div className="absolute left-[22%] top-1/2 -translate-y-1/2 flex flex-col items-center">
-                      <div className="w-5 h-5 rounded-full bg-[#FEF3C7] border-2 border-[#F59E0B] flex items-center justify-center shadow-xs">
-                        <span className="text-[9px] font-black text-[#92400E]">-3/2</span>
+                      <div className="w-6 h-6 rounded-full bg-[#FEF3C7] border-2 border-[#F59E0B] flex items-center justify-center shadow-xs">
+                        <div className="flex flex-col items-center leading-none text-[8px] font-black text-[#92400E] relative">
+                          <span className="absolute -left-2 top-1/2 -translate-y-1/2">-</span>
+                          <span className="border-b-[1.5px] border-[#92400E] px-[1px]">3</span>
+                          <span>2</span>
+                        </div>
                       </div>
-                      <span className="text-[9px] font-black text-[#92400E] mt-5">-1.5</span>
+                      <span className="text-[9px] font-black text-[#92400E] mt-6">-1.5</span>
                     </div>
                   </>
                 )}
