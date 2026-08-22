@@ -110,7 +110,7 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
               <div className="space-y-4">
                 {card.ejemplos.map((ej, idx) => (
                   <div key={idx} className="bg-white border-2 border-[#1E1E24] rounded-2xl overflow-hidden shadow-[2px_2px_0px_0px_#1E1E24]">
-                    <div className="bg-[#1E1E24] text-white p-4 font-bold text-base flex flex-col gap-2">
+                    <div className="bg-[#1E1E24] text-white p-4 font-bold text-base flex flex-col gap-2 overflow-x-auto no-scrollbar">
                       <span className="text-[10px] text-[#BAFF29] uppercase tracking-widest">Ejemplo {idx + 1}</span>
                       <MathView latex={ej.problem} />
                     </div>
@@ -120,7 +120,7 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
                           <span className="shrink-0 w-6 h-6 rounded-full bg-white border-2 border-[#1E1E24] text-[#1E1E24] flex items-center justify-center text-[10px]">
                             {sIdx + 1}
                           </span>
-                          <div className="flex-1 mt-0.5"><MathView latex={step} /></div>
+                          <div className="flex-1 mt-0.5 overflow-x-auto no-scrollbar"><MathView latex={step} /></div>
                         </div>
                       ))}
                     </div>
@@ -141,9 +141,9 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
                   </div>
                   <div>
                     <h4 className="font-black text-base text-[#991B1B] uppercase mb-1">¡Ojo con esto!</h4>
-                    <p className="text-sm font-bold text-[#7F1D1D] leading-relaxed">
-                      {card.tips}
-                    </p>
+                    <div className="text-sm font-bold text-[#7F1D1D] leading-relaxed overflow-x-auto no-scrollbar">
+                      <MathView latex={card.tips.includes('\\') || card.tips.includes('^') || card.tips.includes('=') ? card.tips : `\\text{${card.tips}}`} />
+                    </div>
                   </div>
                 </div>
               </div>

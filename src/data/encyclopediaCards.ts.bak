@@ -33,20 +33,20 @@ export const ENCYCLOPEDIA_CARDS: EncyclopediaCard[] = [
         problem: 'Clasifica el número \\sqrt{25}',
         steps: [
           'Calculamos la raíz exacta: \\sqrt{25} = 5',
-          '\text{El 5 es un número Natural (N), por lo tanto también es Entero (Z) y Racional (Q).}',
-          '\text{Respuesta: Es un número Racional.}'
+          'El 5 es un número Natural (N), por lo tanto también es Entero (Z) y Racional (Q).',
+          'Respuesta: Es un número Racional.'
         ]
       },
       {
         problem: 'Identifica el valor posicional del 7 en 3,472.15',
         steps: [
-          '\text{Observamos la parte entera: } 3,472',
-          '\text{El 2 son unidades, el 7 son decenas.}',
-          '\text{Respuesta: El 7 representa 70 unidades o 7 decenas.}'
+          'Observamos la parte entera: 3,472',
+          'El 2 son unidades, el 7 son decenas.',
+          'Respuesta: El 7 representa 70 unidades o 7 decenas.'
         ]
       }
     ],
-    tips: '\text{Todo entero "n" es una fracción con un 1 invisible como denominador: } n = \frac{n}{1}',
+    tips: 'Todo entero "n" es una fracción con un 1 invisible como denominador: n = n/1.',
     widgetType: 'number-sets'
   },
   {
@@ -419,7 +419,7 @@ export const ENCYCLOPEDIA_CARDS: EncyclopediaCard[] = [
         ]
       }
     ],
-    tips: '\\text{¡Jamás canceles términos sumados en una fracción! En } \\frac{x+5}{5} \\text{ NO puedes tachar el 5 para dejar solo la x. Siempre factoriza primero.}'
+    tips: '¡Jamás canceles términos sumados en una fracción! En (x+5)/5 NO puedes tachar el 5 para dejar solo la x. Siempre factoriza primero.'
   },
   {
     id: 'vol2-t8',

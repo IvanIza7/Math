@@ -25,8 +25,10 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedKey, setSelectedKey] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const [textInput, setTextInput] = useState('');
   const [isChecked, setIsChecked] = useState(false);
+  const [answerHistory, setAnswerHistory] = useState<('correct' | 'incorrect')[]>([]);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(180); // 3:00 min
@@ -48,19 +50,36 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const handleSelectOption = (key: 'A' | 'B' | 'C' | 'D') => {
+  const handleSelectOption = (key: string) => {
     if (isChecked) return;
     playSound('click');
     setSelectedKey(key);
   };
 
   const handleConfirmOrNext = () => {
-    if (!selectedKey) return;
+    const isTextInput = currentQ.inputType === 'text';
+
+    if (!isTextInput && !selectedKey) return;
+    if (isTextInput && !textInput.trim()) {
+      playSound('error');
+      return;
+    }
 
     if (!isChecked) {
       // Check answer
-      const isCorrect = selectedKey === currentQ.correctKey;
+      let isCorrect = false;
+      if (isTextInput) {
+        isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+      } else {
+        isCorrect = selectedKey === currentQ.correctKey;
+      }
+
       setIsChecked(true);
+      setAnswerHistory((prev) => {
+        const newHist = [...prev];
+        newHist[currentIndex] = isCorrect ? 'correct' : 'incorrect';
+        return newHist;
+      });
 
       if (isCorrect) {
         playSound('correct');
@@ -74,9 +93,16 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
         playSound('click');
         setCurrentIndex((i) => i + 1);
         setSelectedKey(null);
+        setTextInput('');
         setIsChecked(false);
       } else {
-        const finalScore = score + (selectedKey === currentQ.correctKey ? 0 : 0);
+        let isCorrect = false;
+        if (currentQ.inputType === 'text') {
+          isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+        } else {
+          isCorrect = selectedKey === currentQ.correctKey;
+        }
+        const finalScore = score + (isCorrect ? 0 : 0);
         const passed = finalScore >= challenge.passingScore; // 3/5
 
         if (passed) {
@@ -102,13 +128,15 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
     setSessionQuestions(shuffled.slice(0, 5));
     setCurrentIndex(0);
     setSelectedKey(null);
+    setTextInput('');
     setIsChecked(false);
     setScore(0);
+    setAnswerHistory([]);
     setIsFinished(false);
     setSecondsLeft(180);
   };
 
-  const isCurrentCorrect = isChecked && selectedKey === currentQ.correctKey;
+  const isCurrentCorrect = isChecked && answerHistory[currentIndex] === 'correct';
 
   // Final Summary Screen
   if (isFinished) {
@@ -239,20 +267,21 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           <X className="w-5 h-5 stroke-[2.5]" />
         </motion.button>
 
-        {/* Progress Bar Capsule (5 steps) */}
         <div className="flex-1 flex items-center gap-1.5 bg-white/20 p-1.5 rounded-full border border-white/30">
-          {sessionQuestions.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-2 flex-1 rounded-full transition-all duration-300 ${
-                idx < currentIndex
-                  ? 'bg-[#F7CA38]'
-                  : idx === currentIndex
-                  ? 'bg-white'
-                  : 'bg-white/30'
-              }`}
-            />
-          ))}
+          {sessionQuestions.map((_, idx) => {
+            let bgClass = 'bg-white/30';
+            if (answerHistory[idx] === 'correct') bgClass = 'bg-[#22C55E]';
+            else if (answerHistory[idx] === 'incorrect') bgClass = 'bg-[#EF4444]';
+            else if (idx === currentIndex) bgClass = 'bg-white';
+            else if (idx < currentIndex) bgClass = 'bg-[#F7CA38]';
+
+            return (
+              <div
+                key={idx}
+                className={`h-2 flex-1 rounded-full transition-all duration-300 ${bgClass}`}
+              />
+            );
+          })}
         </div>
 
         {/* Timer Badge */}
@@ -308,43 +337,65 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           </span>
         </div>
 
-        {/* 2x2 Options Grid */}
-        <div className="grid grid-cols-2 gap-3 w-full my-2">
-          {currentQ.options.map((opt) => {
-            const isSelected = selectedKey === opt.key;
-            let btnClass =
-              'bg-white text-[#1E1E24] border-2 border-[#1E1E24] hover:bg-[#FFFDF5] shadow-xs';
+        {/* 2x2 Options Grid OR Text Input */}
+        {currentQ.inputType === 'text' ? (
+          <div className="w-full my-4 flex flex-col items-center">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="Escribe tu respuesta..."
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              disabled={isChecked}
+              className={`w-full max-w-sm text-center font-black text-2xl py-4 px-6 rounded-2xl border-4 outline-none transition-all shadow-inner placeholder:text-gray-400 placeholder:font-bold ${
+                isChecked && isCurrentCorrect
+                  ? 'bg-green-100 border-[#22C55E] text-[#22C55E]'
+                  : isChecked && !isCurrentCorrect
+                  ? 'bg-red-100 border-[#EF4444] text-[#EF4444]'
+                  : 'bg-white border-[#1E1E24] text-[#1E1E24] focus:border-[#6F78DB]'
+              }`}
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 w-full my-2">
+            {currentQ.options?.map((opt) => {
+              const isSelected = selectedKey === opt.key;
+              let btnClass =
+                'bg-white text-[#1E1E24] border-2 border-[#1E1E24] hover:bg-[#FFFDF5] shadow-xs';
 
-            if (isSelected && !isChecked) {
-              btnClass =
-                'bg-[#F7CA38] text-[#1E1E24] font-black border-2 border-[#1E1E24] shadow-md scale-[1.02]';
-            } else if (isChecked) {
-              if (opt.key === currentQ.correctKey) {
+              if (isSelected && !isChecked) {
                 btnClass =
-                  'bg-[#22C55E] text-white font-black border-2 border-[#1E1E24] shadow-md';
-              } else if (isSelected) {
-                btnClass =
-                  'bg-[#EF4444] text-white font-black border-2 border-[#1E1E24] shadow-md';
-              } else {
-                btnClass = 'bg-white/20 text-white/50 border-2 border-transparent';
+                  'bg-[#F7CA38] text-[#1E1E24] font-black border-2 border-[#1E1E24] shadow-md scale-[1.02]';
+              } else if (isChecked) {
+                if (opt.key === currentQ.correctKey) {
+                  btnClass =
+                    'bg-[#22C55E] text-white font-black border-2 border-[#1E1E24] shadow-md';
+                } else if (isSelected) {
+                  btnClass =
+                    'bg-[#EF4444] text-white font-black border-2 border-[#1E1E24] shadow-md';
+                } else {
+                  btnClass = 'bg-white/20 text-white/50 border-2 border-transparent';
+                }
               }
-            }
 
-            return (
-              <motion.button
-                key={opt.key}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => handleSelectOption(opt.key)}
-                className={`py-3.5 px-4 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center text-center gap-1.5 ${btnClass}`}
-              >
-                <span className="w-5 h-5 rounded-full bg-[#1E1E24]/10 border border-[#1E1E24]/30 flex items-center justify-center text-[10px] shrink-0">
-                  {opt.key}
-                </span>
-                <span>{opt.text}</span>
-              </motion.button>
-            );
-          })}
-        </div>
+              return (
+                <motion.button
+                  key={opt.key}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => handleSelectOption(opt.key)}
+                  className={`py-3.5 px-4 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center text-center gap-1.5 ${btnClass}`}
+                  disabled={isChecked}
+                >
+                  <span className="w-5 h-5 rounded-full bg-[#1E1E24]/10 border border-[#1E1E24]/30 flex items-center justify-center text-[10px] shrink-0">
+                    {opt.key}
+                  </span>
+                  <span>{opt.text}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Feedback Banner */}
         <AnimatePresence>
@@ -367,7 +418,10 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
                   {isCurrentCorrect ? '¡Correcto! (+1 Acierto)' : 'Respuesta Incorrecta'}
                 </span>
                 <p className="opacity-95">
-                  La opción correcta era la {currentQ.correctKey}: {currentQ.options.find(o => o.key === currentQ.correctKey)?.text}
+                  {currentQ.inputType === 'text' 
+                    ? `La respuesta correcta era ${currentQ.correctKey}` 
+                    : `La opción correcta era la ${currentQ.correctKey}: ${currentQ.options?.find(o => o.key === currentQ.correctKey)?.text}`
+                  }
                 </p>
               </div>
             </motion.div>
@@ -385,9 +439,9 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           {/* Confirm / Next Button */}
           <button
             onClick={handleConfirmOrNext}
-            disabled={!selectedKey}
+            disabled={(!isChecked && selectedKey === null && currentQ.inputType !== 'text') || (currentQ.inputType === 'text' && !textInput.trim())}
             className={`py-3.5 px-7 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md border-2 border-[#1E1E24] ${
-              !selectedKey
+              (!isChecked && selectedKey === null && currentQ.inputType !== 'text') || (currentQ.inputType === 'text' && !textInput.trim())
                 ? 'bg-white/40 text-white/70 border-transparent cursor-not-allowed'
                 : !isChecked
                 ? 'bg-white text-[#1E1E24] hover:bg-[#F8FAFC] active:scale-95'

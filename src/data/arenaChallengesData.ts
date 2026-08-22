@@ -1,10 +1,13 @@
+import { ECUACIONES_ENTERAS, ECUACIONES_FRACCIONES } from './ecuacionesChallenges';
+
 export interface ArenaQuestion {
   id: string;
   question: string;
   latex?: string;
-  options: Array<{ key: 'A' | 'B' | 'C' | 'D'; text: string; isCorrect: boolean }>;
-  correctKey: 'A' | 'B' | 'C' | 'D';
+  options?: Array<{ key: string; text: string; isCorrect?: boolean }>;
+  correctKey: string;
   explanation?: string;
+  inputType?: 'options' | 'text';
 }
 
 export interface ArenaChallenge {
@@ -273,4 +276,6 @@ export const ARENA_CHALLENGES: ArenaChallenge[] = [
       { id: 'd4-50', question: 'Al resolver (x+9)(x−9), ¿qué resultado se obtiene?', latex: '(x + 9)(x - 9)', options: [{ key: 'A', text: 'x² − 81', isCorrect: true }, { key: 'B', text: 'x² + 81', isCorrect: false }, { key: 'C', text: 'x² − 18x − 81', isCorrect: false }, { key: 'D', text: 'x² − 18', isCorrect: false }], correctKey: 'A' },
     ],
   },
+  ECUACIONES_ENTERAS,
+  ECUACIONES_FRACCIONES
 ];

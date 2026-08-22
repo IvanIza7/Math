@@ -231,9 +231,6 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
             }`}
           >
             <span>Desafíos</span>
-            <span className="bg-white/80 border border-[#1E1E24]/30 rounded-md px-1.5 py-0.2 text-[9px] font-black text-[#1E1E24]">
-              {completedCount}/4
-            </span>
           </motion.button>
 
           <motion.button
@@ -248,10 +245,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                 : 'text-[#8A909F] hover:text-[#1E1E24] font-bold border-2 border-transparent'
             }`}
           >
-            <span>⚔️ Asedio</span>
-            <span className="bg-[#EF4444] text-white rounded-md px-1 py-0.2 text-[9px] font-black">
-              30
-            </span>
+            <span>Asedio</span>
           </motion.button>
 
           <motion.button

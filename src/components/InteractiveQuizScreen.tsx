@@ -10,11 +10,12 @@ export interface QuizQuestion {
   category: string;
   question: string;
   latex?: string;
-  options: Array<{ key: string; text: string; latex?: string }>;
+  options?: Array<{ key: string; text: string; latex?: string }>;
   correctKey: string;
   hint: string;
   explanation: string;
   xpReward: number;
+  inputType?: 'options' | 'text';
 }
 
 interface InteractiveQuizScreenProps {
@@ -34,7 +35,9 @@ export const InteractiveQuizScreen: React.FC<InteractiveQuizScreenProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [textInput, setTextInput] = useState('');
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+  const [answerHistory, setAnswerHistory] = useState<('correct' | 'incorrect')[]>([]);
   const [showHintModal, setShowHintModal] = useState(false);
   const [score, setScore] = useState(0);
   const [earnedXp, setEarnedXp] = useState(0);
@@ -64,12 +67,30 @@ export const InteractiveQuizScreen: React.FC<InteractiveQuizScreenProps> = ({
   };
 
   const handleConfirmOrNext = () => {
-    if (!selectedOption) return;
+    const isTextInput = currentQ.inputType === 'text';
+
+    if (!isTextInput && !selectedOption) return;
+    if (isTextInput && !textInput.trim()) {
+      playSound('error');
+      // Podríamos mostrar un mensaje, pero por ahora evitamos proceder
+      return;
+    }
 
     if (!isAnswerChecked) {
       // Check answer
-      const isCorrect = selectedOption === currentQ.correctKey;
+      let isCorrect = false;
+      if (isTextInput) {
+        isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+      } else {
+        isCorrect = selectedOption === currentQ.correctKey;
+      }
+      
       setIsAnswerChecked(true);
+      setAnswerHistory((prev) => {
+        const newHist = [...prev];
+        newHist[currentIndex] = isCorrect ? 'correct' : 'incorrect';
+        return newHist;
+      });
 
       if (isCorrect) {
         playSound('correct');
@@ -84,17 +105,24 @@ export const InteractiveQuizScreen: React.FC<InteractiveQuizScreenProps> = ({
         playSound('click');
         setCurrentIndex((i) => i + 1);
         setSelectedOption(null);
+        setTextInput('');
         setIsAnswerChecked(false);
       } else {
         playSound('fanfare');
-        const finalScore = score + (selectedOption === currentQ.correctKey ? 0 : 0);
+        let isCorrect = false;
+        if (currentQ.inputType === 'text') {
+          isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+        } else {
+          isCorrect = selectedOption === currentQ.correctKey;
+        }
+        const finalScore = score + (isCorrect ? 0 : 0);
         onComplete(earnedXp, finalScore);
       }
     }
   };
 
-  const isCurrentCorrect = isAnswerChecked && selectedOption === currentQ.correctKey;
-  const isCurrentWrong = isAnswerChecked && selectedOption !== currentQ.correctKey;
+  const isCurrentCorrect = isAnswerChecked && answerHistory[currentIndex] === 'correct';
+  const isCurrentWrong = isAnswerChecked && answerHistory[currentIndex] === 'incorrect';
 
   return (
     <div className="fixed inset-0 z-50 bg-[#6F78DB] text-white flex flex-col justify-between overflow-y-auto no-scrollbar font-jakarta">
@@ -116,18 +144,20 @@ export const InteractiveQuizScreen: React.FC<InteractiveQuizScreenProps> = ({
 
         {/* Progress Bar Capsule */}
         <div className="flex-1 flex items-center gap-1.5 bg-white/20 p-1.5 rounded-full border border-white/30">
-          {questions.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-2 flex-1 rounded-full transition-all duration-300 ${
-                idx < currentIndex
-                  ? 'bg-[#F7CA38]'
-                  : idx === currentIndex
-                  ? 'bg-white'
-                  : 'bg-white/30'
-              }`}
-            />
-          ))}
+          {questions.map((_, idx) => {
+            let bgClass = 'bg-white/30';
+            if (answerHistory[idx] === 'correct') bgClass = 'bg-[#22C55E]';
+            else if (answerHistory[idx] === 'incorrect') bgClass = 'bg-[#EF4444]';
+            else if (idx === currentIndex) bgClass = 'bg-white';
+            else if (idx < currentIndex) bgClass = 'bg-[#F7CA38]'; // Fallback if no history somehow
+
+            return (
+              <div
+                key={idx}
+                className={`h-2 flex-1 rounded-full transition-all duration-300 ${bgClass}`}
+              />
+            );
+          })}
         </div>
 
         {/* Yellow Timer Pill Badge (Matching image.png: 03:42 in yellow pill) */}
@@ -183,41 +213,63 @@ export const InteractiveQuizScreen: React.FC<InteractiveQuizScreenProps> = ({
           </span>
         </div>
 
-        {/* 2x2 Options Grid (Matching image reference: Clean rounded white capsules, yellow on select) */}
-        <div className="grid grid-cols-2 gap-3 w-full my-2">
-          {currentQ.options.map((opt) => {
-            const isSelected = selectedOption === opt.key;
-            let btnClass =
-              'bg-white text-[#1E1E24] border-2 border-[#1E1E24] hover:bg-[#FFFDF5] shadow-xs';
+        {/* 2x2 Options Grid OR Text Input */}
+        {currentQ.inputType === 'text' ? (
+          <div className="w-full my-4 flex flex-col items-center">
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="Escribe tu respuesta..."
+              value={textInput}
+              onChange={(e) => setTextInput(e.target.value)}
+              disabled={isAnswerChecked}
+              className={`w-full max-w-sm text-center font-black text-2xl py-4 px-6 rounded-2xl border-4 outline-none transition-all shadow-inner placeholder:text-gray-400 placeholder:font-bold ${
+                isAnswerChecked && isCurrentCorrect
+                  ? 'bg-green-100 border-[#22C55E] text-[#22C55E]'
+                  : isAnswerChecked && isCurrentWrong
+                  ? 'bg-red-100 border-[#EF4444] text-[#EF4444]'
+                  : 'bg-white border-[#1E1E24] text-[#1E1E24] focus:border-[#6F78DB]'
+              }`}
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 w-full my-2">
+            {currentQ.options?.map((opt) => {
+              const isSelected = selectedOption === opt.key;
+              let btnClass =
+                'bg-white text-[#1E1E24] border-2 border-[#1E1E24] hover:bg-[#FFFDF5] shadow-xs';
 
-            if (isSelected && !isAnswerChecked) {
-              btnClass =
-                'bg-[#F7CA38] text-[#1E1E24] font-black border-2 border-[#1E1E24] shadow-md scale-[1.02]';
-            } else if (isAnswerChecked) {
-              if (opt.key === currentQ.correctKey) {
+              if (isSelected && !isAnswerChecked) {
                 btnClass =
-                  'bg-[#22C55E] text-white font-black border-2 border-[#1E1E24] shadow-md';
-              } else if (isSelected) {
-                btnClass =
-                  'bg-[#EF4444] text-white font-black border-2 border-[#1E1E24] shadow-md';
-              } else {
-                btnClass = 'bg-white/20 text-white/50 border-2 border-transparent';
+                  'bg-[#F7CA38] text-[#1E1E24] font-black border-2 border-[#1E1E24] shadow-md scale-[1.02]';
+              } else if (isAnswerChecked) {
+                if (opt.key === currentQ.correctKey) {
+                  btnClass =
+                    'bg-[#22C55E] text-white font-black border-2 border-[#1E1E24] shadow-md';
+                } else if (isSelected) {
+                  btnClass =
+                    'bg-[#EF4444] text-white font-black border-2 border-[#1E1E24] shadow-md';
+                } else {
+                  btnClass = 'bg-white/20 text-white/50 border-2 border-transparent';
+                }
               }
-            }
 
-            return (
-              <motion.button
-                key={opt.key}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => handleSelectOption(opt.key)}
-                className={`py-3.5 px-4 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center text-center gap-1.5 ${btnClass}`}
-              >
-                <span>{opt.text}</span>
-                {opt.latex && <MathView latex={opt.latex} inline />}
-              </motion.button>
-            );
-          })}
-        </div>
+              return (
+                <motion.button
+                  key={opt.key}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => handleSelectOption(opt.key)}
+                  className={`py-3.5 px-4 rounded-full text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center justify-center text-center gap-1.5 ${btnClass}`}
+                  disabled={isAnswerChecked}
+                >
+                  <span>{opt.text}</span>
+                  {opt.latex && <MathView latex={opt.latex} inline />}
+                </motion.button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Answer Feedback Banner */}
         <AnimatePresence>
@@ -287,10 +339,10 @@ export const InteractiveQuizScreen: React.FC<InteractiveQuizScreenProps> = ({
           {/* Next / Confirm Button (Matching image.png: Clean White Pill) */}
           <button
             onClick={handleConfirmOrNext}
-            disabled={!selectedOption}
-            className={`py-3.5 px-6 rounded-full text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-md border-2 border-[#1E1E24] ${
-              !selectedOption
-                ? 'bg-white/40 text-white/70 border-transparent cursor-not-allowed'
+            disabled={(!isAnswerChecked && selectedOption === null && currentQ.inputType !== 'text') || (currentQ.inputType === 'text' && !textInput.trim())}
+            className={`flex-1 py-4 px-6 rounded-2xl flex items-center justify-center font-black uppercase tracking-wider transition-all shadow-md active:translate-y-1 active:shadow-sm ${
+              (!isAnswerChecked && selectedOption === null && currentQ.inputType !== 'text') || (currentQ.inputType === 'text' && !textInput.trim())
+                ? 'bg-white/40 text-white/70 border-2 border-transparent cursor-not-allowed'
                 : !isAnswerChecked
                 ? 'bg-white text-[#1E1E24] hover:bg-[#F8FAFC] active:scale-95'
                 : 'bg-[#22C55E] text-white hover:bg-[#16a34a] active:scale-95'
