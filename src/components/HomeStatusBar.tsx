@@ -22,7 +22,7 @@ export const HomeStatusBar: React.FC<HomeStatusBarProps> = ({
       {/* 🔥 Racha */}
       <div className="flex-1 bg-[#1e1e1e] border border-[#2a2a2a] rounded-full px-3 py-1.5 flex items-center justify-center gap-1.5 font-jetbrains text-xs font-semibold text-white shadow-xs">
         <span className="text-sm">🔥</span>
-        <span>{userStats.streak || 3}</span>
+        <span>{userStats?.streak ?? 0}</span>
       </div>
 
       {/* ⭐ XP */}

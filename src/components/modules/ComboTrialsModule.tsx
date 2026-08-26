@@ -12,6 +12,9 @@ import { PracticePreset } from '../../types';
 import { playSound } from '../../utils/sound';
 import { saveActiveHeroSession } from '../../utils/activeSession';
 import { IntegrativeExam } from '../IntegrativeExam';
+import { saveChallengeAttempt } from '../../utils/history';
+import { ChallengeHistoryModal } from '../ChallengeHistoryModal';
+import { BarChart2 } from 'lucide-react';
 
 interface ComboTrialsModuleProps {
   onAwardXp: (amount: number) => void;
@@ -38,6 +41,8 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
   const [isAsedioActive, setIsAsedioActive] = useState<boolean>(false);
   const [isPuenteExamActive, setIsPuenteExamActive] = useState<boolean>(false);
   const [asedioStartLevel, setAsedioStartLevel] = useState<number>(initialAsedioLevel);
+  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [historyFilter, setHistoryFilter] = useState<string | null>(null);
 
   // Practice Flow State
   const [activePracticePreset, setActivePracticePreset] = useState<PracticePreset | null>(null);
@@ -69,7 +74,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     return `${h}:${m}:${s}`;
   };
 
-  const handleChallengeComplete = (score: number, total: number, passed: boolean) => {
+  const handleChallengeComplete = (score: number, total: number, passed: boolean, timeSeconds: number) => {
     if (!activeChallenge) return;
 
     const challengeId = activeChallenge.id;
@@ -97,6 +102,15 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     } else {
       onAwardXp(15);
     }
+
+    saveChallengeAttempt({
+      challengeId: challengeId,
+      type: 'challenge',
+      title: activeChallenge.title,
+      timeSeconds: timeSeconds,
+      score: score,
+      maxScore: total
+    }).catch(console.error);
   };
 
   const completedCount = (Object.values(completedRecords) as ChallengeRecord[]).filter(
@@ -152,6 +166,15 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
           setActivePracticePreset(null);
           setPracticeSessionData(sessionData);
           onAwardXp(50); // Small XP reward for practice
+          
+          saveChallengeAttempt({
+            challengeId: sessionData.presetId,
+            type: 'practice',
+            title: sessionData.presetTitle || 'Práctica Libre',
+            timeSeconds: sessionData.totalTime,
+            score: sessionData.accuracy,
+            maxScore: 100
+          }).catch(console.error);
         }}
       />
     );
@@ -336,12 +359,22 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
           {/* Central Counter Large */}
           <div className="text-center pt-2">
             <div className="font-black text-3xl tracking-tight text-[#1E1E24]">
-              {completedCount}/4
+              {completedCount}/<span className="text-[#8A909F]">7</span>
             </div>
             <p className="text-[11px] text-[#4A4E69] font-bold mt-0.5">
               Grandes Desafíos Superados (Banco de 200 Ejercicios)
             </p>
           </div>
+          <button
+            onClick={() => {
+              setHistoryFilter(null);
+              setIsHistoryOpen(true);
+            }}
+            className="flex items-center gap-1.5 bg-[#1E1E24]/5 hover:bg-[#1E1E24]/10 text-[#1E1E24] w-full justify-center py-2 rounded-xl text-xs font-black transition-colors"
+          >
+            <BarChart2 size={16} />
+            <span>ESTADÍSTICAS COMPLETAS</span>
+          </button>
         </div>
 
         {/* Section Header */}
@@ -378,29 +411,6 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                   key={challenge.id}
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    playSound('click');
-                    setActiveChallenge(challenge);
-                    // Save active session
-                    saveActiveHeroSession({
-                      id: `active-${challenge.id}`,
-                      type: 'arena-challenge',
-                      title: challenge.title,
-                      subtitle: `${challenge.totalExercises} ejercicios · Meta 3/5`,
-                      badge: 'ARENA · EN PROGRESO',
-                      progressText: '5 preguntas por intento',
-                      progressPercent: isCompleted ? 100 : 50,
-                      totalSteps: 5,
-                      currentStep: 1,
-                      bgGradient: 'bg-gradient-to-br from-[#F7CA38] via-[#FBBF24] to-[#F59E0B]',
-                      textColor: 'text-[#1E1E24]',
-                      badgeBg: 'bg-[#1E1E24] text-white font-black',
-                      ctaBg: 'bg-[#1E1E24] text-white font-black',
-                      theme: 'arithmetic',
-                      actionPayload: { challengeId: challenge.id },
-                      lastUpdated: Date.now(),
-                    });
-                  }}
                   className={`border-2 border-[#1E1E24] rounded-3xl p-3 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer shadow-xs group ${
                     isCompleted ? 'bg-[#F0FDF4]' : 'bg-white'
                   }`}
@@ -434,14 +444,50 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                   </div>
 
                   {/* Description */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#1E1E24]/15">
-                    <div className="pr-1 flex-1">
-                      <h3 className="font-black text-[10px] text-[#1E1E24] leading-tight uppercase line-clamp-2">
-                        {challenge.shortTitle}
-                      </h3>
-                    </div>
-                    <div className="w-6 h-6 shrink-0 bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-full flex items-center justify-center shadow-[2px_2px_0px_0px_#1E1E24] group-active:translate-y-0.5 group-active:translate-x-0.5 group-active:shadow-none transition-all">
-                      <ChevronRight className="w-3 h-3 stroke-[3]" />
+                  <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-[#1E1E24]/15">
+                    <h3 className="font-black text-[10px] text-[#1E1E24] leading-tight uppercase line-clamp-2">
+                      {challenge.shortTitle}
+                    </h3>
+                    <div className="flex gap-2 w-full">
+                      <button
+                        onClick={() => {
+                          playSound('click');
+                          setActiveChallenge(challenge);
+                          saveActiveHeroSession({
+                            id: `active-${challenge.id}`,
+                            type: 'arena-challenge',
+                            title: challenge.title,
+                            subtitle: `${challenge.totalExercises} ejercicios · Meta 3/5`,
+                            badge: 'ARENA · EN PROGRESO',
+                            progressText: '5 preguntas por intento',
+                            progressPercent: isCompleted ? 100 : 50,
+                            totalSteps: 5,
+                            currentStep: 1,
+                            bgGradient: 'bg-gradient-to-br from-[#F7CA38] via-[#FBBF24] to-[#F59E0B]',
+                            textColor: 'text-[#1E1E24]',
+                            badgeBg: 'bg-[#1E1E24] text-white font-black',
+                            ctaBg: 'bg-[#1E1E24] text-white font-black',
+                            theme: 'arithmetic',
+                            actionPayload: { challengeId: challenge.id },
+                            lastUpdated: Date.now(),
+                          });
+                        }}
+                        className="flex-1 py-3 bg-white text-[#1E1E24] hover:bg-[#F8FAFC] border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none font-black text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                      >
+                        <Play className="w-4 h-4" />
+                        <span>{isCompleted ? 'CONTINUAR' : 'JUGAR'}</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          playSound('click');
+                          setHistoryFilter(challenge.id);
+                          setIsHistoryOpen(true);
+                        }}
+                        className="w-12 shrink-0 py-3 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                        title="Ver Historial"
+                      >
+                        <BarChart2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -455,7 +501,6 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
               onClick={() => {
                 playSound('click');
                 setIsPuenteExamActive(true);
-                // Save active session
                 saveActiveHeroSession({
                   id: `active-puente-bachillerato`,
                   type: 'arena-challenge',
@@ -550,16 +595,25 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                 </p>
               </div>
 
-              <button
-                onClick={() => {
-                  playSound('click');
-                  setIsAsedioActive(true);
-                }}
-                className="w-full py-3.5 bg-gradient-to-r from-amber-400 to-amber-300 hover:from-amber-300 hover:to-amber-400 text-slate-950 border-2 border-slate-900 font-black text-xs uppercase tracking-wider rounded-full shadow-[4px_4px_0px_0px_#0F172A] cursor-pointer flex items-center justify-center gap-2 active:translate-y-1 active:translate-x-1 active:shadow-none transition-all"
-              >
-                <Flame className="w-4 h-4 text-red-600 fill-current" />
-                <span>Entrar a la Arena de Asedio</span>
-              </button>
+              <div className="flex gap-2">
+                  <button 
+                    onClick={() => setIsAsedioActive(true)}
+                    className="flex-1 py-3.5 bg-[#BAFF29] hover:bg-[#a6ff00] text-[#1E1E24] border-2 border-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-xl shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
+                  >
+                    <Play className="w-4 h-4" /> Jugar Asedio
+                  </button>
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      setHistoryFilter('asedio_lineal');
+                      setIsHistoryOpen(true);
+                    }}
+                    className="w-12 shrink-0 py-3.5 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                    title="Ver Historial"
+                  >
+                    <BarChart2 size={18} />
+                  </button>
+                </div>
             </motion.div>
           </div>
         ) : activeTab === 'crossmath' ? (
@@ -568,28 +622,6 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
             <motion.div
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                playSound('click');
-                setIsCrossMathActive(true);
-                saveActiveHeroSession({
-                  id: 'active-cross-math',
-                  type: 'crossmath',
-                  title: 'Cross Math: Puzzles de Lógica',
-                  subtitle: 'Alinea sumas, restas y productos',
-                  badge: 'CROSS MATH · PUZZLE',
-                  progressText: '15 Niveles · Fácil a Difícil',
-                  progressPercent: 33,
-                  totalSteps: 3,
-                  currentStep: 1,
-                  bgGradient: 'bg-gradient-to-br from-[#38BDF8] via-[#0284C7] to-[#0369A1]',
-                  textColor: 'text-white',
-                  badgeBg: 'bg-[#FDE047] text-[#1E1E24] font-black',
-                  ctaBg: 'bg-[#FDE047] text-[#1E1E24] font-black',
-                  theme: 'algebra',
-                  actionPayload: { difficulty: 'easy' },
-                  lastUpdated: Date.now(),
-                });
-              }}
               className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 flex flex-col justify-between hover:shadow-md transition-all cursor-pointer shadow-xs group"
             >
               {/* Top Bar */}
@@ -622,7 +654,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
               </div>
 
               {/* Description */}
-              <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#1E1E24]/15">
+              <div className="flex flex-col gap-3 mt-2 pt-2 border-t border-[#1E1E24]/15">
                 <div>
                   <h3 className="font-black text-sm text-[#1E1E24]">
                     CROSS MATH PUZZLES
@@ -631,9 +663,45 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                     Cuadrículas 2x2 y 3x3 con las 4 operaciones
                   </span>
                 </div>
-
-                <div className="w-9 h-9 bg-[#F7CA38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-full flex items-center justify-center shadow-[4px_4px_0px_0px_#1E1E24] group-active:translate-y-1 group-active:translate-x-1 group-active:shadow-none transition-all">
-                  <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => {
+                            playSound('click');
+                            setIsCrossMathActive(true);
+                            saveActiveHeroSession({
+                            id: 'active-cross-math',
+                            type: 'crossmath',
+                            title: 'Cross Math: Puzzles de Lógica',
+                            subtitle: 'Alinea sumas, restas y productos',
+                            badge: 'CROSS MATH · PUZZLE',
+                            progressText: '15 Niveles · Fácil a Difícil',
+                            progressPercent: 33,
+                            totalSteps: 3,
+                            currentStep: 1,
+                            bgGradient: 'bg-gradient-to-br from-[#38BDF8] via-[#0284C7] to-[#0369A1]',
+                            textColor: 'text-white',
+                            badgeBg: 'bg-[#FDE047] text-[#1E1E24] font-black',
+                            ctaBg: 'bg-[#FDE047] text-[#1E1E24] font-black',
+                            theme: 'algebra',
+                            actionPayload: { difficulty: 'easy' },
+                            lastUpdated: Date.now(),
+                            });
+                        }}
+                        className="flex-1 py-3.5 bg-[#38BDF8] text-white border-2 border-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-xl shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
+                    >
+                        <Play className="w-4 h-4" /> Jugar
+                    </button>
+                    <button
+                        onClick={() => {
+                            playSound('click');
+                            setHistoryFilter('crossmath');
+                            setIsHistoryOpen(true);
+                        }}
+                        className="w-12 shrink-0 py-3.5 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                        title="Ver Historial"
+                    >
+                        <BarChart2 size={18} />
+                    </button>
                 </div>
               </div>
             </motion.div>
@@ -645,10 +713,20 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
               onStartQuiz={(preset) => {
                 setActivePracticePreset(preset);
               }}
+              onOpenHistory={(preset) => {
+                setHistoryFilter(preset.id);
+                setIsHistoryOpen(true);
+              }}
             />
           </div>
         )}
       </motion.div>
+
+      <ChallengeHistoryModal 
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        filterChallengeId={historyFilter}
+      />
     </div>
   );
 };

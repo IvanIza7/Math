@@ -30,7 +30,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
   const [questionStartTime, setQuestionStartTime] = useState<number>(0);
   const [timeTakenPerQuestion, setTimeTakenPerQuestion] = useState<number[]>([]);
   const [mistakes, setMistakes] = useState<number>(0);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [currentTimeMs, setCurrentTimeMs] = useState(0);
 
   useEffect(() => {
     generateQuestions();
@@ -38,8 +38,8 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
     setQuestionStartTime(Date.now());
 
     const timer = setInterval(() => {
-      setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-    }, 1000);
+      setCurrentTimeMs(Date.now() - startTimeRef.current);
+    }, 30);
 
     return () => clearInterval(timer);
   }, []);
@@ -158,9 +158,10 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
         } else {
           // Finish!
           const finalTimes = [...timeTakenPerQuestion, timeTaken];
-          const totalTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          const totalTime = (Date.now() - startTimeRef.current) / 1000;
           onFinish({
             presetId: preset.id,
+            presetTitle: preset.name,
             totalTime,
             fastestAnswer: Math.min(...finalTimes),
             slowestAnswer: Math.max(...finalTimes),
@@ -179,11 +180,12 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
     }
   };
 
-  const formatTime = (secs: number) => {
-    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+  const formatTime = (ms: number) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const s = (totalSecs % 60).toString().padStart(2, '0');
+    const centiseconds = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
+    return `${m}:${s}:${centiseconds}`;
   };
 
   if (questions.length === 0) return null;
@@ -208,7 +210,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
           </div>
           <div className="font-black text-sm flex items-center gap-1.5 px-3 py-1 bg-white border-2 border-[#1E1E24] rounded-lg">
             <Clock size={16} className="text-[#F59E0B]" />
-            {formatTime(currentTime)}
+            <span className="font-mono w-[72px] text-right">{formatTime(currentTimeMs)}</span>
           </div>
         </div>
 

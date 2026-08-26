@@ -9,6 +9,7 @@ import { FloatingNav } from './components/FloatingNav';
 import { AttendanceModal } from './components/AttendanceModal';
 import { ArsenalModal } from './components/ArsenalModal';
 import { BadgesModal } from './components/BadgesModal';
+import { OnboardingModal, AcademicGrade } from './components/OnboardingModal';
 import { EncyclopediaLayout } from './components/EncyclopediaLayout';
 import { ComboTrialsModule } from './components/modules/ComboTrialsModule';
 import { PlanDeClaseModule } from './components/modules/PlanDeClaseModule';
@@ -23,24 +24,26 @@ function AppContent({ user }: { user: User }) {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isMagicFormulaOpen, setIsMagicFormulaOpen] = useState(false);
 
-  // User Profile State (Stored in localStorage)
+  const profileStorageKey = `math_user_profile_${user.id}`;
   const [userProfile, setUserProfile] = useState<UserProfile>(() => {
     try {
-      const saved = localStorage.getItem('math_user_profile_data');
+      const saved = localStorage.getItem(profileStorageKey);
       if (saved) return JSON.parse(saved);
     } catch {
       // Fallback
     }
     return {
-      name: 'Ian',
-      handle: '@ian_math',
+      name: '',
+      handle: '',
       avatarId: 'astro',
-      academicGoal: 'Bachillerato · Examen UNAM',
+      academicGoal: '',
       bio: 'Dominando el álgebra y las matemáticas sin adivinar ✨',
       favoriteArea: 'Álgebra',
-      role: 'admin',
+      role: 'student',
     };
   });
+
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Internal Events State
   const [events, setEvents] = useState<ProgressEvent[]>([]);
@@ -51,22 +54,42 @@ function AppContent({ user }: { user: User }) {
       setIsLoadingData(true);
       try {
         const [profileRes, statsRes, eventsRes] = await Promise.all([
-          supabase.from('user_profiles').select('*').eq('id', user.id).single(),
-          supabase.from('user_stats').select('*').eq('id', user.id).single(),
+          supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle(),
+          supabase.from('user_stats').select('*').eq('id', user.id).maybeSingle(),
           supabase.from('progress_events').select('*').eq('student_id', user.id).order('created_at', { ascending: true })
         ]);
         
         if (profileRes.data) {
+          let loadedName = profileRes.data.name || '';
+          if (loadedName.startsWith('mathapp.dummy.')) {
+            loadedName = loadedName.replace('mathapp.dummy.', '');
+          }
           setUserProfile({
-            name: profileRes.data.name,
+            name: loadedName,
             handle: profileRes.data.handle,
             avatarId: profileRes.data.avatar_id,
             academicGoal: profileRes.data.academic_goal,
             bio: profileRes.data.bio,
             favoriteArea: profileRes.data.favorite_area,
-            role: profileRes.data.role || 'admin', // Force admin for testing
+            role: profileRes.data.role || 'student',
           });
+        } else {
+          // New Profile! Set initial name from metadata and trigger onboarding
+          const metaUsername = user.user_metadata?.username;
+          let baseName = metaUsername || (user.email ? user.email.split('@')[0] : 'Estudiante');
+          if (baseName.startsWith('mathapp.dummy.')) {
+            baseName = baseName.replace('mathapp.dummy.', '');
+          }
+          
+          setUserProfile(prev => ({
+            ...prev,
+            name: baseName,
+            handle: `@${baseName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+          }));
+          
+          setShowOnboarding(true);
         }
+        
         let baseStats: Partial<UserStats> = {};
         if (statsRes.data) {
           baseStats = {
@@ -129,8 +152,8 @@ function AppContent({ user }: { user: User }) {
   // Save User Profile to Supabase & localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('math_user_profile_data', JSON.stringify(userProfile));
-      if (!isLoadingData) {
+      localStorage.setItem(`math_user_profile_${user.id}`, JSON.stringify(userProfile));
+      if (!isLoadingData && !showOnboarding) {
         supabase.from('user_profiles').upsert({
           id: user.id,
           name: userProfile.name,
@@ -144,43 +167,34 @@ function AppContent({ user }: { user: User }) {
     } catch {
       // ignore
     }
-  }, [userProfile, isLoadingData, user.id]);
+  }, [userProfile, isLoadingData, showOnboarding, user.id]);
 
   // Gamification User Stats (Stored in localStorage)
+  const statsStorageKey = `math_anti_guessing_stats_${user.id}`;
   const [userStats, setUserStats] = useState<UserStats>(() => {
     try {
-      const saved = localStorage.getItem('math_anti_guessing_stats');
+      const saved = localStorage.getItem(statsStorageKey);
       if (saved) return JSON.parse(saved);
     } catch {
       // Fallback
     }
     return {
-      xp: 320,
+      xp: 0,
       level: 1,
-      streak: 3,
-      trialsCompleted: ['t01'],
-      badgesUnlocked: ['badge-novice'],
-      perfectTrialsCount: 1,
+      streak: 0,
+      trialsCompleted: [],
+      badgesUnlocked: [],
+      perfectTrialsCount: 0,
       illegalMovesCaughtCount: 0,
-      attendanceRecords: [
-        {
-          id: 'att-1',
-          dateStr: '2026-08-01',
-          timestamp: '2026-08-01 10:00',
-          sessionNumber: 1,
-          topicCovered: 'Clasificación de Números Reales',
-          notes: 'Clase introductoria de repaso.',
-          status: 'completed',
-        },
-      ],
-      completedTopics: ['vol1-t1', 'vol1-t2'],
+      attendanceRecords: [],
+      completedTopics: [],
     };
   });
 
   // Save stats on update
   useEffect(() => {
     try {
-      localStorage.setItem('math_anti_guessing_stats', JSON.stringify(userStats));
+      localStorage.setItem(`math_anti_guessing_stats_${user.id}`, JSON.stringify(userStats));
       if (!isLoadingData) {
         supabase.from('user_stats').upsert({
           id: user.id,
@@ -405,6 +419,32 @@ function AppContent({ user }: { user: User }) {
       <MagicFormulaModal 
         isOpen={isMagicFormulaOpen}
         onClose={() => setIsMagicFormulaOpen(false)}
+      />
+
+      <OnboardingModal
+        isOpen={showOnboarding}
+        username={userProfile.name || 'Estudiante'}
+        onComplete={(onboardingData) => {
+          const updatedProfile = { 
+            ...userProfile, 
+            academicGoal: onboardingData.academicGoal,
+            avatarId: onboardingData.avatarId,
+            bio: onboardingData.bio,
+            favoriteArea: onboardingData.favoriteArea
+          };
+          setUserProfile(updatedProfile);
+          setShowOnboarding(false);
+          // Actualizar inmediatamente en base de datos para no perderlo
+          supabase.from('user_profiles').upsert({
+            id: user.id,
+            name: updatedProfile.name,
+            handle: updatedProfile.handle,
+            avatar_id: updatedProfile.avatarId,
+            academic_goal: updatedProfile.academicGoal,
+            bio: updatedProfile.bio,
+            favorite_area: updatedProfile.favoriteArea,
+          }).then();
+        }}
       />
 
       {/* Floating Magic Formula Button */}

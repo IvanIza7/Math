@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
   greetingSubtitle,
 }) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
-  const currentXp = userStats.xp || 323;
+  const currentXp = userStats?.xp ?? 0;
   const progressPercent = Math.min(100, Math.round(((currentXp % 500) / 500) * 100));
 
   const firstName = userProfile?.name ? userProfile.name.split(' ')[0] : APP_TEXTS.header.defaultStudentName;
@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
               {APP_TEXTS.header.levelProgressLabel}
             </span>
             <span className="text-[11px] font-black text-[#1E1E24] dark:text-white shrink-0 ml-1">
-              {APP_TEXTS.header.levelPrefix} {userStats.level || 1}
+              {APP_TEXTS.header.levelPrefix} {userStats?.level ?? 1}
             </span>
           </div>
 
@@ -124,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
         <h1 className="text-xl font-black text-[#1E1E24] dark:text-white tracking-tight flex items-center gap-1.5 whitespace-nowrap">
           <span>{greetingTitle}</span>
-          <span className="text-[#6F78DB] text-base shrink-0">✦</span>
+          <span className="text-[#6F78DB] text-base shrink-0">🏆</span>
         </h1>
       </div>
     </header>

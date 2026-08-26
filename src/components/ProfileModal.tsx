@@ -21,7 +21,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const currentXp = userStats.xp || 323;
+  const currentXp = userStats?.xp ?? 0;
   const progressPercent = Math.min(100, Math.round(((currentXp % 500) / 500) * 100));
 
   const badges = [
@@ -154,7 +154,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                   Racha Actual
                 </span>
                 <h3 className="text-lg font-black text-[#1E1E24] flex items-center gap-1.5">
-                  {userStats.streak || 6} días activos <Flame className="w-4 h-4 fill-[#F97316] text-[#F97316] animate-bounce" />
+                  {userStats?.streak ?? 0} días activos <Flame className="w-4 h-4 fill-[#F97316] text-[#F97316] animate-bounce" />
                 </h3>
               </div>
 
@@ -175,7 +175,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     Nivel
                   </span>
                   <span className="text-xs font-black text-[#1E1E24]">
-                    Nivel {userStats.level || 1}
+                    Nivel {userStats?.level ?? 1}
                   </span>
                 </div>
               </div>
@@ -198,7 +198,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             {/* Level Progress Capsule */}
             <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-2xl border-2 border-[#1E1E24] shadow-2xs">
               <div className="flex items-center justify-between text-xs font-black text-[#1E1E24]">
-                <span>Progreso hacia Nivel {(userStats.level || 1) + 1}</span>
+                <span>Progreso hacia Nivel {(userStats?.level ?? 1) + 1}</span>
                 <span className="text-[#6F78DB] font-extrabold">{progressPercent}%</span>
               </div>
               <div className="w-full bg-[#E2E8F0] h-7 rounded-full p-1 flex items-center border border-[#1E1E24]/20">

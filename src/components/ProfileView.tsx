@@ -45,7 +45,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<UserProfile>(userProfile);
 
-  const currentXp = userStats.xp || 323;
+  const currentXp = userStats?.xp ?? 0;
   const progressPercent = Math.min(100, Math.round(((currentXp % 500) / 500) * 100)) || 34;
 
   const badges = [
@@ -268,7 +268,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               Racha de Estudio
             </span>
             <h3 className="text-2xl font-black text-[#1E1E24] tracking-tight">
-              {userStats.streak || 6} días activos 🔥
+              {userStats?.streak ?? 0} días activos 🔥
             </h3>
           </div>
 
@@ -292,7 +292,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 Nivel
               </span>
               <span className="text-base font-black text-[#1E1E24] dark:text-white">
-                Niv. {userStats.level || 1}
+                Niv. {userStats?.level ?? 1}
               </span>
             </div>
           </div>
@@ -508,15 +508,19 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 {/* Academic Goal */}
                 <div>
                   <label className="text-xs font-black uppercase tracking-wider text-[#1E1E24] dark:text-white block mb-1">
-                    Grado / Meta Académica:
+                    Grado Académico:
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={editForm.academicGoal}
                     onChange={(e) => setEditForm({ ...editForm, academicGoal: e.target.value })}
-                    placeholder="Ej. Bachillerato · Examen UNAM"
-                    className="w-full px-3.5 py-2.5 text-xs font-bold bg-[#F8FAFC] dark:bg-[#202334] border-2 border-[#1E1E24] dark:border-[#3E4259] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#6F78DB] text-[#1E1E24] dark:text-white"
-                  />
+                    className="w-full px-3.5 py-2.5 text-xs font-bold bg-[#F8FAFC] dark:bg-[#202334] border-2 border-[#1E1E24] dark:border-[#3E4259] rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#6F78DB] text-[#1E1E24] dark:text-white appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled>Selecciona tu grado</option>
+                    <option value="Primaria">Primaria</option>
+                    <option value="Secundaria">Secundaria</option>
+                    <option value="Bachillerato">Bachillerato</option>
+                    <option value="Universidad">Universidad</option>
+                  </select>
                 </div>
 
                 {/* Favorite Math Area */}

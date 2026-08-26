@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../config/supabase';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Settings2, Play, AlertTriangle, History, Pencil } from 'lucide-react';
+import { Plus, Trash2, Settings2, Play, AlertTriangle, History, Pencil, BarChart2 } from 'lucide-react';
 import { PracticePreset } from '../types';
 import { playSound } from '../utils/sound';
 import { PracticeHistoryModal } from './PracticeHistoryModal';
 
 interface PracticeSetupProps {
   onStartQuiz: (preset: PracticePreset) => void;
+  onOpenHistory?: (preset: PracticePreset) => void;
 }
 
-export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => {
+export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz, onOpenHistory }) => {
   const [presets, setPresets] = useState<PracticePreset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -239,18 +240,31 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
                         {preset.numQuestions} Preguntas • {preset.minRows === preset.maxRows ? preset.minRows : `${preset.minRows}-${preset.maxRows}`} Filas • {preset.minDigits === preset.maxDigits ? preset.minDigits : `${preset.minDigits}-${preset.maxDigits}`} Dígitos
                       </p>
                     </div>
-                    <button 
-                      onClick={() => handleEdit(preset)}
-                      className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all mr-2"
-                    >
-                      <Pencil size={18} />
-                    </button>
-                    <button 
-                      onClick={() => setPresetToDelete(preset.id)}
-                      className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {onOpenHistory && (
+                        <button 
+                          onClick={() => { playSound('click'); onOpenHistory(preset); }}
+                          className="text-[#6F78DB] hover:bg-blue-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                          title="Ver Historial"
+                        >
+                          <BarChart2 size={18} />
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => handleEdit(preset)}
+                        className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                        title="Editar Preset"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button 
+                        onClick={() => setPresetToDelete(preset.id)}
+                        className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                        title="Eliminar Preset"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
                   
                   <div className="flex gap-2 flex-wrap">

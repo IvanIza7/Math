@@ -30,17 +30,18 @@
 /* Theme switch fluid fade transition across surfaces and borders */
 .theme-transition-all,
 .theme-transition-all * {
-  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .font-jakarta {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.font-mono, .font-jetbrains {
+.font-mono,
+.font-jetbrains {
   font-family: 'JetBrains Mono', monospace;
 }
 
@@ -49,6 +50,7 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
   width: 0;
@@ -58,6 +60,12 @@
 @layer utilities {
   .card-soft-shadow {
     box-shadow: 0 8px 24px rgba(111, 120, 219, 0.08);
+  }
+
+  .bg-auth-wallpaper {
+    background-image: url('./assets/principal.jpg');
+    background-size: cover;
+    background-position: center;
   }
 
   .card-pop-shadow {
@@ -96,4 +104,3 @@ html.dark .katex .mpunct,
 html.dark .katex .minner {
   color: #F8FAFC !important;
 }
-

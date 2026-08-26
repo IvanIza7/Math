@@ -58,7 +58,7 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
   const [activeLabTab, setActiveLabTab] = useState<'sets' | 'towers' | 'algebra'>('sets');
 
   // Accordion state
-  const [expandedVolumeCodes, setExpandedVolumeCodes] = useState<string[]>(['VOL-01']);
+  const [expandedVolumeCodes, setExpandedVolumeCodes] = useState<string[]>([]);
 
   const toggleVolumeExpand = (volCode: string) => {
     playSound('click');
@@ -217,7 +217,8 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                 className="flex items-stretch gap-3.5 overflow-x-auto px-5 pb-2 snap-x snap-mandatory no-scrollbar"
                 style={{ scrollbarWidth: 'none' }}
               >
-                {activeHeroSessions.map((session) => (
+                {activeHeroSessions.length > 0 ? (
+                  activeHeroSessions.map((session) => (
                   <motion.div
                     key={session.id}
                     whileHover={{ scale: 1.01 }}
@@ -296,7 +297,13 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                       />
                     </div>
                   </motion.div>
-                ))}
+                ))) : (
+                  <div className="w-[84vw] sm:w-[320px] max-w-[340px] h-[142px] snap-center shrink-0 rounded-3xl p-3.5 sm:p-4 border-2 border-dashed border-[#1E1E24]/30 bg-white/50 dark:bg-[#1E202E]/50 flex flex-col items-center justify-center text-center gap-2">
+                    <span className="text-3xl opacity-50 grayscale">🚀</span>
+                    <p className="text-sm font-bold text-[#4A4E69] dark:text-gray-300">No tienes misiones en curso</p>
+                    <p className="text-xs font-semibold text-[#8A909F] dark:text-gray-500">Inicia un desafío para que aparezca aquí</p>
+                  </div>
+                )}
               </div>
             </div>
 

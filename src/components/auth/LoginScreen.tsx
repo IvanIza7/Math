@@ -2,8 +2,6 @@ import React, { useState, useRef } from 'react';
 import { supabase } from '../../config/supabase';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import loginImg from '../../assets/login-image.jpg';
-import registerImg from '../../assets/register-image.jpg';
 
 interface LoginScreenProps {
   onLoginSuccess: () => void;
@@ -128,40 +126,19 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#f8faf9] flex justify-center overflow-hidden font-poppins text-[#000] touch-none">
+    <div className="fixed inset-0 flex items-center justify-center overflow-hidden font-poppins text-[#000] p-4 bg-auth-wallpaper">
       <motion.div 
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={0.3}
-        className="w-full max-w-[402px] h-full bg-[#f8faf9] flex flex-col relative"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-[402px] bg-[#79E55B] rounded-[40px] sm:rounded-[50px] border-4 border-[#000] relative overflow-hidden shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col h-[560px] sm:h-[620px]"
       >
-        
-        {/* Responsive Image Section */}
-        <div className="flex-1 min-h-[20vh] max-h-[312px] w-full flex items-center justify-center relative overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.img
-              key={isLogin ? 'login-img' : 'register-img'}
-              src={isLogin ? loginImg : registerImg}
-              alt="Ilustración"
-              initial={{ opacity: 0, scale: 0.95, y: 10 }}
-              animate={{ opacity: 1, scale: 1.15, y: 0 }}
-              exit={{ opacity: 0, scale: 1.05, y: -10 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="w-full h-full object-contain p-0 pb-4 origin-bottom"
-            />
-          </AnimatePresence>
-        </div>
-
-        {/* Responsive Form Card Section */}
-        <div className="flex-none bg-[#79E55B] rounded-t-[40px] sm:rounded-t-[50px] border-t-2 border-x-2 border-b-2 sm:border-b-0 border-[#000] relative overflow-hidden shadow-[0px_-8px_20px_rgba(0,0,0,0.08)] flex flex-col h-auto min-h-[55vh] pb-6">
-          
           <AnimatePresence mode="wait">
             <motion.div
               key={isLogin ? 'login' : 'register'}
-              initial={{ x: isLogin ? -402 : 402, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: isLogin ? 402 : -402, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 32 }}
+              initial={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, scale: 0.96, filter: 'blur(4px)' }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               className="w-full h-full flex flex-col px-7 py-8 sm:px-10 sm:py-10"
             >
               <form onSubmit={handleSubmit} className="w-full h-full flex flex-col gap-4 sm:gap-6 justify-between">
@@ -302,8 +279,6 @@ export function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
               </form>
             </motion.div>
           </AnimatePresence>
-
-        </div>
       </motion.div>
     </div>
   );

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Clock, CheckCircle2, XCircle, Trophy, Sparkles, X, RotateCcw, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle2, XCircle, Trophy, Sparkles, X, RotateCcw, ChevronRight, Delete } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ArenaChallenge, ArenaQuestion } from '../data/arenaChallengesData';
 import { QuizMemphisIllustration } from './Illustrations';
@@ -10,7 +10,7 @@ import { playSound } from '../utils/sound';
 interface ArenaChallengeRunnerProps {
   challenge: ArenaChallenge;
   onClose: () => void;
-  onComplete: (score: number, total: number, passed: boolean) => void;
+  onComplete: (score: number, total: number, passed: boolean, timeSeconds: number) => void;
 }
 
 export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
@@ -31,23 +31,27 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   const [answerHistory, setAnswerHistory] = useState<('correct' | 'incorrect')[]>([]);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(180); // 3:00 min
+  const [elapsedMs, setElapsedMs] = useState(0);
+  const startTimeRef = useRef<number>(Date.now());
 
   const currentQ = sessionQuestions[currentIndex] || sessionQuestions[0];
   const totalQ = sessionQuestions.length;
 
   useEffect(() => {
     if (isFinished) return;
+    startTimeRef.current = Date.now();
     const timer = setInterval(() => {
-      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+      setElapsedMs(Date.now() - startTimeRef.current);
+    }, 30);
     return () => clearInterval(timer);
   }, [isFinished]);
 
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  const formatTime = (ms: number) => {
+    const totalSecs = Math.floor(ms / 1000);
+    const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const s = (totalSecs % 60).toString().padStart(2, '0');
+    const centiseconds = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
+    return `${m}:${s}:${centiseconds}`;
   };
 
   const handleSelectOption = (key: string) => {
@@ -117,7 +121,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
         }
 
         setIsFinished(true);
-        onComplete(finalScore, totalQ, passed);
+        onComplete(finalScore, totalQ, passed, elapsedMs / 1000);
       }
     }
   };
@@ -133,7 +137,8 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
     setScore(0);
     setAnswerHistory([]);
     setIsFinished(false);
-    setSecondsLeft(180);
+    setElapsedMs(0);
+    startTimeRef.current = Date.now();
   };
 
   const isCurrentCorrect = isChecked && answerHistory[currentIndex] === 'correct';
@@ -287,7 +292,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
         {/* Timer Badge */}
         <div className="flex items-center gap-1.5 bg-[#F7CA38] border-2 border-[#1E1E24] px-3 py-1 rounded-full font-black text-xs text-[#1E1E24] shadow-xs shrink-0">
           <Clock className="w-3.5 h-3.5 text-[#1E1E24]" />
-          <span>{formatTime(secondsLeft)}</span>
+          <span className="font-mono w-[72px] text-right">{formatTime(elapsedMs)}</span>
         </div>
       </div>
 
@@ -339,23 +344,55 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
 
         {/* 2x2 Options Grid OR Text Input */}
         {currentQ.inputType === 'text' ? (
-          <div className="w-full my-4 flex flex-col items-center">
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="Escribe tu respuesta..."
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              disabled={isChecked}
-              className={`w-full max-w-sm text-center font-black text-2xl py-4 px-6 rounded-2xl border-4 outline-none transition-all shadow-inner placeholder:text-gray-400 placeholder:font-bold ${
+          <div className="w-full my-2 flex flex-col items-center gap-4">
+            <div 
+              className={`w-full max-w-sm min-h-[64px] border-4 rounded-2xl flex items-center justify-center px-4 transition-colors shadow-inner text-3xl font-black ${
                 isChecked && isCurrentCorrect
                   ? 'bg-green-100 border-[#22C55E] text-[#22C55E]'
                   : isChecked && !isCurrentCorrect
                   ? 'bg-red-100 border-[#EF4444] text-[#EF4444]'
-                  : 'bg-white border-[#1E1E24] text-[#1E1E24] focus:border-[#6F78DB]'
+                  : 'bg-white border-[#1E1E24] text-[#1E1E24]'
               }`}
-              autoFocus
-            />
+            >
+              {textInput || (
+                <span className="text-gray-300">?</span>
+              )}
+            </div>
+            
+            {/* Custom Keypad */}
+            <div className="max-w-xs w-full mx-auto grid grid-cols-3 gap-2 mt-2">
+              {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
+                <button
+                  key={num}
+                  onClick={() => !isChecked && setTextInput(prev => prev + num)}
+                  disabled={isChecked}
+                  className="h-14 bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl text-2xl font-black text-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
+                >
+                  {num}
+                </button>
+              ))}
+              <button
+                onClick={() => !isChecked && setTextInput(prev => prev.slice(0, -1))}
+                disabled={isChecked}
+                className="h-14 bg-red-100 border-2 border-[#1E1E24] rounded-xl flex items-center justify-center text-red-600 shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
+              >
+                <Delete size={24} />
+              </button>
+              <button
+                onClick={() => !isChecked && setTextInput(prev => prev + '0')}
+                disabled={isChecked}
+                className="h-14 bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl text-2xl font-black text-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
+              >
+                0
+              </button>
+              <button
+                onClick={() => !isChecked && setTextInput(prev => prev.includes('-') ? prev.replace('-', '') : '-' + prev)}
+                disabled={isChecked}
+                className="h-14 bg-gray-200 border-2 border-[#1E1E24] rounded-xl text-2xl font-black text-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
+              >
+                ±
+              </button>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 w-full my-2">
