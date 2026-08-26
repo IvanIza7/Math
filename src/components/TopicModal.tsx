@@ -4,6 +4,12 @@ import { X, Book, Lightbulb, AlertTriangle, Play, ArrowLeft } from 'lucide-react
 import { EncyclopediaCard, ENCYCLOPEDIA_CARDS } from '../data/encyclopediaCards';
 import { MathView } from '../utils/math';
 import { playSound } from '../utils/sound';
+import { ClasificacionNumerosModule } from './modules/AritmeticaModule';
+import { OperacionesBasicasModule } from './modules/OperacionesBasicasModule';
+import { TeoriaNumeosModule } from './modules/TeoriaNumeosModule';
+import { DecimalesFraccionesModule } from './modules/DecimalesFraccionesModule';
+import { FundamentosAlgebraModule } from './modules/FundamentosAlgebraModule';
+import { OperacionesAlgebraicasModule } from './modules/OperacionesAlgebraicasModule';
 
 interface TopicModalProps {
   isOpen: boolean;
@@ -84,9 +90,34 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
       </div>
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-8 scroll-smooth">
-            
-            {/* Teoría */}
+          {card.id === 'vol1-t1' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <ClasificacionNumerosModule />
+            </div>
+          ) : card.id === 'vol1-t2' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <OperacionesBasicasModule />
+            </div>
+          ) : card.id === 'vol1-t3' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <TeoriaNumeosModule />
+            </div>
+          ) : card.id === 'vol1-t4' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <DecimalesFraccionesModule />
+            </div>
+          ) : card.id === 'vol2-t1' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <FundamentosAlgebraModule />
+            </div>
+          ) : card.id === 'vol2-t2' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <OperacionesAlgebraicasModule />
+            </div>
+          ) : (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-8 scroll-smooth">
+              
+              {/* Teoría */}
             <section className="space-y-4">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-[#1E1E24] text-white flex items-center justify-center">
@@ -171,6 +202,7 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
             )}
 
           </div>
+          )}
         </motion.div>
   );
 };

@@ -161,57 +161,1307 @@ export const ARENA_CHALLENGES: ArenaChallenge[] = [
     bgGradient: 'from-[#10B981] to-[#059669]',
     badgeBg: 'bg-[#F7CA38] text-[#1E1E24]',
     questions: [
-      { id: 'd3-1', question: '¿Cuál es la lista completa de factores (divisores) de 6?', latex: 'Div(6)', options: [{ key: 'A', text: '1, 2, 3, 6', isCorrect: true }, { key: 'B', text: '2, 3', isCorrect: false }, { key: 'C', text: '1, 6', isCorrect: false }, { key: 'D', text: '1, 2, 6', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-2', question: '¿Cuál es la lista completa de factores de 8?', latex: 'Div(8)', options: [{ key: 'A', text: '1, 2, 4, 8', isCorrect: true }, { key: 'B', text: '2, 4, 8', isCorrect: false }, { key: 'C', text: '1, 8', isCorrect: false }, { key: 'D', text: '2, 4', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-3', question: '¿Cuál es la lista completa de factores de 12?', latex: 'Div(12)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 12', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6', isCorrect: false }, { key: 'C', text: '1, 3, 4, 12', isCorrect: false }, { key: 'D', text: '1, 2, 6, 12', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-4', question: '¿Cuál es la lista completa de factores de 9?', latex: 'Div(9)', options: [{ key: 'A', text: '1, 3, 9', isCorrect: true }, { key: 'B', text: '3, 9', isCorrect: false }, { key: 'C', text: '1, 9', isCorrect: false }, { key: 'D', text: '1, 2, 3, 9', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-5', question: '¿Cuál es la lista completa de factores de 10?', latex: 'Div(10)', options: [{ key: 'A', text: '1, 2, 5, 10', isCorrect: true }, { key: 'B', text: '2, 5', isCorrect: false }, { key: 'C', text: '1, 5, 10', isCorrect: false }, { key: 'D', text: '2, 5, 10', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-6', question: '¿Cuál es la lista completa de factores de 15?', latex: 'Div(15)', options: [{ key: 'A', text: '1, 3, 5, 15', isCorrect: true }, { key: 'B', text: '3, 5', isCorrect: false }, { key: 'C', text: '1, 5, 15', isCorrect: false }, { key: 'D', text: '1, 3, 15', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-7', question: '¿Cuál es la lista completa de factores de 16?', latex: 'Div(16)', options: [{ key: 'A', text: '1, 2, 4, 8, 16', isCorrect: true }, { key: 'B', text: '2, 4, 8, 16', isCorrect: false }, { key: 'C', text: '1, 4, 16', isCorrect: false }, { key: 'D', text: '2, 8, 16', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-8', question: '¿Cuál es la lista completa de factores de 7?', latex: 'Div(7)', options: [{ key: 'A', text: '1, 7', isCorrect: true }, { key: 'B', text: '1, 2, 7', isCorrect: false }, { key: 'C', text: '7', isCorrect: false }, { key: 'D', text: '1, 3, 7', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-9', question: '¿Cuál es la lista completa de factores de 18?', latex: 'Div(18)', options: [{ key: 'A', text: '1, 2, 3, 6, 9, 18', isCorrect: true }, { key: 'B', text: '2, 3, 6, 9', isCorrect: false }, { key: 'C', text: '1, 2, 9, 18', isCorrect: false }, { key: 'D', text: '1, 3, 6, 18', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-10', question: '¿Cuál es la lista completa de factores de 20?', latex: 'Div(20)', options: [{ key: 'A', text: '1, 2, 4, 5, 10, 20', isCorrect: true }, { key: 'B', text: '2, 4, 5, 10', isCorrect: false }, { key: 'C', text: '1, 2, 10, 20', isCorrect: false }, { key: 'D', text: '1, 4, 5, 20', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-11', question: '¿Cuál es la lista completa de factores de 14?', latex: 'Div(14)', options: [{ key: 'A', text: '1, 2, 7, 14', isCorrect: true }, { key: 'B', text: '2, 7', isCorrect: false }, { key: 'C', text: '1, 7, 14', isCorrect: false }, { key: 'D', text: '2, 7, 14', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-12', question: '¿Cuál es la lista completa de factores de 21?', latex: 'Div(21)', options: [{ key: 'A', text: '1, 3, 7, 21', isCorrect: true }, { key: 'B', text: '3, 7', isCorrect: false }, { key: 'C', text: '1, 7, 21', isCorrect: false }, { key: 'D', text: '1, 3, 21', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-13', question: '¿Cuál es la lista completa de factores de 24?', latex: 'Div(24)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 8, 12, 24', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6, 8, 12', isCorrect: false }, { key: 'C', text: '1, 2, 4, 6, 12, 24', isCorrect: false }, { key: 'D', text: '1, 3, 8, 24', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-14', question: '¿Cuál es la lista completa de factores de 25?', latex: 'Div(25)', options: [{ key: 'A', text: '1, 5, 25', isCorrect: true }, { key: 'B', text: '5, 25', isCorrect: false }, { key: 'C', text: '1, 25', isCorrect: false }, { key: 'D', text: '1, 5', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-15', question: '¿Cuál es la lista completa de factores de 27?', latex: 'Div(27)', options: [{ key: 'A', text: '1, 3, 9, 27', isCorrect: true }, { key: 'B', text: '3, 9', isCorrect: false }, { key: 'C', text: '1, 9, 27', isCorrect: false }, { key: 'D', text: '3, 9, 27', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-16', question: '¿Cuál es la lista completa de factores de 11?', latex: 'Div(11)', options: [{ key: 'A', text: '1, 11', isCorrect: true }, { key: 'B', text: '1, 2, 11', isCorrect: false }, { key: 'C', text: '11', isCorrect: false }, { key: 'D', text: '1, 3, 11', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-17', question: '¿Cuál es la lista completa de factores de 28?', latex: 'Div(28)', options: [{ key: 'A', text: '1, 2, 4, 7, 14, 28', isCorrect: true }, { key: 'B', text: '2, 4, 7, 14', isCorrect: false }, { key: 'C', text: '1, 2, 14, 28', isCorrect: false }, { key: 'D', text: '1, 4, 7, 28', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-18', question: '¿Cuál es la lista completa de factores de 30?', latex: 'Div(30)', options: [{ key: 'A', text: '1, 2, 3, 5, 6, 10, 15, 30', isCorrect: true }, { key: 'B', text: '2, 3, 5, 6, 10, 15', isCorrect: false }, { key: 'C', text: '1, 3, 5, 10, 30', isCorrect: false }, { key: 'D', text: '1, 2, 15, 30', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-19', question: '¿Cuál es la lista completa de factores de 32?', latex: 'Div(32)', options: [{ key: 'A', text: '1, 2, 4, 8, 16, 32', isCorrect: true }, { key: 'B', text: '2, 4, 8, 16', isCorrect: false }, { key: 'C', text: '1, 2, 16, 32', isCorrect: false }, { key: 'D', text: '1, 4, 8, 32', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-20', question: '¿Cuál es la lista completa de factores de 13?', latex: 'Div(13)', options: [{ key: 'A', text: '1, 13', isCorrect: true }, { key: 'B', text: '1, 3, 13', isCorrect: false }, { key: 'C', text: '13', isCorrect: false }, { key: 'D', text: '1, 2, 13', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-21', question: '¿Cuál es la lista completa de factores de 35?', latex: 'Div(35)', options: [{ key: 'A', text: '1, 5, 7, 35', isCorrect: true }, { key: 'B', text: '5, 7', isCorrect: false }, { key: 'C', text: '1, 7, 35', isCorrect: false }, { key: 'D', text: '1, 5, 35', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-22', question: '¿Cuál es la lista completa de factores de 36?', latex: 'Div(36)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 9, 12, 18, 36', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6, 9, 12, 18', isCorrect: false }, { key: 'C', text: '1, 2, 6, 18, 36', isCorrect: false }, { key: 'D', text: '1, 4, 9, 36', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-23', question: '¿Cuál es la lista completa de factores de 40?', latex: 'Div(40)', options: [{ key: 'A', text: '1, 2, 4, 5, 8, 10, 20, 40', isCorrect: true }, { key: 'B', text: '2, 4, 5, 8, 10, 20', isCorrect: false }, { key: 'C', text: '1, 2, 10, 20, 40', isCorrect: false }, { key: 'D', text: '1, 4, 10, 40', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-24', question: '¿Cuál es la lista completa de factores de 17?', latex: 'Div(17)', options: [{ key: 'A', text: '1, 17', isCorrect: true }, { key: 'B', text: '1, 2, 17', isCorrect: false }, { key: 'C', text: '17', isCorrect: false }, { key: 'D', text: '1, 7, 17', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-25', question: '¿Cuál es la lista completa de factores de 42?', latex: 'Div(42)', options: [{ key: 'A', text: '1, 2, 3, 6, 7, 14, 21, 42', isCorrect: true }, { key: 'B', text: '2, 3, 6, 7, 14, 21', isCorrect: false }, { key: 'C', text: '1, 2, 7, 21, 42', isCorrect: false }, { key: 'D', text: '1, 6, 7, 42', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-26', question: '¿Cuál es la lista completa de factores de 45?', latex: 'Div(45)', options: [{ key: 'A', text: '1, 3, 5, 9, 15, 45', isCorrect: true }, { key: 'B', text: '3, 5, 9, 15', isCorrect: false }, { key: 'C', text: '1, 5, 9, 45', isCorrect: false }, { key: 'D', text: '1, 3, 15, 45', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-27', question: '¿Cuál es la lista completa de factores de 48?', latex: 'Div(48)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 8, 12, 16, 24, 48', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6, 8, 12, 16, 24', isCorrect: false }, { key: 'C', text: '1, 2, 4, 12, 24, 48', isCorrect: false }, { key: 'D', text: '1, 6, 8, 48', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-28', question: '¿Cuál es la lista completa de factores de 19?', latex: 'Div(19)', options: [{ key: 'A', text: '1, 19', isCorrect: true }, { key: 'B', text: '1, 9, 19', isCorrect: false }, { key: 'C', text: '19', isCorrect: false }, { key: 'D', text: '1, 3, 19', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-29', question: '¿Cuál es la lista completa de factores de 50?', latex: 'Div(50)', options: [{ key: 'A', text: '1, 2, 5, 10, 25, 50', isCorrect: true }, { key: 'B', text: '2, 5, 10, 25', isCorrect: false }, { key: 'C', text: '1, 5, 10, 50', isCorrect: false }, { key: 'D', text: '1, 2, 25, 50', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-30', question: '¿Cuál es la lista completa de factores de 4?', latex: 'Div(4)', options: [{ key: 'A', text: '1, 2, 4', isCorrect: true }, { key: 'B', text: '2, 4', isCorrect: false }, { key: 'C', text: '1, 4', isCorrect: false }, { key: 'D', text: '1, 2', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-31', question: '¿Cuál es la lista completa de factores de 54?', latex: 'Div(54)', options: [{ key: 'A', text: '1, 2, 3, 6, 9, 18, 27, 54', isCorrect: true }, { key: 'B', text: '2, 3, 6, 9, 18, 27', isCorrect: false }, { key: 'C', text: '1, 3, 9, 27, 54', isCorrect: false }, { key: 'D', text: '1, 2, 27, 54', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-32', question: '¿Cuál es la lista completa de factores de 56?', latex: 'Div(56)', options: [{ key: 'A', text: '1, 2, 4, 7, 8, 14, 28, 56', isCorrect: true }, { key: 'B', text: '2, 4, 7, 8, 14, 28', isCorrect: false }, { key: 'C', text: '1, 2, 8, 28, 56', isCorrect: false }, { key: 'D', text: '1, 4, 14, 56', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-33', question: '¿Cuál es la lista completa de factores de 23?', latex: 'Div(23)', options: [{ key: 'A', text: '1, 23', isCorrect: true }, { key: 'B', text: '1, 2, 23', isCorrect: false }, { key: 'C', text: '23', isCorrect: false }, { key: 'D', text: '1, 3, 23', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-34', question: '¿Cuál es la lista completa de factores de 60?', latex: 'Div(60)', options: [{ key: 'A', text: '1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, 60', isCorrect: true }, { key: 'B', text: '2, 3, 4, 5, 6, 10, 12, 15, 20, 30', isCorrect: false }, { key: 'C', text: '1, 2, 5, 10, 30, 60', isCorrect: false }, { key: 'D', text: '1, 6, 10, 60', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-35', question: '¿Cuál es la lista completa de factores de 63?', latex: 'Div(63)', options: [{ key: 'A', text: '1, 3, 7, 9, 21, 63', isCorrect: true }, { key: 'B', text: '3, 7, 9, 21', isCorrect: false }, { key: 'C', text: '1, 7, 9, 63', isCorrect: false }, { key: 'D', text: '1, 3, 21, 63', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-36', question: '¿Cuál es la lista completa de factores de 64?', latex: 'Div(64)', options: [{ key: 'A', text: '1, 2, 4, 8, 16, 32, 64', isCorrect: true }, { key: 'B', text: '2, 4, 8, 16, 32', isCorrect: false }, { key: 'C', text: '1, 2, 8, 32, 64', isCorrect: false }, { key: 'D', text: '1, 4, 16, 64', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-37', question: '¿Cuál es la lista completa de factores de 29?', latex: 'Div(29)', options: [{ key: 'A', text: '1, 29', isCorrect: true }, { key: 'B', text: '1, 3, 29', isCorrect: false }, { key: 'C', text: '29', isCorrect: false }, { key: 'D', text: '1, 9, 29', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-38', question: '¿Cuál es la lista completa de factores de 70?', latex: 'Div(70)', options: [{ key: 'A', text: '1, 2, 5, 7, 10, 14, 35, 70', isCorrect: true }, { key: 'B', text: '2, 5, 7, 10, 14, 35', isCorrect: false }, { key: 'C', text: '1, 5, 14, 70', isCorrect: false }, { key: 'D', text: '1, 2, 35, 70', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-39', question: '¿Cuál es la lista completa de factores de 72?', latex: 'Div(72)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 8, 9, 12, 18, 24, 36, 72', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6, 8, 9, 12, 18, 24, 36', isCorrect: false }, { key: 'C', text: '1, 2, 6, 12, 36, 72', isCorrect: false }, { key: 'D', text: '1, 8, 9, 72', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-40', question: '¿Cuál es la lista completa de factores de 31?', latex: 'Div(31)', options: [{ key: 'A', text: '1, 31', isCorrect: true }, { key: 'B', text: '1, 3, 31', isCorrect: false }, { key: 'C', text: '31', isCorrect: false }, { key: 'D', text: '1, 2, 31', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-41', question: '¿Cuál es la lista completa de factores de 75?', latex: 'Div(75)', options: [{ key: 'A', text: '1, 3, 5, 15, 25, 75', isCorrect: true }, { key: 'B', text: '3, 5, 15, 25', isCorrect: false }, { key: 'C', text: '1, 5, 25, 75', isCorrect: false }, { key: 'D', text: '1, 3, 25, 75', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-42', question: '¿Cuál es la lista completa de factores de 80?', latex: 'Div(80)', options: [{ key: 'A', text: '1, 2, 4, 5, 8, 10, 16, 20, 40, 80', isCorrect: true }, { key: 'B', text: '2, 4, 5, 8, 10, 16, 20, 40', isCorrect: false }, { key: 'C', text: '1, 2, 8, 20, 80', isCorrect: false }, { key: 'D', text: '1, 4, 10, 80', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-43', question: '¿Cuál es la lista completa de factores de 81?', latex: 'Div(81)', options: [{ key: 'A', text: '1, 3, 9, 27, 81', isCorrect: true }, { key: 'B', text: '3, 9, 27', isCorrect: false }, { key: 'C', text: '1, 9, 81', isCorrect: false }, { key: 'D', text: '1, 3, 81', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-44', question: '¿Cuál es la lista completa de factores de 37?', latex: 'Div(37)', options: [{ key: 'A', text: '1, 37', isCorrect: true }, { key: 'B', text: '1, 7, 37', isCorrect: false }, { key: 'C', text: '37', isCorrect: false }, { key: 'D', text: '1, 3, 37', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-45', question: '¿Cuál es la lista completa de factores de 84?', latex: 'Div(84)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 7, 12, 14, 21, 28, 42, 84', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6, 7, 12, 14, 21, 28, 42', isCorrect: false }, { key: 'C', text: '1, 2, 6, 14, 42, 84', isCorrect: false }, { key: 'D', text: '1, 4, 21, 84', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-46', question: '¿Cuál es la lista completa de factores de 90?', latex: 'Div(90)', options: [{ key: 'A', text: '1, 2, 3, 5, 6, 9, 10, 15, 18, 30, 45, 90', isCorrect: true }, { key: 'B', text: '2, 3, 5, 6, 9, 10, 15, 18, 30, 45', isCorrect: false }, { key: 'C', text: '1, 3, 9, 30, 90', isCorrect: false }, { key: 'D', text: '1, 5, 18, 90', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-47', question: '¿Cuál es la lista completa de factores de 41?', latex: 'Div(41)', options: [{ key: 'A', text: '1, 41', isCorrect: true }, { key: 'B', text: '1, 4, 41', isCorrect: false }, { key: 'C', text: '41', isCorrect: false }, { key: 'D', text: '1, 2, 41', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-48', question: '¿Cuál es la lista completa de factores de 96?', latex: 'Div(96)', options: [{ key: 'A', text: '1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 96', isCorrect: true }, { key: 'B', text: '2, 3, 4, 6, 8, 12, 16, 24, 32, 48', isCorrect: false }, { key: 'C', text: '1, 2, 8, 24, 48, 96', isCorrect: false }, { key: 'D', text: '1, 6, 16, 96', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-49', question: '¿Cuál es la lista completa de factores de 100?', latex: 'Div(100)', options: [{ key: 'A', text: '1, 2, 4, 5, 10, 20, 25, 50, 100', isCorrect: true }, { key: 'B', text: '2, 4, 5, 10, 20, 25, 50', isCorrect: false }, { key: 'C', text: '1, 2, 10, 50, 100', isCorrect: false }, { key: 'D', text: '1, 5, 20, 100', isCorrect: false }], correctKey: 'A' },
-      { id: 'd3-50', question: '¿Cuál es la lista completa de factores de 43?', latex: 'Div(43)', options: [{ key: 'A', text: '1, 43', isCorrect: true }, { key: 'B', text: '1, 3, 43', isCorrect: false }, { key: 'C', text: '43', isCorrect: false }, { key: 'D', text: '1, 4, 43', isCorrect: false }], correctKey: 'A' },
-    ],
+    {
+        "id": "q1",
+        "type": "multiple-choice",
+        "question": "Un número multiplicado por 3 y se le suma 3",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "3x + 3"
+            },
+            {
+                "key": "B",
+                "text": "x + 3"
+            },
+            {
+                "key": "C",
+                "text": "3(x - 3)"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x}{3} + 3"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q2",
+        "type": "multiple-choice",
+        "question": "El doble de un número disminuido en cinco unidades",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "2x + 5"
+            },
+            {
+                "key": "B",
+                "text": "2x - 5"
+            },
+            {
+                "key": "C",
+                "text": "x - 10"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x}{2} - 5"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q3",
+        "type": "multiple-choice",
+        "question": "El triple de un número aumentado en su mitad",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "3x + \\frac{x}{2}"
+            },
+            {
+                "key": "B",
+                "text": "3x - 2"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{3x}{2}"
+            },
+            {
+                "key": "D",
+                "text": "x + \\frac{3}{2}"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q4",
+        "type": "multiple-choice",
+        "question": "El cuadrado de la suma de dos números diferentes",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "a^2 + b^2"
+            },
+            {
+                "key": "B",
+                "text": "(a + b)^2"
+            },
+            {
+                "key": "C",
+                "text": "2(a + b)"
+            },
+            {
+                "key": "D",
+                "text": "a + b^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q5",
+        "type": "multiple-choice",
+        "question": "La suma de los cuadrados de dos números diferentes",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "(a + b)^2"
+            },
+            {
+                "key": "B",
+                "text": "a^2 + b^2"
+            },
+            {
+                "key": "C",
+                "text": "2a + 2b"
+            },
+            {
+                "key": "D",
+                "text": "(ab)^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q6",
+        "type": "multiple-choice",
+        "question": "La cuarta parte de un número aumentada en ocho",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "4x + 8"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{x + 8}{4}"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{x}{4} + 8"
+            },
+            {
+                "key": "D",
+                "text": "4(x + 8)"
+            }
+        ],
+        "correctKey": "C",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q7",
+        "type": "multiple-choice",
+        "question": "La mitad de la diferencia entre un número y diez",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{x - 10}{2}"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{x}{2} - 10"
+            },
+            {
+                "key": "C",
+                "text": "2(x - 10)"
+            },
+            {
+                "key": "D",
+                "text": "x - 5"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q8",
+        "type": "multiple-choice",
+        "question": "El producto de dos números consecutivos",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x + (x + 1)"
+            },
+            {
+                "key": "B",
+                "text": "x(x + 1)"
+            },
+            {
+                "key": "C",
+                "text": "x^2 + 1"
+            },
+            {
+                "key": "D",
+                "text": "2x(x + 1)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q9",
+        "type": "multiple-choice",
+        "question": "La suma de tres números enteros consecutivos",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x + (x + 1) + (x + 2)"
+            },
+            {
+                "key": "B",
+                "text": "x(x + 1)(x + 2)"
+            },
+            {
+                "key": "C",
+                "text": "3x + 1"
+            },
+            {
+                "key": "D",
+                "text": "x^3"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q10",
+        "type": "multiple-choice",
+        "question": "El cubo del doble de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "2x^3"
+            },
+            {
+                "key": "B",
+                "text": "(2x)^3"
+            },
+            {
+                "key": "C",
+                "text": "3(2x)"
+            },
+            {
+                "key": "D",
+                "text": "6x^3"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q11",
+        "type": "multiple-choice",
+        "question": "El doble del cubo de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "(2x)^3"
+            },
+            {
+                "key": "B",
+                "text": "2x^3"
+            },
+            {
+                "key": "C",
+                "text": "8x^3"
+            },
+            {
+                "key": "D",
+                "text": "3x^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q12",
+        "type": "multiple-choice",
+        "question": "Un número aumentado en su 30%",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x + 30"
+            },
+            {
+                "key": "B",
+                "text": "0.30x"
+            },
+            {
+                "key": "C",
+                "text": "x + 0.30x"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x}{30}"
+            }
+        ],
+        "correctKey": "C",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q13",
+        "type": "multiple-choice",
+        "question": "El exceso de un número sobre veinte",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "20 - x"
+            },
+            {
+                "key": "B",
+                "text": "x - 20"
+            },
+            {
+                "key": "C",
+                "text": "x + 20"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x}{20}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q14",
+        "type": "multiple-choice",
+        "question": "Cinco veces un número disminuido en el triple de otro",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "5x + 3y"
+            },
+            {
+                "key": "B",
+                "text": "5x - 3y"
+            },
+            {
+                "key": "C",
+                "text": "(5x)(3y)"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{5x}{3y}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q15",
+        "type": "multiple-choice",
+        "question": "El cociente de la suma de dos números sobre su diferencia",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{a + b}{a - b}"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{a - b}{a + b}"
+            },
+            {
+                "key": "C",
+                "text": "(a+b)(a-b)"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{ab}{a - b}"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q16",
+        "type": "multiple-choice",
+        "question": "El recíproco de un número cualquiera no nulo",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "-x"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{1}{x}"
+            },
+            {
+                "key": "C",
+                "text": "x^{-2}"
+            },
+            {
+                "key": "D",
+                "text": "1 - x"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q17",
+        "type": "multiple-choice",
+        "question": "La raíz cuadrada de la suma de dos números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\sqrt{a} + \\sqrt{b}"
+            },
+            {
+                "key": "B",
+                "text": "\\sqrt{a + b}"
+            },
+            {
+                "key": "C",
+                "text": "\\sqrt{ab}"
+            },
+            {
+                "key": "D",
+                "text": "(\\sqrt{a+b})^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q18",
+        "type": "multiple-choice",
+        "question": "La suma de las raíces cuadradas de dos números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\sqrt{a + b}"
+            },
+            {
+                "key": "B",
+                "text": "\\sqrt{a} + \\sqrt{b}"
+            },
+            {
+                "key": "C",
+                "text": "\\sqrt{ab}"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{\\sqrt{a}}{b}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q19",
+        "type": "multiple-choice",
+        "question": "El cuadrado de un número disminuido en siete",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x^2 - 7"
+            },
+            {
+                "key": "B",
+                "text": "(x - 7)^2"
+            },
+            {
+                "key": "C",
+                "text": "2x - 7"
+            },
+            {
+                "key": "D",
+                "text": "7 - x^2"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q20",
+        "type": "multiple-choice",
+        "question": "El cuadrado de la diferencia de un número y siete",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x^2 - 7"
+            },
+            {
+                "key": "B",
+                "text": "(x - 7)^2"
+            },
+            {
+                "key": "C",
+                "text": "x^2 - 49"
+            },
+            {
+                "key": "D",
+                "text": "2(x - 7)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q21",
+        "type": "multiple-choice",
+        "question": "El triple del cuadrado de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "(3x)^2"
+            },
+            {
+                "key": "B",
+                "text": "3x^2"
+            },
+            {
+                "key": "C",
+                "text": "9x^2"
+            },
+            {
+                "key": "D",
+                "text": "3x^3"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q22",
+        "type": "multiple-choice",
+        "question": "El cuadrado del triple de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "3x^2"
+            },
+            {
+                "key": "B",
+                "text": "(3x)^2"
+            },
+            {
+                "key": "C",
+                "text": "6x^2"
+            },
+            {
+                "key": "D",
+                "text": "3(2x)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q23",
+        "type": "multiple-choice",
+        "question": "Un número par cualquiera",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x + 2"
+            },
+            {
+                "key": "B",
+                "text": "2n"
+            },
+            {
+                "key": "C",
+                "text": "2n + 1"
+            },
+            {
+                "key": "D",
+                "text": "n^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q24",
+        "type": "multiple-choice",
+        "question": "Un número impar cualquiera",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "2n"
+            },
+            {
+                "key": "B",
+                "text": "2n + 1"
+            },
+            {
+                "key": "C",
+                "text": "n + 1"
+            },
+            {
+                "key": "D",
+                "text": "2n + 2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q25",
+        "type": "multiple-choice",
+        "question": "La suma de dos números pares consecutivos",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "2n + (2n + 2)"
+            },
+            {
+                "key": "B",
+                "text": "n + (n + 2)"
+            },
+            {
+                "key": "C",
+                "text": "2n + (2n + 1)"
+            },
+            {
+                "key": "D",
+                "text": "4n"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q26",
+        "type": "multiple-choice",
+        "question": "La suma de dos números impares consecutivos",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "(2n + 1) + (2n + 3)"
+            },
+            {
+                "key": "B",
+                "text": "2n + (2n + 2)"
+            },
+            {
+                "key": "C",
+                "text": "(2n + 1) + (2n + 2)"
+            },
+            {
+                "key": "D",
+                "text": "n + (n + 1)"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q27",
+        "type": "multiple-choice",
+        "question": "La edad de una persona dentro de doce años si su edad actual es x",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x - 12"
+            },
+            {
+                "key": "B",
+                "text": "12x"
+            },
+            {
+                "key": "C",
+                "text": "x + 12"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x}{12}"
+            }
+        ],
+        "correctKey": "C",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q28",
+        "type": "multiple-choice",
+        "question": "La edad de una persona hace ocho años si su edad actual es y",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "y - 8"
+            },
+            {
+                "key": "B",
+                "text": "y + 8"
+            },
+            {
+                "key": "C",
+                "text": "8 - y"
+            },
+            {
+                "key": "D",
+                "text": "8y"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q29",
+        "type": "multiple-choice",
+        "question": "El triple de la edad que tendré dentro de cuatro años (x = edad actual)",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "3x + 4"
+            },
+            {
+                "key": "B",
+                "text": "3(x + 4)"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{x + 4}{3}"
+            },
+            {
+                "key": "D",
+                "text": "3x + 12x"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q30",
+        "type": "multiple-choice",
+        "question": "La diferencia de los cubos de dos números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "(a - b)^3"
+            },
+            {
+                "key": "B",
+                "text": "a^3 - b^3"
+            },
+            {
+                "key": "C",
+                "text": "3a - 3b"
+            },
+            {
+                "key": "D",
+                "text": "(a^3)(b^3)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q31",
+        "type": "multiple-choice",
+        "question": "El cubo de la diferencia de dos números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "a^3 - b^3"
+            },
+            {
+                "key": "B",
+                "text": "(a - b)^3"
+            },
+            {
+                "key": "C",
+                "text": "a^3 - 3b"
+            },
+            {
+                "key": "D",
+                "text": "3(a - b)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q32",
+        "type": "multiple-choice",
+        "question": "El promedio o media aritmética de cuatro notas (a, b, c, d)",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "a + b + c + d"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{a + b + c + d}{4}"
+            },
+            {
+                "key": "C",
+                "text": "4(a + b + c + d)"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{abcd}{4}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q33",
+        "type": "multiple-choice",
+        "question": "El perímetro de un rectángulo cuya base (b) es el doble de su altura (h)",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "2(2h) + 2h"
+            },
+            {
+                "key": "B",
+                "text": "2h + h"
+            },
+            {
+                "key": "C",
+                "text": "2h \\cdot h"
+            },
+            {
+                "key": "D",
+                "text": "4h"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q34",
+        "type": "multiple-choice",
+        "question": "El área de un triángulo de base b y altura h",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "bh"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{bh}{2}"
+            },
+            {
+                "key": "C",
+                "text": "2bh"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{b + h}{2}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q35",
+        "type": "multiple-choice",
+        "question": "La distancia recorrida a velocidad constante v en un tiempo t + 3",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "v + t + 3"
+            },
+            {
+                "key": "B",
+                "text": "v(t + 3)"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{v}{t + 3}"
+            },
+            {
+                "key": "D",
+                "text": "vt + 3"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q36",
+        "type": "multiple-choice",
+        "question": "El costo total de x cuadernos a $25 cada uno más una mochila de $150",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "25 + 150x"
+            },
+            {
+                "key": "B",
+                "text": "25x + 150"
+            },
+            {
+                "key": "C",
+                "text": "175x"
+            },
+            {
+                "key": "D",
+                "text": "25(x + 150)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q37",
+        "type": "multiple-choice",
+        "question": "La tercera parte de un número sumada con la cuarta parte de otro número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{x}{3} + \\frac{y}{4}"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{x + y}{7}"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{xy}{12}"
+            },
+            {
+                "key": "D",
+                "text": "3x + 4y"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q38",
+        "type": "multiple-choice",
+        "question": "El quíntuple de la suma de dos números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "5x + y"
+            },
+            {
+                "key": "B",
+                "text": "5(x + y)"
+            },
+            {
+                "key": "C",
+                "text": "5xy"
+            },
+            {
+                "key": "D",
+                "text": "x + 5y"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q39",
+        "type": "multiple-choice",
+        "question": "El cociente entre el doble de un número y su sucesor",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{2x}{x - 1}"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{2x}{x + 1}"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{x + 1}{2x}"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{2x}{2x + 1}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q40",
+        "type": "multiple-choice",
+        "question": "Un número disminuido en sus dos quintas partes",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x - \\frac{2}{5}x"
+            },
+            {
+                "key": "B",
+                "text": "x - \\frac{2}{5}"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{2}{5} - x"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x - 2}{5}"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q41",
+        "type": "multiple-choice",
+        "question": "El producto de la suma de dos números por su diferencia",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "(a + b)(a - b)"
+            },
+            {
+                "key": "B",
+                "text": "(a + b) - (a - b)"
+            },
+            {
+                "key": "C",
+                "text": "a^2 - 2ab + b^2"
+            },
+            {
+                "key": "D",
+                "text": "(a - b)^2"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q42",
+        "type": "multiple-choice",
+        "question": "Dos números cuya suma es 45 (si uno es x, el otro es)",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "x - 45"
+            },
+            {
+                "key": "B",
+                "text": "45 - x"
+            },
+            {
+                "key": "C",
+                "text": "45x"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{45}{x}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q43",
+        "type": "multiple-choice",
+        "question": "Dos números cuyo producto es 100 (si uno es x, el otro es)",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "100 - x"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{100}{x}"
+            },
+            {
+                "key": "C",
+                "text": "100x"
+            },
+            {
+                "key": "D",
+                "text": "x + 100"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q44",
+        "type": "multiple-choice",
+        "question": "El opuesto aditivo del triple de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{1}{3x}"
+            },
+            {
+                "key": "B",
+                "text": "-3x"
+            },
+            {
+                "key": "C",
+                "text": "3(-x)^2"
+            },
+            {
+                "key": "D",
+                "text": "3 - x"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q45",
+        "type": "multiple-choice",
+        "question": "La raíz cúbica del producto de tres números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\sqrt[3]{a} + \\sqrt[3]{b} + \\sqrt[3]{c}"
+            },
+            {
+                "key": "B",
+                "text": "\\sqrt[3]{abc}"
+            },
+            {
+                "key": "C",
+                "text": "3\\sqrt{abc}"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{abc}{3}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q46",
+        "type": "multiple-choice",
+        "question": "La suma de los inversos multiplicativos de dos números (x, y)",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{1}{x} + \\frac{1}{y}"
+            },
+            {
+                "key": "B",
+                "text": "-x - y"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{1}{x + y}"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{xy}{x + y}"
+            }
+        ],
+        "correctKey": "A",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q47",
+        "type": "multiple-choice",
+        "question": "El inverso multiplicativo de la suma de dos números",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{1}{x} + \\frac{1}{y}"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{1}{x + y}"
+            },
+            {
+                "key": "C",
+                "text": "-(x + y)"
+            },
+            {
+                "key": "D",
+                "text": "\\frac{x + y}{xy}"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q48",
+        "type": "multiple-choice",
+        "question": "El cuadrado de la mitad de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\frac{x^2}{2}"
+            },
+            {
+                "key": "B",
+                "text": "\\left(\\frac{x}{2}\\right)^2"
+            },
+            {
+                "key": "C",
+                "text": "\\sqrt{\\frac{x}{2}}"
+            },
+            {
+                "key": "D",
+                "text": "2x^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q49",
+        "type": "multiple-choice",
+        "question": "La mitad del cuadrado de un número",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "\\left(\\frac{x}{2}\\right)^2"
+            },
+            {
+                "key": "B",
+                "text": "\\frac{x^2}{2}"
+            },
+            {
+                "key": "C",
+                "text": "\\frac{2x}{2}"
+            },
+            {
+                "key": "D",
+                "text": "(2x)^2"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    },
+    {
+        "id": "q50",
+        "type": "multiple-choice",
+        "question": "Ocho veces la diferencia entre el cubo de un número y diez",
+        "optionsAreLatex": true,
+        "options": [
+            {
+                "key": "A",
+                "text": "8x^3 - 10"
+            },
+            {
+                "key": "B",
+                "text": "8(x^3 - 10)"
+            },
+            {
+                "key": "C",
+                "text": "(8x)^3 - 10"
+            },
+            {
+                "key": "D",
+                "text": "8(3x - 10)"
+            }
+        ],
+        "correctKey": "B",
+        "explanation": "Traducido literalmente de los enunciados verbales al álgebra."
+    }
+],
   },
   {
     id: 'desafio-4',

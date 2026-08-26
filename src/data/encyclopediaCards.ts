@@ -188,35 +188,51 @@ export const ENCYCLOPEDIA_CARDS: EncyclopediaCard[] = [
     categoria: 'Álgebra',
     color: '#a78bfa',
     titulo: 'Fundamentos del Álgebra',
-    resumen: 'Qué es el Álgebra, estructura del término, monomios/polinomios y lenguaje algebraico.',
+    resumen: 'Guía esencial: Elementos del término, clasificación y conceptos clave.',
     teoria: [
-      { title: '¿Qué es el Álgebra?', content: 'Es la generalización de la aritmética: utiliza letras (variables) para representar números desconocidos o reglas universales. Analogía: piensa en una variable como una caja de cartón cerrada.', isLatex: false },
-      { title: 'Estructura de un Término', content: '\\text{Bloque indivisible. Ej: } \\mathbf{-5x^3y^2}. \\text{ Signo (-), Coef. (5), Lits. (x,y), Exps. (3,2).}', isLatex: true },
-      { title: 'Clasificación', content: 'Monomio (1 término), Binomio (2 términos), Trinomio (3 términos), Polinomio general (4+ términos).', isLatex: false },
-      { title: 'Lenguaje Algebraico', content: 'El doble de un número aumentado en cinco: 2x + 5. La suma de los cuadrados: a^2 + b^2.', isLatex: false }
+      { 
+        title: '¿Qué es el Álgebra?', 
+        content: 'Es la rama de las matemáticas que generaliza la aritmética empleando números, letras (literales) y signos para formular relaciones, propiedades y resolver problemas con valores desconocidos.', 
+        isLatex: false 
+      },
+      { 
+        title: 'Elementos de un Término Algebraico', 
+        content: '\\text{Un término es la unidad básica separada por signos } + \\text{ o } -. \\\\ \\text{Ejemplo: } -5x^3y^2 \\\\ \\bullet \\textbf{ Signo:} \\text{ Indica si es positivo (+) o negativo (-).} \\\\ \\bullet \\textbf{ Coeficiente:} \\text{ Número real que multiplica (5). Si no hay, es 1.} \\\\ \\bullet \\textbf{ Base / Literal:} \\text{ Letras que representan valores (x, y).} \\\\ \\bullet \\textbf{ Exponente:} \\text{ Potencia (3 y 2). Si no hay, es 1.}', 
+        isLatex: true 
+      },
+      { 
+        title: 'Clasificación por Número de Términos', 
+        content: '\\bullet \\textbf{ Monomio: } \\text{ 1 término } (3x,\\; -7a^2b,\\; \\frac{1}{2}y^5) \\\\ \\bullet \\textbf{ Binomio: } \\text{ 2 términos } (2x + 5,\\; a^2 - b^2) \\\\ \\bullet \\textbf{ Trinomio: } \\text{ 3 términos } (x^2 + 6x + 9) \\\\ \\bullet \\textbf{ Polinomio: } \\text{ 2 o más términos } (4x^3 - 2x^2 + 5x - 7)', 
+        isLatex: true 
+      },
+      { 
+        title: 'Conceptos Operativos Clave', 
+        content: '• Términos Semejantes: Tienen idéntica parte literal (mismas variables y exponentes). Solo estos se pueden sumar o restar directamente. Ej: 4x²y y -9x²y son semejantes; 4x²y y 4xy² NO lo son.\n\n• Valor Numérico: Resultado de sustituir las variables por números y operar.\n\n• Grado de un Término: Suma de los exponentes de todas sus literales (ej. -5x³y² es de grado 5).', 
+        isLatex: false 
+      }
     ],
     ejemplos: [
       {
-        problem: 'Traduce a lenguaje algebraico: "El triple de un número disminuido en su mitad"',
+        problem: 'Identifica los elementos del término: -8a^4b',
         steps: [
-          'Un número cualquiera: x',
-          'El triple del número: 3x',
-          'Disminuido (resta) en su mitad: - \\frac{x}{2}',
-          'Respuesta: 3x - \\frac{x}{2}'
+          'Signo: Negativo (-)',
+          'Coeficiente: 8',
+          'Literales: a, b',
+          'Exponentes: 4 (para a) y 1 (para b)',
+          'Grado del término: 4 + 1 = 5'
         ]
       },
       {
-        problem: 'Valor Numérico: Evalúa P(x) = 2x^2 - 3x + 1 cuando x = -2',
+        problem: 'Simplifica si es posible: 3x^2y - 5xy^2 + 7x^2y',
         steps: [
-          'Sustituimos la variable por -2: P(-2) = 2(-2)^2 - 3(-2) + 1',
-          'Resolvemos primero la potencia (jerarquía): (-2)^2 = 4. Queda: 2(4) - 3(-2) + 1',
-          'Multiplicamos respetando signos: 8 + 6 + 1',
-          'Suma final: 15.',
-          'Respuesta: 15'
+          'Identificamos términos semejantes: 3x^2y y 7x^2y son semejantes.',
+          '-5xy^2 NO es semejante porque la "y" está al cuadrado, no la "x".',
+          'Sumamos los coeficientes de los semejantes: 3 + 7 = 10',
+          'Respuesta: 10x^2y - 5xy^2'
         ]
       }
     ],
-    tips: 'Si una literal no lleva coeficiente visible, su coeficiente es 1. Si no lleva exponente visible, su exponente es 1. Cualquier cantidad elevada a la potencia cero equivale a 1 (x^0 = 1).',
+    tips: 'Si una literal no lleva coeficiente visible, su coeficiente es 1. Si no lleva exponente visible, su exponente es 1.',
     widgetType: 'algebra-balance'
   },
   {

@@ -435,7 +435,13 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
                   <span className="w-5 h-5 rounded-full bg-[#1E1E24]/10 border border-[#1E1E24]/30 flex items-center justify-center text-[10px] shrink-0">
                     {opt.key}
                   </span>
-                  <span>{opt.text}</span>
+                  <span>
+                    {currentQ.optionsAreLatex ? (
+                      <MathView latex={opt.text} inline />
+                    ) : (
+                      opt.text
+                    )}
+                  </span>
                 </motion.button>
               );
             })}
