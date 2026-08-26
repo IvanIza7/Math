@@ -57,6 +57,81 @@ export const GAME_BADGES: Badge[] = [
     color: '#FFDE59',
     unlocked: false,
   },
+  // --- Fáciles ---
+  {
+    id: 'badge-explorer',
+    title: 'Explorador Teórico',
+    description: 'Entra a tu primer tema en la Enciclopedia de Volúmenes.',
+    iconName: 'BookOpen',
+    color: '#7ED957',
+    unlocked: false,
+  },
+  {
+    id: 'badge-bookworm',
+    title: 'Ratón de Biblioteca',
+    description: 'Abre y explora al menos 5 temas distintos en los volúmenes.',
+    iconName: 'Library',
+    color: '#38B6FF',
+    unlocked: false,
+  },
+  {
+    id: 'badge-first-victory',
+    title: 'Primera Victoria',
+    description: 'Completa tu primer desafío en la Arena.',
+    iconName: 'Swords',
+    color: '#FFDE59',
+    unlocked: false,
+  },
+  // --- Medias ---
+  {
+    id: 'badge-speed-demon',
+    title: 'Ráfaga Mental',
+    description: 'Completa un Preset de Práctica en menos de 30 segundos.',
+    iconName: 'Timer',
+    color: '#FF914D',
+    unlocked: false,
+  },
+  {
+    id: 'badge-perfect-combo',
+    title: 'Combo Perfecto',
+    description: 'Completa cualquier desafío de la Arena con 5 aciertos y 0 errores.',
+    iconName: 'Target',
+    color: '#C852FF',
+    unlocked: false,
+  },
+  {
+    id: 'badge-volume-scholar',
+    title: 'Erudito de Volúmenes',
+    description: 'Lee todos los temas de al menos un volumen completo.',
+    iconName: 'GraduationCap',
+    color: '#FF5757',
+    unlocked: false,
+  },
+  // --- Difíciles ---
+  {
+    id: 'badge-arena-master',
+    title: 'Maestro de la Arena',
+    description: 'Completa los 6 desafíos principales de la Arena.',
+    iconName: 'Crown',
+    color: '#FFDE59',
+    unlocked: false,
+  },
+  {
+    id: 'badge-bridge-conqueror',
+    title: 'Conquistador del Puente',
+    description: 'Completa exitosamente el Desafío Puente al Bachillerato.',
+    iconName: 'Medal',
+    color: '#38B6FF',
+    unlocked: false,
+  },
+  {
+    id: 'badge-mastermind',
+    title: 'Mente Maestra Anti-Adivinanza',
+    description: 'Obtén un Combo Perfecto (0 errores) en el Desafío Puente al Bachillerato.',
+    iconName: 'Diamond',
+    color: '#C852FF',
+    unlocked: false,
+  },
 ];
 
 export const BADGES_LIST = GAME_BADGES;

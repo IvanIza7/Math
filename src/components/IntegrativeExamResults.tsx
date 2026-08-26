@@ -9,7 +9,7 @@ interface IntegrativeExamResultsProps {
   answers: string[]; // 0-indexed array mapping to PUENTE_EXAM_DATA
   timeElapsed: number; // in seconds
   onClose: () => void;
-  onAwardXp: (amount: number) => void;
+  onAwardXp: (amount: number, reason?: string, entityId?: string, metadata?: any) => void;
 }
 
 export const IntegrativeExamResults: React.FC<IntegrativeExamResultsProps> = ({
@@ -34,7 +34,7 @@ export const IntegrativeExamResults: React.FC<IntegrativeExamResultsProps> = ({
   useEffect(() => {
     if (!hasAwarded && xpEarned > 0) {
       playSound('level_up');
-      onAwardXp(xpEarned);
+      onAwardXp(xpEarned, 'TRIAL_COMPLETED', 'puente-bachillerato', { isPerfect: correctCount === PUENTE_EXAM_DATA.length });
       setHasAwarded(true);
     }
   }, [hasAwarded, xpEarned, onAwardXp]);

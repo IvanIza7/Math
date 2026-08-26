@@ -8,7 +8,7 @@ import { playSound } from '../utils/sound';
 
 interface IntegrativeExamProps {
   onBack: () => void;
-  onAwardXp: (amount: number) => void;
+  onAwardXp: (amount: number, reason?: string, entityId?: string, metadata?: any) => void;
 }
 
 export const IntegrativeExam: React.FC<IntegrativeExamProps> = ({ onBack, onAwardXp }) => {

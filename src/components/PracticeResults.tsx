@@ -8,9 +8,10 @@ import { playSound } from '../utils/sound';
 interface PracticeResultsProps {
   sessionData: any;
   onBack: () => void;
+  onRetry?: () => void;
 }
 
-export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, onBack }) => {
+export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, onBack, onRetry }) => {
   const [history, setHistory] = useState<PracticeSession[]>([]);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -188,14 +189,17 @@ export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, o
         </motion.div>
 
         {/* Review Button */}
-        <motion.button
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="w-full bg-[#1E1E24] text-white border-2 border-[#1E1E24] rounded-2xl py-4 flex items-center justify-center gap-2 font-black text-sm uppercase shadow-[4px_4px_0px_0px_#BAFF29] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all"
-        >
-          <RotateCcw size={18} /> Volver a Jugar Preset
-        </motion.button>
+        {onRetry && (
+          <motion.button
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            onClick={() => { playSound('click'); onRetry(); }}
+            className="w-full bg-[#1E1E24] text-white border-2 border-[#1E1E24] rounded-2xl py-4 flex items-center justify-center gap-2 font-black text-sm uppercase shadow-[4px_4px_0px_0px_#BAFF29] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all cursor-pointer"
+          >
+            <RotateCcw size={18} /> Volver a Jugar Preset
+          </motion.button>
+        )}
 
       </div>
     </div>

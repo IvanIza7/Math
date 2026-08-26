@@ -244,10 +244,13 @@ function AppContent({ user }: { user: User }) {
     saveEventAndRecalculate(evt);
   };
 
-  const handleAwardXp = (amount: number, reason: string) => {
-    // Emits a generic event (like TRIAL_COMPLETED or TOPIC_COMPLETED depending on reason)
-    const evtType = reason === 'trials' ? 'TRIAL_COMPLETED' : 'TOPIC_COMPLETED';
-    const evt = ProgressEngine.createEvent(user.id, evtType, `gen_${Date.now()}`, amount);
+  const handleAwardXp = (amount: number, reason?: string, entityId?: string, metadata?: any) => {
+    let evtType: any = 'TOPIC_COMPLETED';
+    if (reason === 'trials' || reason === 'TRIAL_COMPLETED') evtType = 'TRIAL_COMPLETED';
+    if (reason === 'PRACTICE_COMPLETED') evtType = 'PRACTICE_COMPLETED';
+    if (reason === 'TOPIC_COMPLETED') evtType = 'TOPIC_COMPLETED';
+
+    const evt = ProgressEngine.createEvent(user.id, evtType, entityId || `gen_${Date.now()}`, amount, metadata || {});
     saveEventAndRecalculate(evt);
   };
 

@@ -33,7 +33,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     name: 'Ian',
     handle: '@ian_math',
     avatarId: 'astro',
-    academicGoal: 'Bachillerato · Examen de Admisión',
+    academicGoal: 'Estudiante',
     bio: 'Dominando los axiomas de números reales sin adivinar ✨',
     favoriteArea: 'Álgebra',
   } as UserProfile,

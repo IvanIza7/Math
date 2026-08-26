@@ -148,8 +148,9 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
     const passed = score >= challenge.passingScore;
 
     return (
-      <div className="fixed inset-0 z-50 bg-[#6F78DB] text-white flex flex-col justify-between p-6 overflow-y-auto no-scrollbar font-jakarta">
-        {/* Top Bar */}
+      <div className="fixed inset-0 z-50 bg-[#6F78DB] text-white flex flex-col font-jakarta">
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col justify-between no-scrollbar">
+          {/* Top Bar */}
         <div className="flex items-center justify-between max-w-md mx-auto w-full pt-4">
           <span className="text-xs font-black uppercase tracking-wider text-white/80">
             {challenge.shortTitle}
@@ -251,11 +252,13 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           Banco de {challenge.totalExercises} ejercicios activos
         </div>
       </div>
+      </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#6F78DB] text-white flex flex-col justify-between overflow-y-auto no-scrollbar font-jakarta">
+    <div className="fixed inset-0 z-50 bg-[#6F78DB] text-white flex flex-col font-jakarta">
+      <div className="flex-1 overflow-y-auto flex flex-col justify-between no-scrollbar">
       {/* Top Header Bar */}
       <div className="px-5 pt-5 pb-2 flex items-center justify-between gap-3 max-w-lg mx-auto w-full">
         {/* Close Button X */}
@@ -305,14 +308,19 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           </span>
         </div>
 
-        <motion.div
-          key={`illu-${currentIndex}`}
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="my-1"
-        >
-          <QuizMemphisIllustration />
-        </motion.div>
+        <AnimatePresence>
+          {!isChecked && (
+            <motion.div
+              key={`illu-${currentIndex}`}
+              initial={{ scale: 0.9, opacity: 0, height: 'auto' }}
+              animate={{ scale: 1, opacity: 1, height: 'auto' }}
+              exit={{ scale: 0.8, opacity: 0, height: 0 }}
+              className="my-1 overflow-hidden"
+            >
+              <QuizMemphisIllustration />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Question Title */}
         <motion.div
@@ -464,6 +472,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
       </div>
 
       {/* Bottom Floating Navigation Dock */}

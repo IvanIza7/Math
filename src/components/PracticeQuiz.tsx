@@ -162,6 +162,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
           onFinish({
             presetId: preset.id,
             presetTitle: preset.name,
+            preset, // Include the full preset for restarting
             totalTime,
             fastestAnswer: Math.min(...finalTimes),
             slowestAnswer: Math.max(...finalTimes),

@@ -91,7 +91,48 @@ export class ProgressEngine {
     // Level calculation (500 XP per level)
     state.level = Math.floor(state.xp / 500) + 1;
 
+    // 7. Evaluate Badge Unlocks
+    state.badgesUnlocked = this.evaluateBadges(state, sortedEvents);
+
     return state;
+  }
+
+  /**
+   * Evalúa y devuelve la lista de IDs de insignias desbloqueadas
+   */
+  private static evaluateBadges(state: UserStats, events: ProgressEvent[]): string[] {
+    const unlocked: string[] = [];
+    
+    // Insignias Fáciles
+    if (state.completedTopics.length >= 1) unlocked.push('badge-explorer');
+    if (state.completedTopics.length >= 5) unlocked.push('badge-bookworm');
+    if (state.trialsCompleted.length >= 1) unlocked.push('badge-first-victory');
+
+    // Insignias Medias
+    if (state.perfectTrialsCount >= 1) unlocked.push('badge-perfect-combo');
+    
+    const hasFastPractice = events.some(e => e.eventType === 'PRACTICE_COMPLETED' && e.metadata?.durationSeconds <= 30);
+    if (hasFastPractice) unlocked.push('badge-speed-demon');
+
+    // Erudito de Volúmenes (al menos un volumen completado - asumimos que vol 1 tiene ciertos temas, pero podemos checar si tiene muchos)
+    // For simplicity: if they completed at least 8 topics, they likely completed a volume. (Vol 1 has 7-8 topics)
+    if (state.completedTopics.length >= 7) unlocked.push('badge-volume-scholar');
+
+    // Insignias Difíciles
+    const arenaChallenges = ['modulo-1', 'modulo-2', 'modulo-3', 'modulo-4', 'modulo-5', 'modulo-6'];
+    const completedAllArena = arenaChallenges.every(id => state.trialsCompleted.includes(id));
+    if (completedAllArena) unlocked.push('badge-arena-master');
+
+    if (state.trialsCompleted.includes('puente-bachillerato')) {
+      unlocked.push('badge-bridge-conqueror');
+      
+      const bridgePerfectEvent = events.find(e => e.eventType === 'TRIAL_COMPLETED' && e.entityId === 'puente-bachillerato' && e.metadata?.isPerfect);
+      if (bridgePerfectEvent) {
+        unlocked.push('badge-mastermind');
+      }
+    }
+
+    return unlocked;
   }
 
   /**

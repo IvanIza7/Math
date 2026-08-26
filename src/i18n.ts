@@ -19,7 +19,7 @@ export const i18n = {
 
   // Encabezado principal (Header)
   header: {
-    greetingTitle: '¡Conquista las matemáticas!',
+    greetingTitle: '¡Conquista las matemáticas! 🏆',
     greetingSubtitlePrefix: 'Hola,',
     defaultStudentName: 'Ian',
     levelProgressLabel: 'Mi Progreso de Nivel',

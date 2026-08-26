@@ -122,7 +122,7 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
   const categories = Array.from(new Set(ENCYCLOPEDIA_CARDS.map(c => c.categoria)));
 
   if (activeAsedioLevel !== null) return <AsedioLinealGame onBack={() => setActiveAsedioLevel(null)} onAwardXp={onAwardXp} initialLevelIndex={activeAsedioLevel} />;
-  if (activeArenaChallenge) return <ArenaChallengeRunner challenge={activeArenaChallenge} onClose={() => setActiveArenaChallenge(null)} onComplete={(score, total, passed) => onAwardXp(passed ? 75 : 15)} />;
+  if (activeArenaChallenge) return <ArenaChallengeRunner challenge={activeArenaChallenge} onClose={() => setActiveArenaChallenge(null)} onComplete={(score, total, passed) => onAwardXp(passed ? 75 : 15, 'TRIAL_COMPLETED', activeArenaChallenge.id, { isPerfect: score === total })} />;
   if (isCrossMathActive) return <CrossMathGame onBack={() => setIsCrossMathActive(false)} onAwardXp={onAwardXp} />;
   if (activeQuiz) return <InteractiveQuizScreen title={activeQuiz.title} questions={activeQuiz.questions} onClose={() => setActiveQuiz(null)} onComplete={(xp) => { onAwardXp(xp); setActiveQuiz(null); }} />;
 
@@ -159,6 +159,7 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
             onClose={() => setSelectedCard(null)} 
             card={selectedCard}
             onOpenLab={handleOpenLab}
+            onAwardXp={onAwardXp}
           />
         ) : (
           <motion.div
@@ -346,7 +347,7 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                       >
                         {isExpanded && <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_50%,_#1E1E24_1px,_transparent_1px)]" style={{ backgroundSize: '8px 8px' }}></div>}
                         
-                        <div className="flex items-center gap-4 relative z-10">
+                        <div className="flex items-center gap-3 sm:gap-4 relative z-10 flex-1 min-w-0 pr-2">
                           <div
                             className="w-12 h-12 rounded-2xl border-2 border-[#1E1E24] flex items-center justify-center text-lg font-black shadow-[2px_2px_0px_0px_#1E1E24] text-white shrink-0"
                             style={{ backgroundColor: volume.color }}
@@ -354,18 +355,15 @@ export const EncyclopediaLayout: React.FC<EncyclopediaLayoutProps> = ({
                             {volume.label}
                           </div>
 
-                          <div>
+                          <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-[10px] font-black uppercase tracking-widest text-[#1E1E24] px-2 py-0.5 rounded border border-[#1E1E24]/20 bg-black/5">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-[#1E1E24] px-2 py-0.5 rounded border border-[#1E1E24]/20 bg-black/5 shrink-0">
                                 {volume.code}
                               </span>
                             </div>
-                            <h3 className="font-black text-lg text-[#1E1E24] dark:text-white leading-tight">
-                              {volume.title}
+                            <h3 className="font-black text-base sm:text-lg text-[#1E1E24] dark:text-white leading-tight break-words whitespace-normal">
+                              {volume.title} <span className="text-[11px] sm:text-[12px] font-bold text-[#4A4E69] dark:text-gray-300 break-words whitespace-normal inline-block ml-1">{volume.subtitle}</span>
                             </h3>
-                            <span className="text-[11px] font-bold text-[#4A4E69] dark:text-gray-300">
-                              {volume.subtitle}
-                            </span>
                           </div>
                         </div>
 

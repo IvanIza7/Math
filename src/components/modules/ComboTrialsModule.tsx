@@ -17,7 +17,7 @@ import { ChallengeHistoryModal } from '../ChallengeHistoryModal';
 import { BarChart2 } from 'lucide-react';
 
 interface ComboTrialsModuleProps {
-  onAwardXp: (amount: number) => void;
+  onAwardXp: (amount: number, reason?: string, entityId?: string, metadata?: any) => void;
   onOpenArsenal?: () => void;
   onIllegalMove?: (reason: string, choice: any) => void;
   initialGameMode?: 'desafios' | 'asedio' | 'crossmath' | 'practica';
@@ -98,9 +98,9 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     } catch {}
 
     if (passed) {
-      onAwardXp(75);
+      onAwardXp(75, 'TRIAL_COMPLETED', challengeId, { isPerfect: score === total });
     } else {
-      onAwardXp(15);
+      onAwardXp(15, 'TRIAL_COMPLETED', challengeId, { isPerfect: false });
     }
 
     try {
@@ -169,7 +169,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
         onFinish={async (sessionData) => {
           setActivePracticePreset(null);
           setPracticeSessionData(sessionData);
-          onAwardXp(50); // Small XP reward for practice
+          onAwardXp(50, 'PRACTICE_COMPLETED', sessionData.presetId, { durationSeconds: sessionData.totalTime, accuracy: sessionData.accuracy }); // Small XP reward for practice
           
           try {
             await saveChallengeAttempt({
@@ -193,6 +193,12 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
       <PracticeResults 
         sessionData={practiceSessionData}
         onBack={() => setPracticeSessionData(null)}
+        onRetry={() => {
+          if (practiceSessionData.preset) {
+            setActivePracticePreset(practiceSessionData.preset);
+            setPracticeSessionData(null);
+          }
+        }}
       />
     );
   }

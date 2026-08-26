@@ -10,9 +10,17 @@ interface TopicModalProps {
   onClose: () => void;
   card: EncyclopediaCard | null;
   onOpenLab?: (widgetType: string) => void;
+  onAwardXp?: (amount: number, reason?: string, entityId?: string, metadata?: any) => void;
 }
 
-export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, onOpenLab }) => {
+export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, onOpenLab, onAwardXp }) => {
+  React.useEffect(() => {
+    if (isOpen && card && onAwardXp) {
+      // Fire a generic 5 XP reward for opening/reading a topic, passing the topic ID
+      onAwardXp(5, 'TOPIC_COMPLETED', card.id);
+    }
+  }, [isOpen, card, onAwardXp]);
+
   if (!isOpen || !card) return null;
 
   const match = card.id.match(/vol(\d+)-t(\d+)/);
