@@ -26,7 +26,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
   const [isSuccess, setIsSuccess] = useState(false);
   
   // Stats
-  const [startTime, setStartTime] = useState<number>(0);
+  const startTimeRef = useRef<number>(Date.now());
   const [questionStartTime, setQuestionStartTime] = useState<number>(0);
   const [timeTakenPerQuestion, setTimeTakenPerQuestion] = useState<number[]>([]);
   const [mistakes, setMistakes] = useState<number>(0);
@@ -34,11 +34,11 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
 
   useEffect(() => {
     generateQuestions();
-    setStartTime(Date.now());
+    startTimeRef.current = Date.now();
     setQuestionStartTime(Date.now());
 
     const timer = setInterval(() => {
-      setCurrentTime(Math.floor((Date.now() - startTime) / 1000));
+      setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
     }, 1000);
 
     return () => clearInterval(timer);
@@ -143,7 +143,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
     const currentQ = questions[currentIdx];
     if (parseInt(valToCheck, 10) === currentQ.answer) {
       // Success!
-      playSound('success');
+      playSound('correct');
       setIsSuccess(true);
       
       const timeTaken = Math.floor((Date.now() - questionStartTime) / 1000);
@@ -158,7 +158,7 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
         } else {
           // Finish!
           const finalTimes = [...timeTakenPerQuestion, timeTaken];
-          const totalTime = Math.floor((Date.now() - startTime) / 1000);
+          const totalTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
           onFinish({
             presetId: preset.id,
             totalTime,
@@ -180,9 +180,10 @@ export const PracticeQuiz: React.FC<PracticeQuizProps> = ({ preset, onFinish, on
   };
 
   const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
+    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
     const s = (secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
+    return `${h}:${m}:${s}`;
   };
 
   if (questions.length === 0) return null;

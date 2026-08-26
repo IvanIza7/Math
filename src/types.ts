@@ -193,4 +193,5 @@ export interface PracticeSession {
   accuracy: number;
   numQuestions: number;
   dateStr: string;
+  createdAt?: string;
 }

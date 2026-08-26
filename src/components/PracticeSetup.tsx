@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../config/supabase';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Trash2, Settings2, Play, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Settings2, Play, AlertTriangle, History, Pencil } from 'lucide-react';
 import { PracticePreset } from '../types';
 import { playSound } from '../utils/sound';
+import { PracticeHistoryModal } from './PracticeHistoryModal';
 
 interface PracticeSetupProps {
   onStartQuiz: (preset: PracticePreset) => void;
@@ -14,6 +15,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [presetToDelete, setPresetToDelete] = useState<string | null>(null);
+  const [presetToViewHistory, setPresetToViewHistory] = useState<PracticePreset | null>(null);
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
 
   // New Preset Form State
   const [name, setName] = useState('Mi Práctica');
@@ -74,6 +77,19 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
     localStorage.setItem('local_practice_presets', JSON.stringify(newPresets));
   };
 
+  
+  const handleEdit = (preset: PracticePreset) => {
+    playSound('click');
+    setEditingPresetId(preset.id);
+    setName(preset.name);
+    setDigits(preset.maxDigits);
+    setRows(preset.maxRows);
+    setAllowSubtraction(preset.allowSubtraction);
+    setInputDirection(preset.inputDirection);
+    setNumQuestions(preset.numQuestions);
+    setIsCreating(true);
+  };
+
   const handleCreatePreset = async (e: React.FormEvent) => {
     e.preventDefault();
     playSound('click');
@@ -92,48 +108,84 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
     try {
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
-        const { data, error } = await supabase
-          .from('practice_presets')
-          .insert({
-            user_id: user.user.id,
-            name: newPreset.name,
-            min_digits: newPreset.minDigits,
-            max_digits: newPreset.maxDigits,
-            min_rows: newPreset.minRows,
-            max_rows: newPreset.maxRows,
-            allow_subtraction: newPreset.allowSubtraction,
-            input_direction: newPreset.inputDirection,
-            num_questions: newPreset.numQuestions
-          })
-          .select()
-          .single();
+        let savedData;
+        
+        if (editingPresetId) {
+          const { data, error } = await supabase
+            .from('practice_presets')
+            .update({
+              name: newPreset.name,
+              min_digits: newPreset.minDigits,
+              max_digits: newPreset.maxDigits,
+              min_rows: newPreset.minRows,
+              max_rows: newPreset.maxRows,
+              allow_subtraction: newPreset.allowSubtraction,
+              input_direction: newPreset.inputDirection,
+              num_questions: newPreset.numQuestions
+            })
+            .eq('id', editingPresetId)
+            .select()
+            .single();
+            
+          if (error) throw error;
+          savedData = data;
+        } else {
+          const { data, error } = await supabase
+            .from('practice_presets')
+            .insert({
+              user_id: user.user.id,
+              name: newPreset.name,
+              min_digits: newPreset.minDigits,
+              max_digits: newPreset.maxDigits,
+              min_rows: newPreset.minRows,
+              max_rows: newPreset.maxRows,
+              allow_subtraction: newPreset.allowSubtraction,
+              input_direction: newPreset.inputDirection,
+              num_questions: newPreset.numQuestions
+            })
+            .select()
+            .single();
+            
+          if (error) throw error;
+          savedData = data;
+        }
 
-        if (error) throw error;
-
-        const createdPreset: PracticePreset = {
-          id: data.id,
-          name: data.name,
-          minDigits: data.min_digits,
-          maxDigits: data.max_digits,
-          minRows: data.min_rows,
-          maxRows: data.max_rows,
-          allowSubtraction: data.allow_subtraction,
-          inputDirection: data.input_direction,
-          numQuestions: data.num_questions
+        const savedPreset: PracticePreset = {
+          id: savedData.id,
+          name: savedData.name,
+          minDigits: savedData.min_digits,
+          maxDigits: savedData.max_digits,
+          minRows: savedData.min_rows,
+          maxRows: savedData.max_rows,
+          allowSubtraction: savedData.allow_subtraction,
+          inputDirection: savedData.input_direction,
+          numQuestions: savedData.num_questions
         };
 
-        setPresets([createdPreset, ...presets]);
+        if (editingPresetId) {
+          setPresets(presets.map(p => p.id === editingPresetId ? savedPreset : p));
+        } else {
+          setPresets([savedPreset, ...presets]);
+        }
       } else {
         throw new Error('Not logged in');
       }
     } catch (e) {
-      console.warn('Failed to save to Supabase, using local storage.');
-      const localPreset: PracticePreset = { ...newPreset, id: crypto.randomUUID() };
-      const newArr = [localPreset, ...presets];
-      setPresets(newArr);
-      saveLocalFallback(newArr);
+      console.warn('Failed to save to Supabase, using local storage.', e);
+      if (editingPresetId) {
+        const updatedPreset = { ...newPreset, id: editingPresetId };
+        const newArr = presets.map(p => p.id === editingPresetId ? updatedPreset : p);
+        setPresets(newArr);
+        saveLocalFallback(newArr);
+      } else {
+        const localPreset = { ...newPreset, id: crypto.randomUUID() };
+        const newArr = [localPreset, ...presets];
+        setPresets(newArr);
+        saveLocalFallback(newArr);
+      }
     }
 
+    setEditingPresetId(null);
     setIsCreating(false);
   };
 
@@ -163,7 +215,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
               <p className="text-xs font-bold text-[#8A909F]">Configuraciones guardadas</p>
             </div>
             <button
-              onClick={() => { playSound('click'); setIsCreating(true); }}
+              onClick={() => { playSound('click'); setEditingPresetId(null); setName('Mi Práctica'); setDigits(2); setRows(2); setNumQuestions(10); setIsCreating(true); }}
               className="bg-[#BAFF29] hover:bg-[#a6ff00] text-[#1E1E24] border-2 border-[#1E1E24] rounded-xl px-3 py-2 flex items-center gap-1 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
             >
               <Plus size={16} /> NUEVO
@@ -188,6 +240,12 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
                       </p>
                     </div>
                     <button 
+                      onClick={() => handleEdit(preset)}
+                      className="text-blue-500 hover:bg-blue-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all mr-2"
+                    >
+                      <Pencil size={18} />
+                    </button>
+                    <button 
                       onClick={() => setPresetToDelete(preset.id)}
                       className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
                     >
@@ -204,12 +262,20 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
                     </span>
                   </div>
 
-                  <button
-                    onClick={() => { playSound('click'); onStartQuiz(preset); }}
-                    className="w-full mt-1 bg-[#F7CA38] hover:bg-[#ffce38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-xl py-2 flex items-center justify-center gap-2 font-black text-sm shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
-                  >
-                    <Play size={16} className="fill-current" /> INICIAR PRÁCTICA
-                  </button>
+                  <div className="flex gap-2 w-full mt-1">
+                    <button
+                      onClick={() => { playSound('click'); setPresetToViewHistory(preset); }}
+                      className="flex-1 bg-white hover:bg-gray-50 text-[#1E1E24] border-2 border-[#1E1E24] rounded-xl py-2 flex items-center justify-center gap-2 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                    >
+                      <History size={16} /> HISTORIAL
+                    </button>
+                    <button
+                      onClick={() => { playSound('click'); onStartQuiz(preset); }}
+                      className="flex-1 bg-[#F7CA38] hover:bg-[#ffce38] text-[#1E1E24] border-2 border-[#1E1E24] rounded-xl py-2 flex items-center justify-center gap-2 font-black text-xs shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all"
+                    >
+                      <Play size={16} className="fill-current" /> INICIAR
+                    </button>
+                  </div>
                 </div>
               ))
             )}
@@ -219,9 +285,9 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
         <form onSubmit={handleCreatePreset} className="bg-white border-2 border-[#1E1E24] rounded-2xl p-4 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b-2 border-[#1E1E24] pb-3">
             <h3 className="font-black text-sm uppercase flex items-center gap-2">
-              <Settings2 size={18} /> Crear Preset
+              <Settings2 size={18} /> {editingPresetId ? 'Editar Preset' : 'Crear Preset'}
             </h3>
-            <button type="button" onClick={() => setIsCreating(false)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-[#1E1E24] rounded-full text-[11px] font-black text-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer">
+            <button type="button" onClick={() => { setIsCreating(false); setEditingPresetId(null); }} className="flex items-center gap-1.5 px-3 py-1.5 bg-white border-2 border-[#1E1E24] rounded-full text-[11px] font-black text-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 active:shadow-none transition-all cursor-pointer">
               Cancelar
             </button>
           </div>
@@ -287,6 +353,13 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onStartQuiz }) => 
       )}
 
       {/* Delete Confirmation Modal */}
+      {/* Modals */}
+      <PracticeHistoryModal
+        isOpen={!!presetToViewHistory}
+        onClose={() => setPresetToViewHistory(null)}
+        preset={presetToViewHistory}
+      />
+
       <AnimatePresence>
         {presetToDelete && (
           <motion.div 

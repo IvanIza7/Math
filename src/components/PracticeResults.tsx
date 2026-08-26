@@ -16,7 +16,7 @@ export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, o
 
   useEffect(() => {
     saveAndFetchHistory();
-    playSound('success');
+    playSound('correct');
   }, []);
 
   const saveAndFetchHistory = async () => {
@@ -67,10 +67,10 @@ export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, o
   };
 
   const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    if (m > 0) return `${m}m ${s}s`;
-    return `${s}s`;
+    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
+    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${s}`;
   };
 
   // Simple SVG Line Chart Builder

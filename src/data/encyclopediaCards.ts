@@ -33,20 +33,20 @@ export const ENCYCLOPEDIA_CARDS: EncyclopediaCard[] = [
         problem: 'Clasifica el número \\sqrt{25}',
         steps: [
           'Calculamos la raíz exacta: \\sqrt{25} = 5',
-          '\text{El 5 es un número Natural (N), por lo tanto también es Entero (Z) y Racional (Q).}',
-          '\text{Respuesta: Es un número Racional.}'
+          '\\text{El 5 es un número Natural (N), por lo tanto también es Entero (Z) y Racional (Q).}',
+          '\\text{Respuesta: Es un número Racional.}'
         ]
       },
       {
         problem: 'Identifica el valor posicional del 7 en 3,472.15',
         steps: [
-          '\text{Observamos la parte entera: } 3,472',
-          '\text{El 2 son unidades, el 7 son decenas.}',
-          '\text{Respuesta: El 7 representa 70 unidades o 7 decenas.}'
+          '\\text{Observamos la parte entera: } 3,472',
+          '\\text{El 2 son unidades, el 7 son decenas.}',
+          '\\text{Respuesta: El 7 representa 70 unidades o 7 decenas.}'
         ]
       }
     ],
-    tips: '\text{Todo entero "n" es una fracción con un 1 invisible como denominador: } n = \frac{n}{1}',
+    tips: '\\text{Todo entero "n" es una fracción con un 1 invisible como denominador: } n = \\frac{n}{1}',
     widgetType: 'number-sets'
   },
   {
