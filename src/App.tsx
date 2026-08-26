@@ -81,13 +81,19 @@ function AppContent({ user }: { user: User }) {
             baseName = baseName.replace('mathapp.dummy.', '');
           }
           
-          setUserProfile(prev => ({
-            ...prev,
-            name: baseName,
-            handle: `@${baseName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
-          }));
-          
-          setShowOnboarding(true);
+          if (!profileRes.data || !profileRes.data.avatar_id) {
+            // No profile set up yet
+            setUserProfile(prev => ({
+              ...prev,
+              name: baseName,
+              handle: `@${baseName.toLowerCase().replace(/[^a-z0-9]/g, '')}`,
+            }));
+            
+            // Clear any previous user's local storage data
+            localStorage.removeItem('math_active_hero_sessions_v2');
+            localStorage.removeItem('arena_completed_challenges_v2');
+            setShowOnboarding(true);
+          }
         }
         
         let baseStats: Partial<UserStats> = {};

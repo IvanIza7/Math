@@ -56,7 +56,7 @@ export async function saveChallengeAttempt(attempt: Omit<ChallengeAttempt, 'id' 
         challenge_id: attempt.challengeId,
         type: attempt.type,
         title: attempt.title,
-        time_seconds: attempt.timeSeconds,
+        time_seconds: Math.round(attempt.timeSeconds),
         score: attempt.score,
         max_score: attempt.maxScore
       }]);

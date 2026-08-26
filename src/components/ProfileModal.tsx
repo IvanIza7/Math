@@ -257,6 +257,8 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
               <button
                 onClick={async () => {
                   playSound('click');
+                  localStorage.removeItem('math_active_hero_sessions_v2');
+                  localStorage.removeItem('arena_completed_challenges_v2');
                   await supabase.auth.signOut();
                 }}
                 className="w-full bg-white border-2 border-[#1E1E24] text-[#EF4444] rounded-2xl p-3 flex items-center justify-center gap-2 font-black shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all cursor-pointer"

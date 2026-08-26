@@ -74,7 +74,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     return `${h}:${m}:${s}`;
   };
 
-  const handleChallengeComplete = (score: number, total: number, passed: boolean, timeSeconds: number) => {
+  const handleChallengeComplete = async (score: number, total: number, passed: boolean, timeSeconds: number) => {
     if (!activeChallenge) return;
 
     const challengeId = activeChallenge.id;
@@ -103,14 +103,18 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
       onAwardXp(15);
     }
 
-    saveChallengeAttempt({
-      challengeId: challengeId,
-      type: 'challenge',
-      title: activeChallenge.title,
-      timeSeconds: timeSeconds,
-      score: score,
-      maxScore: total
-    }).catch(console.error);
+    try {
+      await saveChallengeAttempt({
+        challengeId: challengeId,
+        type: 'challenge',
+        title: activeChallenge.title,
+        timeSeconds: timeSeconds,
+        score: score,
+        maxScore: total
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const completedCount = (Object.values(completedRecords) as ChallengeRecord[]).filter(
@@ -122,8 +126,8 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
       <ArenaChallengeRunner
         challenge={activeChallenge}
         onClose={() => setActiveChallenge(null)}
-        onComplete={(score, total, passed) => {
-          handleChallengeComplete(score, total, passed);
+        onComplete={(score, total, passed, timeSeconds) => {
+          handleChallengeComplete(score, total, passed, timeSeconds);
         }}
       />
     );
@@ -162,19 +166,23 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
       <PracticeQuiz 
         preset={activePracticePreset}
         onBack={() => setActivePracticePreset(null)}
-        onFinish={(sessionData) => {
+        onFinish={async (sessionData) => {
           setActivePracticePreset(null);
           setPracticeSessionData(sessionData);
           onAwardXp(50); // Small XP reward for practice
           
-          saveChallengeAttempt({
-            challengeId: sessionData.presetId,
-            type: 'practice',
-            title: sessionData.presetTitle || 'Práctica Libre',
-            timeSeconds: sessionData.totalTime,
-            score: sessionData.accuracy,
-            maxScore: 100
-          }).catch(console.error);
+          try {
+            await saveChallengeAttempt({
+              challengeId: sessionData.presetId,
+              type: 'practice',
+              title: sessionData.presetTitle || 'Práctica Libre',
+              timeSeconds: sessionData.totalTime,
+              score: sessionData.accuracy,
+              maxScore: 100
+            });
+          } catch (error) {
+            console.error(error);
+          }
         }}
       />
     );
@@ -327,8 +335,8 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
             {/* Connecting Line */}
             <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1.5 bg-[#E2E8F0] border border-[#1E1E24]/20 -z-0 rounded-full" />
 
-            {/* 4 Nodes */}
-            {[0, 1, 2, 3].map((nodeIdx) => {
+            {/* 7 Nodes */}
+            {[0, 1, 2, 3, 4, 5, 6].map((nodeIdx) => {
               const challenge = ARENA_CHALLENGES[nodeIdx];
               const isCompleted = challenge && completedRecords[challenge.id]?.completed;
 
@@ -348,8 +356,8 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                     )}
                   </div>
 
-                  <span className="absolute -bottom-4 text-[#1E1E24] bg-white border border-[#1E1E24]/30 px-1.5 py-0.2 rounded-md text-[9px] font-black">
-                    D-{nodeIdx + 1}
+                  <span className={`absolute -bottom-4 bg-white border border-[#1E1E24]/30 px-1.5 py-0.2 rounded-md text-[9px] font-black ${nodeIdx === 6 ? 'text-[#F59E0B] border-[#F59E0B]/50' : 'text-[#1E1E24]'}`}>
+                    {nodeIdx === 6 ? 'Final' : `D-${nodeIdx + 1}`}
                   </span>
                 </div>
               );
@@ -448,7 +456,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                     <h3 className="font-black text-[10px] text-[#1E1E24] leading-tight uppercase line-clamp-2">
                       {challenge.shortTitle}
                     </h3>
-                    <div className="flex gap-2 w-full">
+                    <div className="flex gap-2 w-full flex-wrap sm:flex-nowrap">
                       <button
                         onClick={() => {
                           playSound('click');
@@ -472,7 +480,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                             lastUpdated: Date.now(),
                           });
                         }}
-                        className="flex-1 py-3 bg-white text-[#1E1E24] hover:bg-[#F8FAFC] border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none font-black text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                        className="flex-1 min-w-[120px] py-3 bg-white text-[#1E1E24] hover:bg-[#F8FAFC] border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
                       >
                         <Play className="w-4 h-4" />
                         <span>{isCompleted ? 'CONTINUAR' : 'JUGAR'}</span>
@@ -483,7 +491,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                           setHistoryFilter(challenge.id);
                           setIsHistoryOpen(true);
                         }}
-                        className="w-12 shrink-0 py-3 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                        className="w-10 sm:w-12 shrink-0 py-3 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
                         title="Ver Historial"
                       >
                         <BarChart2 size={18} />
@@ -595,10 +603,10 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                 </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                   <button 
                     onClick={() => setIsAsedioActive(true)}
-                    className="flex-1 py-3.5 bg-[#BAFF29] hover:bg-[#a6ff00] text-[#1E1E24] border-2 border-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-xl shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
+                    className="flex-1 min-w-[120px] py-3.5 bg-[#BAFF29] hover:bg-[#a6ff00] text-[#1E1E24] border-2 border-[#1E1E24] font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-xl shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
                   >
                     <Play className="w-4 h-4" /> Jugar Asedio
                   </button>
@@ -608,7 +616,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                       setHistoryFilter('asedio_lineal');
                       setIsHistoryOpen(true);
                     }}
-                    className="w-12 shrink-0 py-3.5 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                    className="w-10 sm:w-12 shrink-0 py-3.5 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
                     title="Ver Historial"
                   >
                     <BarChart2 size={18} />
@@ -663,7 +671,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                     Cuadrículas 2x2 y 3x3 con las 4 operaciones
                   </span>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap sm:flex-nowrap">
                     <button
                         onClick={() => {
                             playSound('click');
@@ -687,7 +695,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                             lastUpdated: Date.now(),
                             });
                         }}
-                        className="flex-1 py-3.5 bg-[#38BDF8] text-white border-2 border-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-xl shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
+                        className="flex-1 min-w-[120px] py-3.5 bg-[#38BDF8] text-white border-2 border-[#1E1E24] font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-xl shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none cursor-pointer transition-all flex items-center justify-center gap-2"
                     >
                         <Play className="w-4 h-4" /> Jugar
                     </button>
@@ -697,7 +705,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                             setHistoryFilter('crossmath');
                             setIsHistoryOpen(true);
                         }}
-                        className="w-12 shrink-0 py-3.5 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
+                        className="w-10 sm:w-12 shrink-0 py-3.5 bg-white text-[#6F78DB] hover:bg-blue-50 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none rounded-xl transition-all cursor-pointer flex items-center justify-center"
                         title="Ver Historial"
                     >
                         <BarChart2 size={18} />

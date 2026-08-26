@@ -29,10 +29,10 @@ export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, o
         const { error: insertError } = await supabase.from('practice_sessions').insert({
           user_id: user.user.id,
           preset_id: sessionData.presetId,
-          total_time: sessionData.totalTime,
-          fastest_answer: sessionData.fastestAnswer,
-          slowest_answer: sessionData.slowestAnswer,
-          accuracy: sessionData.accuracy,
+          total_time: Math.round(sessionData.totalTime),
+          fastest_answer: Math.round(sessionData.fastestAnswer),
+          slowest_answer: Math.round(sessionData.slowestAnswer),
+          accuracy: Math.round(sessionData.accuracy),
           num_questions: sessionData.numQuestions
         });
 
@@ -67,10 +67,14 @@ export const PracticeResults: React.FC<PracticeResultsProps> = ({ sessionData, o
   };
 
   const formatTime = (secs: number) => {
-    const h = Math.floor(secs / 3600).toString().padStart(2, '0');
-    const m = Math.floor((secs % 3600) / 60).toString().padStart(2, '0');
-    const s = (secs % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${s}`;
+    // If it's a whole number or small decimal, assume it's seconds, but let's just convert it as MM:SS:ms
+    // Assuming secs is in seconds (with decimals if they are float)
+    const totalMs = Math.round(secs * 1000);
+    const totalSecs = Math.floor(totalMs / 1000);
+    const m = Math.floor(totalSecs / 60).toString().padStart(2, '0');
+    const s = (totalSecs % 60).toString().padStart(2, '0');
+    const centiseconds = Math.floor((totalMs % 1000) / 10).toString().padStart(2, '0');
+    return `${m}:${s}:${centiseconds}`;
   };
 
   // Simple SVG Line Chart Builder

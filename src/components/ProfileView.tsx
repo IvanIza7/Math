@@ -375,12 +375,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             ))}
           </div>
         </div>
-
         {/* Logout Button */}
         <div className="pt-4 mt-2">
           <button
             onClick={async () => {
-              playSound('click');
+              localStorage.removeItem('math_active_hero_sessions_v2');
+              localStorage.removeItem('arena_completed_challenges_v2');
               await supabase.auth.signOut();
             }}
             className="w-full py-3.5 bg-white dark:bg-[#1E1E24] text-[#EF4444] font-black text-xs uppercase tracking-wider rounded-full border-2 border-[#1E1E24] dark:border-[#4A4E69] shadow-[4px_4px_0px_0px_#1E1E24] dark:shadow-[4px_4px_0px_0px_#000000] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"

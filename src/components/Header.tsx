@@ -124,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
         <h1 className="text-xl font-black text-[#1E1E24] dark:text-white tracking-tight flex items-center gap-1.5 whitespace-nowrap">
           <span>{greetingTitle}</span>
-          <span className="text-[#6F78DB] text-base shrink-0">🏆</span>
+          <span className="text-[#6F78DB] text-base shrink-0">🎯</span>
         </h1>
       </div>
     </header>
