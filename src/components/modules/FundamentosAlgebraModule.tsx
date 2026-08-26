@@ -18,7 +18,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* CARD 1: ¿Qué es el Álgebra? */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
         className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
       >
@@ -30,7 +30,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
             ¿Qué es el Álgebra?
           </h2>
         </div>
-        
+
         <p className="text-sm font-bold text-[#1E1E24]/80 leading-relaxed mb-4">
           Es la generalización de la aritmética. Usamos números, signos y letras (variables) para descubrir valores desconocidos y modelar patrones.
         </p>
@@ -40,11 +40,10 @@ export const FundamentosAlgebraModule: React.FC = () => {
             playSound('click');
             setShowAnalogy(!showAnalogy);
           }}
-          className={`w-full py-3 px-4 rounded-xl border-2 font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
-            showAnalogy 
-              ? 'bg-[#FFF9E6] border-[#F7CA38] text-[#1E1E24]' 
+          className={`w-full py-3 px-4 rounded-xl border-2 font-black text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${showAnalogy
+              ? 'bg-[#FFF9E6] border-[#F7CA38] text-[#1E1E24]'
               : 'bg-[#f8faf9] border-[#1E1E24] text-[#1E1E24] hover:bg-[#F7CA38]/10'
-          }`}
+            }`}
         >
           <Lightbulb className={showAnalogy ? 'fill-[#F7CA38]' : ''} size={18} />
           {showAnalogy ? 'Ocultar analogía' : 'Ver analogía rápida'}
@@ -67,7 +66,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
       </motion.div>
 
       {/* CARD 2: Anatomía de un Término */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
       >
@@ -83,37 +82,37 @@ export const FundamentosAlgebraModule: React.FC = () => {
         {/* Visual Block */}
         <div className="bg-[#1E1E24] rounded-2xl p-6 mb-4 flex justify-center items-center">
           <div className="flex items-end text-5xl sm:text-6xl font-black text-white gap-0.5">
-            <button 
+            <button
               onClick={() => { playSound('tap'); setActiveAnatomy('signo'); }}
               className={`transition-colors px-1 rounded-lg cursor-pointer ${activeAnatomy === 'signo' ? 'text-[#F7CA38] bg-white/10' : 'hover:text-[#F7CA38]'}`}
             >
               -
             </button>
-            <button 
+            <button
               onClick={() => { playSound('tap'); setActiveAnatomy('coeficiente'); }}
               className={`transition-colors px-1 rounded-lg cursor-pointer ${activeAnatomy === 'coeficiente' ? 'text-[#38bdf8] bg-white/10' : 'hover:text-[#38bdf8]'}`}
             >
               5
             </button>
-            <button 
+            <button
               onClick={() => { playSound('tap'); setActiveAnatomy('literales'); }}
               className={`transition-colors px-1 rounded-lg cursor-pointer ${activeAnatomy === 'literales' ? 'text-[#22C55E] bg-white/10' : 'hover:text-[#22C55E]'}`}
             >
               x
             </button>
-            <button 
+            <button
               onClick={() => { playSound('tap'); setActiveAnatomy('exponentes'); }}
               className={`text-2xl sm:text-3xl mb-4 transition-colors px-1 rounded-lg cursor-pointer ${activeAnatomy === 'exponentes' ? 'text-[#ec4899] bg-white/10' : 'hover:text-[#ec4899]'}`}
             >
               3
             </button>
-            <button 
+            <button
               onClick={() => { playSound('tap'); setActiveAnatomy('literales'); }}
               className={`transition-colors px-1 rounded-lg cursor-pointer ${activeAnatomy === 'literales' ? 'text-[#22C55E] bg-white/10' : 'hover:text-[#22C55E]'}`}
             >
               y
             </button>
-            <button 
+            <button
               onClick={() => { playSound('tap'); setActiveAnatomy('exponentes'); }}
               className={`text-2xl sm:text-3xl mb-4 transition-colors px-1 rounded-lg cursor-pointer ${activeAnatomy === 'exponentes' ? 'text-[#ec4899] bg-white/10' : 'hover:text-[#ec4899]'}`}
             >
@@ -170,7 +169,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
       </motion.div>
 
       {/* CARD 3: Clasificación por Términos */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
       >
@@ -188,11 +187,10 @@ export const FundamentosAlgebraModule: React.FC = () => {
             <button
               key={type}
               onClick={() => { playSound('tap'); setActiveClass(type); }}
-              className={`px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider border-2 transition-all cursor-pointer ${
-                activeClass === type 
-                  ? 'bg-[#1E1E24] text-white border-[#1E1E24] shadow-sm' 
+              className={`px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider border-2 transition-all cursor-pointer ${activeClass === type
+                  ? 'bg-[#1E1E24] text-white border-[#1E1E24] shadow-sm'
                   : 'bg-white text-[#1E1E24]/60 border-[#1E1E24]/20 hover:border-[#1E1E24]/50'
-              }`}
+                }`}
             >
               {type === 'polinomio' ? 'Polinomio (4+)' : type}
             </button>
@@ -206,7 +204,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
             {activeClass === 'trinomio' && '3 Términos'}
             {activeClass === 'polinomio' && '≥ 2 Términos'}
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-xl font-black text-[#1E1E24]">
             {activeClass === 'monomio' && (
               <><MathView latex="3x" inline /> <span className="hidden sm:inline text-[#1E1E24]/20">|</span> <MathView latex="-7a^2" inline /></>
@@ -225,7 +223,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
       </motion.div>
 
       {/* CARD 4: Conceptos Clave */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
         className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
       >
@@ -241,7 +239,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
         <div className="space-y-3">
           {/* Semejantes */}
           <div className="border-2 border-[#1E1E24] rounded-xl overflow-hidden">
-            <button 
+            <button
               onClick={() => toggleConcept('semejantes')}
               className="w-full bg-[#f8faf9] hover:bg-[#FFFDF5] p-3 flex items-center justify-between font-black text-xs sm:text-sm text-[#1E1E24] transition-colors cursor-pointer"
             >
@@ -271,7 +269,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
 
           {/* Valor Numérico */}
           <div className="border-2 border-[#1E1E24] rounded-xl overflow-hidden">
-            <button 
+            <button
               onClick={() => toggleConcept('valor')}
               className="w-full bg-[#f8faf9] hover:bg-[#FFFDF5] p-3 flex items-center justify-between font-black text-xs sm:text-sm text-[#1E1E24] transition-colors cursor-pointer"
             >
@@ -286,8 +284,8 @@ export const FundamentosAlgebraModule: React.FC = () => {
                   <div className="p-4 bg-white text-[11px] sm:text-xs font-bold text-[#1E1E24]/80 space-y-2 border-t-2 border-[#1E1E24]/10">
                     <p>Cambia las letras por números reales y resuelve:</p>
                     <div className="bg-[#1E1E24] p-3 rounded-lg font-mono text-[#F8FAFC]">
-                      Si <MathView latex="P(x) = 2x^2 - 3x + 1" inline /> y <MathView latex="x = 2" inline /><br/>
-                      <span className="text-[#38bdf8]">↳</span> <MathView latex="P(2) = 2(2)^2 - 3(2) + 1" inline /><br/>
+                      Si <MathView latex="P(x) = 2x^2 - 3x + 1" inline /> y <MathView latex="x = 2" inline /><br />
+                      <span className="text-[#38bdf8]">↳</span> <MathView latex="P(2) = 2(2)^2 - 3(2) + 1" inline /><br />
                       <span className="text-[#1E1E24]">↳</span> <MathView latex="P(2) = 8 - 6 + 1 = 3" inline />
                     </div>
                   </div>
@@ -298,7 +296,7 @@ export const FundamentosAlgebraModule: React.FC = () => {
 
           {/* Grado */}
           <div className="border-2 border-[#1E1E24] rounded-xl overflow-hidden">
-            <button 
+            <button
               onClick={() => toggleConcept('grado')}
               className="w-full bg-[#f8faf9] hover:bg-[#FFFDF5] p-3 flex items-center justify-between font-black text-xs sm:text-sm text-[#1E1E24] transition-colors cursor-pointer"
             >
