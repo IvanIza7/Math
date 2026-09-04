@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, Clock, CheckCircle2, XCircle, Trophy, Sparkles, X, RotateCcw, ChevronRight, Delete } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle2, XCircle, Trophy, Sparkles, X, RotateCcw, ChevronRight, Delete, Book, Eye } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ArenaChallenge, ArenaQuestion } from '../data/arenaChallengesData';
 import { QuizMemphisIllustration } from './Illustrations';
@@ -29,8 +29,10 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   const [textInput, setTextInput] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [answerHistory, setAnswerHistory] = useState<('correct' | 'incorrect')[]>([]);
+  const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [isReviewMode, setIsReviewMode] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
   const startTimeRef = useRef<number>(Date.now());
 
@@ -72,10 +74,13 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
     if (!isChecked) {
       // Check answer
       let isCorrect = false;
+      let userAnswer = '';
       if (isTextInput) {
         isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+        userAnswer = textInput;
       } else {
         isCorrect = selectedKey === currentQ.correctKey;
+        userAnswer = selectedKey || '';
       }
 
       setIsChecked(true);
@@ -83,6 +88,11 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
         const newHist = [...prev];
         newHist[currentIndex] = isCorrect ? 'correct' : 'incorrect';
         return newHist;
+      });
+      setUserAnswers((prev) => {
+        const newAns = [...prev];
+        newAns[currentIndex] = userAnswer;
+        return newAns;
       });
 
       if (isCorrect) {
@@ -136,12 +146,98 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
     setIsChecked(false);
     setScore(0);
     setAnswerHistory([]);
+    setUserAnswers([]);
     setIsFinished(false);
+    setIsReviewMode(false);
     setElapsedMs(0);
     startTimeRef.current = Date.now();
   };
 
   const isCurrentCorrect = isChecked && answerHistory[currentIndex] === 'correct';
+
+  // Review Mode Screen
+  if (isReviewMode) {
+    return (
+      <div className="fixed inset-0 z-[60] bg-[#F4F7FC] text-[#1E1E24] flex flex-col font-jakarta">
+        {/* Header */}
+        <div className="bg-white border-b-2 border-[#1E1E24] p-4 flex items-center justify-between shadow-sm sticky top-0 z-10">
+          <div className="font-black uppercase tracking-wider text-sm flex items-center gap-2">
+            <Eye size={18} className="text-[#38bdf8]" />
+            Revisión de Respuestas
+          </div>
+          <button
+            onClick={() => setIsReviewMode(false)}
+            className="px-4 py-2 bg-[#1E1E24] text-white font-black text-xs uppercase rounded-full hover:bg-black transition-colors cursor-pointer"
+          >
+            Volver
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 pb-20">
+          {sessionQuestions.map((q, idx) => {
+            const isCorrect = answerHistory[idx] === 'correct';
+            const userAnswer = userAnswers[idx];
+            
+            let userAnswerText = userAnswer;
+            let correctAnswerText = q.correctKey;
+            
+            if (q.inputType !== 'text' && q.options) {
+              const uOpt = q.options.find(o => o.key === userAnswer);
+              if (uOpt) userAnswerText = uOpt.text;
+              
+              const cOpt = q.options.find(o => o.key === q.correctKey);
+              if (cOpt) correctAnswerText = cOpt.text;
+            }
+
+            return (
+              <div key={idx} className="bg-white border-2 border-[#1E1E24] rounded-2xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-black border-2 border-[#1E1E24] ${isCorrect ? 'bg-[#22C55E]' : 'bg-[#EF4444]'}`}>
+                    {idx + 1}
+                  </div>
+                  <h3 className="font-bold text-sm text-[#1E1E24]/70 uppercase tracking-widest flex-1">
+                    {isCorrect ? 'Correcto' : 'Incorrecto'}
+                  </h3>
+                </div>
+                
+                <h4 className="text-lg font-black mb-3">{q.question}</h4>
+                {q.latex && (
+                  <div className="mb-4 bg-[#f8faf9] p-4 rounded-xl border border-[#1E1E24]/10 text-center text-xl font-black">
+                    <MathView latex={q.latex} />
+                  </div>
+                )}
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                  <div className={`border p-3 rounded-xl ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                    <span className={`text-[10px] font-black uppercase block mb-1 ${isCorrect ? 'text-green-700' : 'text-red-600'}`}>Tu Respuesta</span>
+                    <div className={`font-bold ${isCorrect ? 'text-green-900' : 'text-red-900'}`}>
+                      {q.optionsAreLatex ? <MathView latex={userAnswerText} inline /> : userAnswerText || '(Vacío)'}
+                    </div>
+                  </div>
+                  {!isCorrect && (
+                    <div className="bg-green-50 border border-green-200 p-3 rounded-xl">
+                      <span className="text-[10px] font-black uppercase text-green-700 block mb-1">Respuesta Correcta</span>
+                      <div className="font-bold text-green-900">
+                        {q.optionsAreLatex ? <MathView latex={correctAnswerText} inline /> : correctAnswerText}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {q.explanation && (
+                  <div className="bg-[#FFF9E6] border-l-4 border-[#F7CA38] p-3 text-sm font-bold text-[#1E1E24]/80">
+                    <span className="text-[10px] font-black uppercase text-[#F59E0B] block mb-1">Explicación</span>
+                    <MathView latex={q.explanation.includes('\\') || q.explanation.includes('^') || q.explanation.includes('=') ? q.explanation : `\\text{${q.explanation}}`} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   // Final Summary Screen
   if (isFinished) {
@@ -237,6 +333,14 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
             >
               <RotateCcw className="w-4 h-4" />
               <span>Practicar otras 5 preguntas</span>
+            </button>
+
+            <button
+              onClick={() => setIsReviewMode(true)}
+              className="w-full py-3.5 bg-white hover:bg-gray-50 text-[#1E1E24] border-2 border-[#1E1E24] font-black text-xs uppercase tracking-wider rounded-full shadow-sm cursor-pointer flex items-center justify-center gap-2 transition-transform active:scale-95"
+            >
+              <Eye className="w-4 h-4" />
+              <span>Revisar mis respuestas</span>
             </button>
 
             <button

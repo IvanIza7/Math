@@ -1,311 +1,531 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronDown, Zap, AlertTriangle, Calculator } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Zap, Sparkles, Activity, SlidersHorizontal, BookmarkCheck, ChevronDown, AlertTriangle } from 'lucide-react';
 import { MathView } from '../../utils/math';
 import { playSound } from '../../utils/sound';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+};
+
+type OpKey = 'suma' | 'resta' | 'mult' | 'div' | 'pot' | 'raiz';
+
+interface PartInfo {
+  name: string;
+  val: string;
+  role: string;
+}
+
+const OP_DATA: Record<OpKey, { parts: Record<string, PartInfo>, tip?: string }> = {
+  'suma': {
+    parts: {
+      'sum1': { name: 'Sumando', val: '15', role: 'Cantidad a la que se le añade otra.' },
+      'sum2': { name: 'Sumando', val: '27', role: 'Cantidad que se añade.' },
+      'total': { name: 'Suma o Total', val: '42', role: 'El resultado final de combinar las cantidades.' }
+    }
+  },
+  'resta': {
+    parts: {
+      'minuendo': { name: 'Minuendo', val: '50', role: 'Cantidad inicial de la que se va a restar.' },
+      'sustraendo': { name: 'Sustraendo', val: '18', role: 'Cantidad que se quita o sustrae.' },
+      'dif': { name: 'Diferencia', val: '32', role: 'Resultado de la resta; lo que queda.' }
+    }
+  },
+  'mult': {
+    parts: {
+      'factor1': { name: 'Factor (Multiplicando)', val: '8', role: 'El número que será sumado repetidamente.' },
+      'factor2': { name: 'Factor (Multiplicador)', val: '5', role: 'Indica cuántas veces sumar el multiplicando.' },
+      'prod': { name: 'Producto', val: '40', role: 'El resultado de la multiplicación.' }
+    }
+  },
+  'div': {
+    parts: {
+      'dividendo': { name: 'Dividendo', val: '40', role: 'La cantidad total que se va a repartir.' },
+      'divisor': { name: 'Divisor', val: '6', role: 'El número de partes iguales en las que se reparte.' },
+      'cociente': { name: 'Cociente', val: '6', role: 'El resultado: cuánto le toca a cada parte.' },
+      'residuo': { name: 'Residuo', val: '4', role: 'Lo que sobra y no alcanza a formar un entero más.' }
+    }
+  },
+  'pot': {
+    parts: {
+      'base': { name: 'Base', val: '5', role: 'El número que se va a multiplicar por sí mismo.' },
+      'exp': { name: 'Exponente', val: '3', role: 'Las veces que la base aparece como factor.' },
+      'potencia': { name: 'Potencia', val: '125', role: 'El resultado de multiplicar la base las veces indicadas.' }
+    },
+    tip: "⚡ Potencia al cuadrado: Cuando el exponente es 2 se lee 'al cuadrado' porque representa el área de un cuadrado."
+  },
+  'raiz': {
+    parts: {
+      'indice': { name: 'Índice', val: '2', role: 'Indica el grado de la raíz (cuántas veces debe multiplicarse el resultado por sí mismo).' },
+      'radical': { name: 'Radical', val: '√', role: 'El símbolo matemático de la operación.' },
+      'radicando': { name: 'Radicando / Subradical', val: '16', role: 'La cantidad a la cual se le extrae la raíz.' },
+      'raiz': { name: 'Raíz', val: '4', role: 'El resultado que, elevado al índice, da el radicando.' }
+    },
+    tip: "⚡ Raíz Cuadrada Secreta: Si el radical no lleva número en el índice (√a), el índice siempre es 2. ¡No existe la raíz con índice 1 o 0!"
+  }
+};
+
 export const OperacionesBasicasModule: React.FC = () => {
-  const [activeOp, setActiveOp] = useState<'suma-resta-mult' | 'div-pot-raiz'>('suma-resta-mult');
-  const [openVerif, setOpenVerif] = useState(false);
+  const [showAnalogy, setShowAnalogy] = useState(false);
+  const [activeOp, setActiveOp] = useState<OpKey>('suma');
+  const [activePart, setActivePart] = useState<string>('sum1');
+  const [signosTab, setSignosTab] = useState<'sr' | 'md'>('sr');
+  const [openAcc, setOpenAcc] = useState<string | null>(null);
+
+  const handleOpChange = (op: OpKey, defaultPart: string) => {
+    playSound('click');
+    setActiveOp(op);
+    setActivePart(defaultPart);
+  };
+
+  const currentOpData = OP_DATA[activeOp];
+  const currentPartData = currentOpData.parts[activePart];
+
+  const renderOpVisualizer = () => {
+    const isSelected = (part: string) => activePart === part;
+    const btnClass = (part: string) => `
+      cursor-pointer px-3 py-1 md:py-2 rounded-xl border-2 font-black text-lg md:text-2xl md:px-4 flex items-center justify-center transition-all shadow-[2px_2px_0px_0px_#1E1E24]
+      ${isSelected(part) ? 'bg-[#22C55E] border-[#1E1E24] text-white scale-110 z-10 shadow-[4px_4px_0px_0px_#1E1E24]' : 'bg-white border-[#1E1E24] text-[#1E1E24] hover:bg-slate-100'}
+    `;
+
+    switch (activeOp) {
+      case 'suma':
+        return (
+          <div className="flex items-center justify-center gap-2 md:gap-4 font-black text-2xl md:text-4xl text-[#1E1E24]">
+            <button onClick={() => { playSound('tap'); setActivePart('sum1'); }} className={btnClass('sum1')}>15</button>
+            <span className="text-[#22C55E]">+</span>
+            <button onClick={() => { playSound('tap'); setActivePart('sum2'); }} className={btnClass('sum2')}>27</button>
+            <span className="text-[#22C55E]">=</span>
+            <button onClick={() => { playSound('tap'); setActivePart('total'); }} className={btnClass('total')}>42</button>
+          </div>
+        );
+      case 'resta':
+        return (
+          <div className="flex items-center justify-center gap-2 md:gap-4 font-black text-2xl md:text-4xl text-[#1E1E24]">
+            <button onClick={() => { playSound('tap'); setActivePart('minuendo'); }} className={btnClass('minuendo')}>50</button>
+            <span className="text-[#22C55E]">-</span>
+            <button onClick={() => { playSound('tap'); setActivePart('sustraendo'); }} className={btnClass('sustraendo')}>18</button>
+            <span className="text-[#22C55E]">=</span>
+            <button onClick={() => { playSound('tap'); setActivePart('dif'); }} className={btnClass('dif')}>32</button>
+          </div>
+        );
+      case 'mult':
+        return (
+          <div className="flex items-center justify-center gap-2 md:gap-4 font-black text-2xl md:text-4xl text-[#1E1E24]">
+            <button onClick={() => { playSound('tap'); setActivePart('factor1'); }} className={btnClass('factor1')}>8</button>
+            <span className="text-[#22C55E]">×</span>
+            <button onClick={() => { playSound('tap'); setActivePart('factor2'); }} className={btnClass('factor2')}>5</button>
+            <span className="text-[#22C55E]">=</span>
+            <button onClick={() => { playSound('tap'); setActivePart('prod'); }} className={btnClass('prod')}>40</button>
+          </div>
+        );
+      case 'div':
+        return (
+          <div className="flex flex-col items-center justify-center">
+            <div className="flex items-end gap-2 md:gap-4 font-black text-2xl md:text-4xl text-[#1E1E24] mb-4">
+               <button onClick={() => { playSound('tap'); setActivePart('cociente'); }} className={btnClass('cociente')}>6</button>
+            </div>
+            <div className="flex items-center gap-2 md:gap-4 font-black text-2xl md:text-4xl text-[#1E1E24]">
+               <button onClick={() => { playSound('tap'); setActivePart('divisor'); }} className={btnClass('divisor')}>6</button>
+               <span className="text-[#22C55E]">│</span>
+               <button onClick={() => { playSound('tap'); setActivePart('dividendo'); }} className={btnClass('dividendo')}>40</button>
+            </div>
+            <div className="flex flex-col items-end gap-1 font-black text-xl md:text-2xl text-[#1E1E24] mt-4 pr-4">
+              <span className="text-[#22C55E] border-b-4 border-[#22C55E] pb-1">- 36</span>
+              <button onClick={() => { playSound('tap'); setActivePart('residuo'); }} className={btnClass('residuo')}>4</button>
+            </div>
+          </div>
+        );
+      case 'pot':
+        return (
+          <div className="flex items-center justify-center gap-4 font-black text-[#1E1E24]">
+            <div className="flex items-start">
+               <button onClick={() => { playSound('tap'); setActivePart('base'); }} className={btnClass('base')}>5</button>
+               <div className="-mt-4 -ml-2 z-20">
+                 <button onClick={() => { playSound('tap'); setActivePart('exp'); }} className={`cursor-pointer px-2 py-1 rounded-lg border-2 font-black text-sm md:text-lg flex items-center justify-center transition-all shadow-[2px_2px_0px_0px_#1E1E24] ${isSelected('exp') ? 'bg-[#22C55E] border-[#1E1E24] text-white scale-110 shadow-[4px_4px_0px_0px_#1E1E24]' : 'bg-white border-[#1E1E24] text-[#1E1E24] hover:bg-slate-100'}`}>3</button>
+               </div>
+            </div>
+            <span className="text-[#22C55E] text-2xl md:text-4xl">=</span>
+            <button onClick={() => { playSound('tap'); setActivePart('potencia'); }} className={btnClass('potencia')}>125</button>
+          </div>
+        );
+      case 'raiz':
+        return (
+          <div className="flex items-center justify-center gap-4 font-black text-[#1E1E24]">
+             <div className="flex items-start">
+                 <div className="mt-2 -mr-3 z-20">
+                   <button onClick={() => { playSound('tap'); setActivePart('indice'); }} className={`cursor-pointer px-2 py-1 rounded-lg border-2 font-black text-xs md:text-sm flex items-center justify-center transition-all shadow-[2px_2px_0px_0px_#1E1E24] ${isSelected('indice') ? 'bg-[#22C55E] border-[#1E1E24] text-white scale-110 shadow-[4px_4px_0px_0px_#1E1E24]' : 'bg-white border-[#1E1E24] text-[#1E1E24] hover:bg-slate-100'}`}>2</button>
+                 </div>
+                 <button onClick={() => { playSound('tap'); setActivePart('radical'); }} className={`cursor-pointer px-2 py-1 rounded-xl border-2 font-black text-2xl md:text-4xl flex items-center justify-center transition-all shadow-[2px_2px_0px_0px_#1E1E24] ${isSelected('radical') ? 'bg-[#22C55E] border-[#1E1E24] text-white scale-110 z-10 shadow-[4px_4px_0px_0px_#1E1E24]' : 'bg-white border-[#1E1E24] text-[#1E1E24] hover:bg-slate-100'}`}>√</button>
+                 <div className="-ml-2 mt-4 z-0">
+                    <button onClick={() => { playSound('tap'); setActivePart('radicando'); }} className={btnClass('radicando')}>16</button>
+                 </div>
+             </div>
+             <span className="text-[#22C55E] text-2xl md:text-4xl">=</span>
+             <button onClick={() => { playSound('tap'); setActivePart('raiz'); }} className={btnClass('raiz')}>4</button>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="space-y-6">
-
-      {/* CARD 1: Anatomía de las 6 Operaciones */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
-      >
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-[#6F78DB] flex items-center justify-center text-white border-2 border-[#1E1E24]">
-            <Calculator className="w-5 h-5" />
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+      className="space-y-6 max-w-4xl mx-auto pb-10"
+    >
+      {/* 1. Tarjeta: El Motor de las Operaciones (Introducción) */}
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl border-2 border-[#1E1E24] p-5 shadow-[4px_4px_0px_0px_#1E1E24]">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 rounded-xl bg-white border-2 border-[#1E1E24] flex items-center justify-center text-[#F7CA38] shadow-[2px_2px_0px_0px_#1E1E24] shrink-0">
+            <Zap className="w-6 h-6 fill-[#F7CA38]" />
           </div>
-          <h2 className="text-xl font-black text-[#1E1E24] uppercase tracking-tight">
-            Anatomía de las 6 Operaciones
+          <h2 className="text-xl md:text-2xl font-black text-[#1E1E24] uppercase tracking-tight leading-none">
+            El Motor de las<br/>Operaciones
           </h2>
         </div>
-
         <p className="text-sm font-bold text-[#1E1E24]/80 leading-relaxed mb-4">
-          Cada operación tiene sus propias partes con nombres específicos. Identifícalas con el selector.
+          Las 6 operaciones aritméticas fundamentales (adición, sustracción, multiplicación, división, potenciación y radicación) son las reglas de transformación numérica. Su comportamiento está regido por la jerarquía operativa y las leyes de signos.
         </p>
+        <motion.button
+          whileTap={{ scale: 0.98 }}
+          onClick={() => { playSound('pop'); setShowAnalogy(!showAnalogy); }}
+          className="w-full bg-[#FFF9E6] border-2 border-[#F7CA38] text-[#D97706] font-black py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-[#FFF3C2] transition-colors"
+        >
+          <Sparkles className="w-5 h-5" /> {showAnalogy ? 'Ocultar analogía' : 'Ver analogía rápida'}
+        </motion.button>
 
-        {/* Tabs */}
-        <div className="flex gap-2 mb-4">
-          {([
-            { key: 'suma-resta-mult', label: 'Suma · Resta · ×' },
-            { key: 'div-pot-raiz', label: 'Div · Pot · Raíz' },
-          ] as const).map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => { playSound('tap'); setActiveOp(tab.key); }}
-              className={`flex-1 py-2.5 rounded-xl border-2 font-black text-xs sm:text-sm flex items-center justify-center gap-1 transition-all cursor-pointer ${
-                activeOp === tab.key
-                  ? 'bg-[#1E1E24] text-white border-[#1E1E24]'
-                  : 'bg-[#f8faf9] border-[#1E1E24]/20 text-[#1E1E24]/60 hover:border-[#1E1E24]/50'
-              }`}
+        <AnimatePresence>
+          {showAnalogy && (
+            <motion.div
+              initial={{ opacity: 0, height: 0, marginTop: 0 }}
+              animate={{ opacity: 1, height: 'auto', marginTop: 16 }}
+              exit={{ opacity: 0, height: 0, marginTop: 0 }}
+              className="overflow-hidden"
             >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        <AnimatePresence mode="wait">
-          {activeOp === 'suma-resta-mult' && (
-            <motion.div key="srm" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-            >
-              {[
-                {
-                  title: 'SUMA', color: '#38bdf8',
-                  lines: [
-                    { val: '3179', tag: 'Sumando' },
-                    { val: '+1815', tag: 'Sumando' },
-                    { val: '────', tag: '' },
-                    { val: '4994', tag: 'Total', bold: true },
-                  ]
-                },
-                {
-                  title: 'RESTA', color: '#22C55E',
-                  lines: [
-                    { val: '4001', tag: 'Minuendo' },
-                    { val: '−1786', tag: 'Sustraendo' },
-                    { val: '────', tag: '' },
-                    { val: '2215', tag: 'Diferencia', bold: true },
-                  ]
-                },
-                {
-                  title: 'MULTIPLICACIÓN', color: '#F7CA38',
-                  lines: [
-                    { val: '35', tag: 'Multiplicando' },
-                    { val: '×12', tag: 'Multiplicador' },
-                    { val: '───', tag: '' },
-                    { val: '70', tag: 'Prod. parcial' },
-                    { val: '35', tag: 'Prod. parcial' },
-                    { val: '───', tag: '' },
-                    { val: '420', tag: 'Prod. final', bold: true },
-                  ]
-                },
-              ].map(op => (
-                <div key={op.title} className="bg-[#1E1E24] rounded-xl p-3">
-                  <div className="font-black text-[10px] uppercase tracking-widest mb-2" style={{ color: op.color }}>{op.title}</div>
-                  {op.lines.map((line, i) => (
-                    <div key={i} className="flex items-center justify-between gap-2 font-mono text-xs">
-                      <span className={`text-white ${line.bold ? 'font-black' : ''}`}>{line.val}</span>
-                      {line.tag && <span className="text-white/40 text-[9px] text-right">{line.tag}</span>}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </motion.div>
-          )}
-          {activeOp === 'div-pot-raiz' && (
-            <motion.div key="dpr" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-3"
-            >
-              <div className="bg-[#1E1E24] rounded-xl p-3">
-                <div className="font-black text-[10px] uppercase tracking-widest text-[#38bdf8] mb-2">DIVISIÓN</div>
-                <div className="font-mono text-xs text-white space-y-0.5">
-                  <div className="flex justify-between"><span>6</span><span className="text-white/40">Cociente</span></div>
-                  <div className="text-white/30">────</div>
-                  <div className="flex justify-between"><span>6 │ <span className="text-[#F7CA38]">40</span></span><span className="text-white/40">Dividendo</span></div>
-                  <div className="pl-4">36</div>
-                  <div className="pl-2 text-white/30">────</div>
-                  <div className="flex justify-between pl-4"><span>4</span><span className="text-white/40">Residuo</span></div>
-                </div>
-              </div>
-              <div className="bg-[#1E1E24] rounded-xl p-3">
-                <div className="font-black text-[10px] uppercase tracking-widest text-[#22C55E] mb-2">POTENCIA</div>
-                <div className="font-mono text-xs text-white space-y-1 text-center">
-                  <div className="text-2xl font-black"><MathView latex="5^3 = 125" inline /></div>
-                  <div className="text-white/50 text-[10px]">base → 5 · exponente → 3</div>
-                  <div className="text-[#22C55E] font-bold text-xs">potencia → 125</div>
-                </div>
-              </div>
-              <div className="bg-[#1E1E24] rounded-xl p-3">
-                <div className="font-black text-[10px] uppercase tracking-widest text-[#F7CA38] mb-2">RADICACIÓN</div>
-                <div className="font-mono text-xs text-white space-y-1 text-center">
-                  <div className="text-xl font-black text-[#F7CA38]"><MathView latex="\sqrt{16} = 4" inline /></div>
-                  <div className="text-white/50 text-[10px]">índice · radicando · raíz</div>
-                </div>
+              <div className="bg-[#FFFDF5] border-l-4 border-l-[#F7CA38] border-2 border-[#1E1E24] p-4 rounded-r-xl shadow-[2px_2px_0px_0px_#1E1E24]">
+                <p className="text-sm font-bold text-[#1E1E24] leading-relaxed">
+                  Imagina una cuenta bancaria y un termómetro: los números positivos son depósitos de dinero o grados sobre cero (calor); los negativos son deudas que debes pagar o grados bajo cero (frío). Restar un número negativo no es quitar dinero: ¡es que te perdonen una deuda, por lo que mágicamente tu saldo sube como si fuera una suma positiva!
+                </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
 
-      {/* CARD 2: Leyes de Signos en Suma y Resta */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-        className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#22C55E] flex items-center justify-center text-white border-2 border-[#1E1E24]">
-            <Zap className="w-5 h-5" />
+      {/* 2. Tarjeta: Anatomía de las Operaciones (Visualizador Táctil) */}
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl border-2 border-[#1E1E24] p-5 shadow-[4px_4px_0px_0px_#1E1E24]">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 rounded-xl bg-white border-2 border-[#1E1E24] flex items-center justify-center text-[#22C55E] shadow-[2px_2px_0px_0px_#1E1E24] shrink-0">
+            <Activity className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-black text-[#1E1E24] uppercase tracking-tight leading-tight">
-            Leyes de Signos: Suma y Resta
+          <h2 className="text-xl md:text-2xl font-black text-[#1E1E24] uppercase tracking-tight leading-none">
+            Anatomía de las<br/>Operaciones
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="bg-[#38bdf8]/10 border-2 border-[#38bdf8]/30 rounded-xl p-3 text-center">
-            <div className="font-black text-xs text-[#38bdf8] uppercase mb-1">Mismo signo</div>
-            <div className="text-xs font-bold text-[#1E1E24]/80">Se <strong>suman</strong> y se mantiene el signo</div>
-          </div>
-          <div className="bg-[#EF4444]/10 border-2 border-[#EF4444]/30 rounded-xl p-3 text-center">
-            <div className="font-black text-xs text-[#EF4444] uppercase mb-1">Distinto signo</div>
-            <div className="text-xs font-bold text-[#1E1E24]/80">Se <strong>restan</strong> y gana el mayor</div>
-          </div>
-        </div>
-
-        <div className="bg-[#f8faf9] rounded-xl border-2 border-[#1E1E24] overflow-hidden mb-4">
-          <div className="grid grid-cols-4 bg-[#1E1E24] text-white text-[10px] font-black uppercase tracking-wider p-2 text-center">
-            <div>Tipo</div><div>Operación</div><div>Paso a paso</div><div>Resultado</div>
-          </div>
+        {/* Tabs Selector */}
+        <div className="flex flex-wrap gap-2 mb-4">
           {[
-            { tipo: '(+)+(+)', op: '+6+2', desc: 'Ambos +, suman', res: '+8', color: '#22C55E' },
-            { tipo: '(−)+(−)', op: '−5−7', desc: '5+7=12, signo −', res: '−12', color: '#EF4444' },
-            { tipo: '(−)+(+)', op: '−8+2', desc: '8−2=6, gana −8', res: '−6', color: '#EF4444' },
-            { tipo: '(+)+(−)', op: '+8−2', desc: '8−2=6, gana +8', res: '+6', color: '#22C55E' },
-          ].map((row, i) => (
-            <div key={i} className="grid grid-cols-4 text-[10px] sm:text-xs font-bold text-[#1E1E24] p-2 items-center border-t border-[#1E1E24]/10 text-center">
-              <div className="font-mono">{row.tipo}</div>
-              <div className="font-mono font-black">{row.op}</div>
-              <div className="text-[#1E1E24]/60 text-[9px] sm:text-[10px]">{row.desc}</div>
-              <div className="font-black" style={{ color: row.color }}>{row.res}</div>
-            </div>
-          ))}
-        </div>
-
-        <div className="bg-[#EFF6FF] border-2 border-[#38bdf8] rounded-xl p-3 flex items-start gap-2">
-          <span className="text-lg shrink-0">🔄</span>
-          <div className="text-xs font-bold text-[#1E1E24]/80">
-            <strong>RESTA (Sumar el simétrico):</strong>
-            <div className="mt-1 space-y-0.5 font-mono">
-              <div>4 − (−3) → 4 + 3 = <strong>7</strong></div>
-              <div>−8 − (+5) → −8 − 5 = <strong>−13</strong></div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* CARD 3: Leyes de Signos en × y ÷ */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-        className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#38bdf8] flex items-center justify-center text-white border-2 border-[#1E1E24]">
-            <Calculator className="w-5 h-5" />
-          </div>
-          <h2 className="text-xl font-black text-[#1E1E24] uppercase tracking-tight leading-tight">
-            Leyes de Signos: × y ÷
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <div className="bg-[#22C55E]/10 border-2 border-[#22C55E]/30 rounded-xl p-3 text-center">
-            <div className="font-black text-sm text-[#22C55E] mb-1">Signos iguales</div>
-            <div className="font-black text-xl text-[#22C55E]">→ + </div>
-          </div>
-          <div className="bg-[#EF4444]/10 border-2 border-[#EF4444]/30 rounded-xl p-3 text-center">
-            <div className="font-black text-sm text-[#EF4444] mb-1">Signos distintos</div>
-            <div className="font-black text-xl text-[#EF4444]">→ − </div>
-          </div>
-        </div>
-
-        <div className="bg-[#f8faf9] rounded-xl border-2 border-[#1E1E24] overflow-hidden">
-          <div className="grid grid-cols-4 bg-[#1E1E24] text-white text-[10px] font-black uppercase tracking-wider p-2 text-center">
-            <div>Op.</div><div>Signos</div><div>Ejemplo</div><div>Resultado</div>
-          </div>
-          {[
-            { op: '×', sig: '(+)·(+)', ex: '(+5)(+3)', res: '+15', color: '#22C55E' },
-            { op: '×', sig: '(−)·(−)', ex: '(−5)(−9)', res: '+45', color: '#22C55E' },
-            { op: '×', sig: '(+)·(−)', ex: '(+4)(−7)', res: '−28', color: '#EF4444' },
-            { op: '×', sig: '(−)·(+)', ex: '(−6)(+2)', res: '−12', color: '#EF4444' },
-            { op: '÷', sig: '(+)/(+)', ex: '+8/+4', res: '+2', color: '#22C55E' },
-            { op: '÷', sig: '(−)/(−)', ex: '−6/−3', res: '+2', color: '#22C55E' },
-            { op: '÷', sig: '(+)/(−)', ex: '+10/−5', res: '−2', color: '#EF4444' },
-            { op: '÷', sig: '(−)/(+)', ex: '−8/+2', res: '−4', color: '#EF4444' },
-          ].map((row, i) => (
-            <div key={i} className="grid grid-cols-4 text-[10px] sm:text-xs font-bold text-[#1E1E24] p-2 items-center border-t border-[#1E1E24]/10 text-center">
-              <div className="font-black text-base">{row.op}</div>
-              <div className="font-mono text-[9px] sm:text-[10px]">{row.sig}</div>
-              <div className="font-mono">{row.ex}</div>
-              <div className="font-black" style={{ color: row.color }}>{row.res}</div>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* CARD 4: Potenciación y Raíz */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-        className="bg-white border-2 border-[#1E1E24] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#1E1E24]"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#F7CA38] flex items-center justify-center text-[#1E1E24] border-2 border-[#1E1E24]">
-            <Zap className="w-5 h-5 fill-[#1E1E24]" />
-          </div>
-          <h2 className="text-xl font-black text-[#1E1E24] uppercase tracking-tight leading-tight">
-            Potenciación y Raíz Cuadrada
-          </h2>
-        </div>
-
-        <div className="bg-[#1E1E24] rounded-xl p-4 text-center mb-4">
-          <div className="text-[#F7CA38] font-black text-xs uppercase tracking-widest mb-2">RAÍZ CUADRADA EXACTA</div>
-          <div className="text-white font-black text-base sm:text-lg overflow-x-auto no-scrollbar pb-1">
-            <MathView latex="\sqrt{a} = b \iff b \times b = a" inline />
-          </div>
-        </div>
-
-        <div className="space-y-3 mb-4">
-          <div className="border-2 border-[#1E1E24] rounded-xl overflow-hidden">
+            { id: 'suma', label: 'Suma', p: 'sum1' },
+            { id: 'resta', label: 'Resta', p: 'minuendo' },
+            { id: 'mult', label: 'Multiplicación', p: 'factor1' },
+            { id: 'div', label: 'División', p: 'dividendo' },
+            { id: 'pot', label: 'Potencia', p: 'base' },
+            { id: 'raiz', label: 'Raíz', p: 'radicando' }
+          ].map(op => (
             <button
-              onClick={() => { playSound('click'); setOpenVerif(!openVerif); }}
-              className="w-full bg-[#f8faf9] hover:bg-[#FFFDF5] p-3 flex items-center justify-between font-black text-sm text-[#1E1E24] cursor-pointer transition-colors"
+              key={op.id}
+              onClick={() => handleOpChange(op.id as OpKey, op.p)}
+              className={`px-3 py-1.5 rounded-lg border-2 font-black text-xs md:text-sm flex-1 sm:flex-none transition-colors ${
+                activeOp === op.id
+                  ? 'bg-[#1E1E24] border-[#1E1E24] text-white'
+                  : 'bg-[#f8faf9] border-[#1E1E24]/20 text-[#1E1E24]/60 hover:border-[#1E1E24]/50 hover:bg-slate-100'
+              }`}
             >
-              <div className="flex items-center gap-2">🔍 Verificando Raíces Rápidas</div>
-              <ChevronDown className={`w-4 h-4 transition-transform ${openVerif ? 'rotate-180' : ''}`} />
+              {op.label}
             </button>
-            <AnimatePresence>
-              {openVerif && (
-                <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
-                  <div className="p-4 bg-white border-t-2 border-[#1E1E24]/10 grid grid-cols-2 gap-2">
-                    {[
-                      ['√16 = 4', '4 × 4 = 16'],
-                      ['√25 = 5', '5 × 5 = 25'],
-                      ['√49 = 7', '7 × 7 = 49'],
-                      ['√64 = 8', '8 × 8 = 64'],
-                      ['√81 = 9', '9 × 9 = 81'],
-                      ['√100 = 10', '10 × 10 = 100'],
-                    ].map(([r, v], i) => (
-                      <div key={i} className="bg-[#f8faf9] rounded-lg p-2 text-center">
-                        <div className="font-black text-sm text-[#1E1E24]">{r}</div>
-                        <div className="text-[10px] font-bold text-[#1E1E24]/50">{v}</div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          ))}
         </div>
 
-        <div className="bg-[#FEF2F2] border-2 border-[#EF4444] rounded-xl p-3 flex items-start gap-3 relative overflow-hidden">
-          <div className="absolute -right-4 -bottom-4 opacity-10 text-[#EF4444]"><AlertTriangle size={60} /></div>
-          <AlertTriangle className="w-5 h-5 text-[#EF4444] shrink-0 relative z-10" />
-          <div className="text-xs font-bold text-[#991B1B] relative z-10 space-y-1">
-            <strong>CUIDADO CON LAS POTENCIAS DE NEGATIVOS:</strong>
-            <div className="font-mono space-y-0.5 mt-1">
-              <div><MathView latex="(-3)^2 = (-3)(-3) = +9" inline /> <span className="text-[#1E1E24]/50">(exp. par)</span></div>
-              <div><MathView latex="(-2)^3 = (-2)(-2)(-2) = -8" inline /> <span className="text-[#1E1E24]/50">(exp. impar)</span></div>
-              <div><MathView latex="-3^2 = -(3 \times 3) = -9" inline /> <span className="text-[#1E1E24]/50">(sin paréntesis)</span></div>
+        {/* Consola */}
+        <div className="bg-[#f8faf9] p-8 rounded-2xl border-2 border-[#1E1E24] shadow-[inset_0_4px_6px_rgba(0,0,0,0.05)] flex items-center justify-center min-h-[200px] mb-4">
+          {renderOpVisualizer()}
+        </div>
+
+        {/* Tabla Info Dinámica */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activePart}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="bg-white rounded-xl border-2 border-[#1E1E24] p-4 shadow-sm"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div>
+                <span className="text-[10px] font-black uppercase text-[#1E1E24]/50 block mb-1">Elemento</span>
+                <span className="font-black text-[#1E1E24] bg-white border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] px-2 py-1 rounded-md">{currentPartData.name}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-[#1E1E24]/50 block mb-1">En el Ejemplo</span>
+                <span className="font-black text-xl text-[#1E1E24]">{currentPartData.val}</span>
+              </div>
+              <div className="md:col-span-3 border-t-2 border-[#1E1E24]/10 pt-2">
+                <span className="text-[10px] font-black uppercase text-[#1E1E24]/50 block mb-1">Rol Matemático</span>
+                <span className="font-bold text-[#1E1E24]/80 leading-snug">{currentPartData.role}</span>
+              </div>
             </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {currentOpData.tip && (
+          <div className="mt-4 bg-[#f8faf9] p-3 border-2 border-[#1E1E24]/20 rounded-xl text-xs font-bold text-[#1E1E24]/80">
+            {currentOpData.tip}
           </div>
+        )}
+      </motion.div>
+
+      {/* 3. Tarjeta: El Semáforo de los Signos (Pestañas tipo Píldora) */}
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl border-2 border-[#1E1E24] p-5 shadow-[4px_4px_0px_0px_#1E1E24]">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 rounded-xl bg-white border-2 border-[#1E1E24] flex items-center justify-center text-[#38bdf8] shadow-[2px_2px_0px_0px_#1E1E24] shrink-0">
+            <SlidersHorizontal className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-black text-[#1E1E24] uppercase tracking-tight leading-none">
+            El Semáforo de<br/>los Signos
+          </h2>
+        </div>
+
+        <div className="flex bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl p-1 mb-4 shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)]">
+          <button
+            onClick={() => { playSound('click'); setSignosTab('sr'); }}
+            className={`flex-1 py-2 font-black text-xs md:text-sm rounded-lg transition-all ${
+              signosTab === 'sr' ? 'bg-[#38bdf8] text-white border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24]' : 'text-[#1E1E24]/50 hover:text-[#1E1E24]'
+            }`}
+          >
+            Suma y Resta
+          </button>
+          <button
+            onClick={() => { playSound('click'); setSignosTab('md'); }}
+            className={`flex-1 py-2 font-black text-xs md:text-sm rounded-lg transition-all ${
+              signosTab === 'md' ? 'bg-[#ec4899] text-white border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24]' : 'text-[#1E1E24]/50 hover:text-[#1E1E24]'
+            }`}
+          >
+            Multiplicación y División
+          </button>
+        </div>
+
+        <div className="bg-white border-2 border-[#1E1E24] rounded-xl p-4 md:p-6 shadow-[2px_2px_0px_0px_#1E1E24] min-h-[220px]">
+          <AnimatePresence mode="wait">
+            {signosTab === 'sr' && (
+              <motion.div key="sr" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded bg-[#22C55E] flex items-center justify-center font-black text-white text-xs border-2 border-[#1E1E24]">1</span>
+                    <span className="font-black text-[#1E1E24] text-sm uppercase">Mismo Signo</span>
+                  </div>
+                  <p className="text-xs md:text-sm font-bold text-[#1E1E24]/80 mb-2 pl-8">Se suman los valores absolutos y se conserva el signo.</p>
+                  <div className="flex flex-wrap gap-4 pl-8">
+                    <div className="bg-[#f8faf9] px-3 py-1.5 rounded-lg border-2 border-[#1E1E24] font-black text-sm text-[#1E1E24]"><MathView latex="(-5) + (-7) = -12" inline /></div>
+                    <div className="bg-[#f8faf9] px-3 py-1.5 rounded-lg border-2 border-[#1E1E24] font-black text-sm text-[#1E1E24]"><MathView latex="(+6) + (+2) = +8" inline /></div>
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded bg-[#EF4444] flex items-center justify-center font-black text-white text-xs border-2 border-[#1E1E24]">2</span>
+                    <span className="font-black text-[#1E1E24] text-sm uppercase">Signos Contrarios</span>
+                  </div>
+                  <p className="text-xs md:text-sm font-bold text-[#1E1E24]/80 mb-2 pl-8">Se restan y predomina el signo del mayor en valor absoluto.</p>
+                  <div className="flex flex-wrap gap-4 pl-8">
+                    <div className="bg-[#f8faf9] px-3 py-1.5 rounded-lg border-2 border-[#1E1E24] font-black text-sm text-[#1E1E24]"><MathView latex="-8 + 2 = -6" inline /></div>
+                    <div className="bg-[#f8faf9] px-3 py-1.5 rounded-lg border-2 border-[#1E1E24] font-black text-sm text-[#1E1E24]"><MathView latex="+8 - 2 = +6" inline /></div>
+                  </div>
+                </div>
+
+                <div className="bg-[#FFFDF5] border-2 border-[#1E1E24] rounded-xl p-3 flex gap-3 text-sm">
+                   <div className="text-lg">🔄</div>
+                   <div>
+                     <strong className="text-[#1E1E24] block mb-1">Regla 3 (Resta formal): Sumar el simétrico</strong>
+                     <span className="font-mono bg-white px-2 py-0.5 rounded border border-[#1E1E24]/20"><MathView latex="4 - (-3) = 4 + 3 = \mathbf{7}" inline /></span>
+                   </div>
+                </div>
+              </motion.div>
+            )}
+
+            {signosTab === 'md' && (
+              <motion.div key="md" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white border-2 border-[#1E1E24] rounded-xl p-4 shadow-[2px_2px_0px_0px_#1E1E24]">
+                    <div className="font-black text-sm text-[#1E1E24] uppercase mb-3 flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#22C55E]"></div> Signos Iguales
+                    </div>
+                    <p className="text-xs font-bold text-[#1E1E24]/80 mb-3">Dan siempre positivo (+).</p>
+                    <div className="space-y-2">
+                       <div className="bg-[#f8faf9] p-2 rounded-lg border-2 border-[#1E1E24]/10 font-black text-center text-sm text-[#22C55E]"><MathView latex="(+) \cdot (+) = \mathbf{+}" inline /></div>
+                       <div className="bg-[#f8faf9] p-2 rounded-lg border-2 border-[#1E1E24]/10 font-black text-center text-sm text-[#22C55E]"><MathView latex="(-) \cdot (-) = \mathbf{+}" inline /></div>
+                    </div>
+                  </div>
+                  <div className="bg-white border-2 border-[#1E1E24] rounded-xl p-4 shadow-[2px_2px_0px_0px_#1E1E24]">
+                    <div className="font-black text-sm text-[#1E1E24] uppercase mb-3 flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-[#EF4444]"></div> Signos Distintos
+                    </div>
+                    <p className="text-xs font-bold text-[#1E1E24]/80 mb-3">Dan siempre negativo (-).</p>
+                    <div className="space-y-2">
+                       <div className="bg-[#f8faf9] p-2 rounded-lg border-2 border-[#1E1E24]/10 font-black text-center text-sm text-[#EF4444]"><MathView latex="(+) \cdot (-) = \mathbf{-}" inline /></div>
+                       <div className="bg-[#f8faf9] p-2 rounded-lg border-2 border-[#1E1E24]/10 font-black text-center text-sm text-[#EF4444]"><MathView latex="(-) \cdot (+) = \mathbf{-}" inline /></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-[#f8faf9] border-2 border-[#1E1E24] shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] rounded-xl p-4 text-center">
+                   <div className="font-black text-[10px] text-[#1E1E24]/50 uppercase tracking-widest mb-2">Ejemplos Clave</div>
+                   <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-8 font-black text-lg text-[#1E1E24]">
+                      <div><MathView latex="(-6)(-3) = \mathbf{+18}" inline /></div>
+                      <div className="hidden md:block w-[2px] h-8 bg-[#1E1E24]/20"></div>
+                      <div><MathView latex="\frac{-20}{+5} = \mathbf{-4}" inline /></div>
+                   </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
 
-    </div>
+      {/* 4. Tarjeta: Propiedades y Conceptos Clave (Acordeones Expandibles) */}
+      <motion.div variants={itemVariants} className="bg-white rounded-3xl border-2 border-[#1E1E24] p-5 shadow-[4px_4px_0px_0px_#1E1E24]">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 rounded-xl bg-white border-2 border-[#1E1E24] flex items-center justify-center text-[#a855f7] shadow-[2px_2px_0px_0px_#1E1E24] shrink-0">
+            <BookmarkCheck className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl md:text-2xl font-black text-[#1E1E24] uppercase tracking-tight leading-none">
+            Propiedades y<br/>Conceptos
+          </h2>
+        </div>
+
+        <div className="space-y-3">
+          {[
+            {
+              id: 'prop1',
+              title: '🔄 Propiedad Conmutativa vs. Asociativa',
+              color: '#38bdf8',
+              content: (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
+                  <div className="bg-white border-2 border-[#1E1E24] rounded-xl p-4 shadow-[2px_2px_0px_0px_#1E1E24]">
+                    <h3 className="font-black text-[#1E1E24] uppercase text-xs mb-2 text-[#38bdf8]">Conmutativa</h3>
+                    <p className="font-bold text-[#1E1E24]/80 text-xs mb-3">El orden de los elementos no altera el resultado.</p>
+                    <div className="bg-[#f8faf9] px-3 py-2 rounded-lg font-black text-center text-[#1E1E24]"><MathView latex="a + b = b + a" inline /></div>
+                    <div className="bg-[#f8faf9] px-3 py-2 mt-2 rounded-lg font-black text-center text-[#1E1E24]"><MathView latex="a \cdot b = b \cdot a" inline /></div>
+                  </div>
+                  <div className="bg-white border-2 border-[#1E1E24] rounded-xl p-4 shadow-[2px_2px_0px_0px_#1E1E24]">
+                     <h3 className="font-black text-[#1E1E24] uppercase text-xs mb-2 text-[#ec4899]">Asociativa</h3>
+                     <p className="font-bold text-[#1E1E24]/80 text-xs mb-3">La agrupación con paréntesis no cambia el total.</p>
+                     <div className="bg-[#f8faf9] px-3 py-2 rounded-lg font-black text-center text-[#1E1E24]"><MathView latex="(a + b) + c = a + (b + c)" inline /></div>
+                  </div>
+                </div>
+              )
+            },
+            {
+              id: 'prop2',
+              title: '⚡ Ley Distributiva (La Repartidora)',
+              color: '#F7CA38',
+              content: (
+                <div className="mt-3 space-y-4">
+                  <p className="font-bold text-[#1E1E24]/80 text-sm">El factor exterior multiplica a cada término interior por separado.</p>
+                  <div className="bg-white border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] rounded-xl p-4 text-center font-black text-[#1E1E24] text-lg overflow-x-auto no-scrollbar">
+                    <MathView latex="a(b + c) = ab + ac \implies 3(2x + 5) = 6x + 15" inline />
+                  </div>
+                  <div className="bg-[#FEF2F2] border-2 border-[#EF4444] rounded-xl p-3 flex items-start gap-3 relative overflow-hidden text-sm">
+                    <AlertTriangle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
+                    <div className="font-bold text-[#991B1B]">
+                      <strong>❌ Error típico:</strong> Multiplicar solo al primero:<br/>
+                      <span className="font-mono font-black block mt-1"><MathView latex="3(2x + 5) \neq 6x + 5" inline /></span>
+                    </div>
+                  </div>
+                </div>
+              )
+            },
+            {
+              id: 'prop3',
+              title: '🎯 Elemento Neutro e Inverso',
+              color: '#22C55E',
+              content: (
+                <div className="mt-3 bg-white border-2 border-[#1E1E24] rounded-xl shadow-[2px_2px_0px_0px_#1E1E24] overflow-hidden">
+                  <div className="grid grid-cols-1 md:grid-cols-2 divide-y-2 md:divide-y-0 md:divide-x-2 divide-[#1E1E24]">
+                    <div className="p-4 space-y-4">
+                       <h3 className="font-black text-[#1E1E24] uppercase text-xs">Neutro</h3>
+                       <div className="space-y-2 text-sm">
+                         <div className="flex justify-between items-center"><span className="font-bold text-[#1E1E24]/80 text-xs">Suma:</span> <span className="font-black bg-[#f8faf9] px-2 py-1 rounded"><MathView latex="a + 0 = a" inline /></span></div>
+                         <div className="flex justify-between items-center"><span className="font-bold text-[#1E1E24]/80 text-xs">Multiplicación:</span> <span className="font-black bg-[#f8faf9] px-2 py-1 rounded"><MathView latex="a \cdot 1 = a" inline /></span></div>
+                       </div>
+                    </div>
+                    <div className="p-4 space-y-4">
+                       <h3 className="font-black text-[#1E1E24] uppercase text-xs">Inverso</h3>
+                       <div className="space-y-2 text-sm">
+                         <div className="flex justify-between items-center"><span className="font-bold text-[#1E1E24]/80 text-xs">Aditivo (Simétrico):</span> <span className="font-black bg-[#f8faf9] px-2 py-1 rounded"><MathView latex="a + (-a) = 0" inline /></span></div>
+                         <div className="flex justify-between items-center"><span className="font-bold text-[#1E1E24]/80 text-xs">Multiplicativo:</span> <span className="font-black bg-[#f8faf9] px-2 py-1 rounded"><MathView latex="a \cdot \frac{1}{a} = 1" inline /></span></div>
+                       </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            },
+            {
+              id: 'prop4',
+              title: '🪜 La Escalera de Jerarquía (PEMDAS)',
+              color: '#a855f7',
+              content: (
+                <div className="mt-3 space-y-2 relative">
+                  <div className="absolute top-0 bottom-0 left-4 w-1 bg-[#1E1E24]/10 rounded-full"></div>
+                  {[
+                    { num: '1', text: 'Paréntesis y signos de agrupación: ( ), [ ], { }' },
+                    { num: '2', text: 'Potencias y Raíces', math: 'x^2, \\sqrt{x}' },
+                    { num: '3', text: 'Multiplicaciones y Divisiones (izq. a der.)' },
+                    { num: '4', text: 'Sumas y Restas (izq. a der.)' }
+                  ].map((step, i) => (
+                     <div key={i} className="flex items-center gap-3 relative z-10 bg-white border-2 border-[#1E1E24] rounded-xl p-3 shadow-[2px_2px_0px_0px_#1E1E24] ml-2 hover:-translate-y-1 transition-transform cursor-default">
+                       <div className="w-8 h-8 rounded-lg bg-white border-2 border-[#1E1E24] text-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] font-black flex items-center justify-center shrink-0">{step.num}</div>
+                       <div className="font-bold text-[#1E1E24] text-sm">
+                         {step.text} {step.math && <span className="ml-2 bg-[#f8faf9] px-2 py-0.5 rounded-md"><MathView latex={step.math} inline /></span>}
+                       </div>
+                     </div>
+                  ))}
+                </div>
+              )
+            }
+          ].map((acc) => (
+            <div key={acc.id} className="border-2 border-[#1E1E24] rounded-xl overflow-hidden bg-white shadow-[2px_2px_0px_0px_#1E1E24]">
+              <button
+                onClick={() => { playSound('tap'); setOpenAcc(openAcc === acc.id ? null : acc.id); }}
+                className="w-full bg-[#f8faf9] hover:bg-slate-100 p-4 flex items-center justify-between font-black text-sm text-[#1E1E24] transition-colors"
+              >
+                <div className="flex items-center gap-2">{acc.title}</div>
+                <ChevronDown className={`w-5 h-5 transition-transform ${openAcc === acc.id ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {openAcc === acc.id && (
+                  <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                    <div className="p-4 border-t-2 border-[#1E1E24]/10 bg-[#f8faf9]/50">
+                      {acc.content}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+    </motion.div>
   );
 };
