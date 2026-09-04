@@ -10,6 +10,7 @@ import { TeoriaNumeosModule } from './modules/TeoriaNumeosModule';
 import { DecimalesFraccionesModule } from './modules/DecimalesFraccionesModule';
 import { FundamentosAlgebraModule } from './modules/FundamentosAlgebraModule';
 import { OperacionesAlgebraicasModule } from './modules/OperacionesAlgebraicasModule';
+import { GenericInteractiveModule } from './modules/GenericInteractiveModule';
 
 interface TopicModalProps {
   isOpen: boolean;
@@ -115,93 +116,22 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
               <OperacionesAlgebraicasModule />
             </div>
           ) : (
-            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-8 scroll-smooth">
-              
-              {/* Teoría */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#1E1E24] text-white flex items-center justify-center">
-                  <Book size={16} />
-                </div>
-                <h3 className="font-black text-xl uppercase tracking-tight text-[#1E1E24]">Teoría</h3>
-              </div>
-              <div className="grid gap-3">
-                {card.teoria.map((item, idx) => (
-                  <div key={idx} className="bg-white border-2 border-[#1E1E24] rounded-2xl p-4 shadow-xs">
-                    <h4 className="font-bold text-[#8A909F] text-xs uppercase mb-2">{item.title}</h4>
-                    <div className="font-black text-base sm:text-lg text-[#1E1E24] overflow-x-auto overflow-y-hidden no-scrollbar">
-                      {item.isLatex ? <MathView latex={item.content} /> : item.content}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <GenericInteractiveModule card={card} />
 
-            {/* Ejemplos */}
-            <section className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#BAFF29] border-2 border-[#1E1E24] flex items-center justify-center">
-                  <Lightbulb size={16} className="text-[#1E1E24]" />
+              {/* Botón Laboratorio (Opcional) */}
+              {card.widgetType && onOpenLab && (
+                <div className="mt-6 pt-4 border-t-2 border-dashed border-[#E2E8F0]">
+                  <button
+                    onClick={() => { playSound('click'); onOpenLab(card.widgetType!); }}
+                    className="w-full bg-[#38bdf8] hover:bg-[#20a8e8] text-white border-4 border-[#1E1E24] rounded-2xl p-4 flex items-center justify-center gap-3 font-black shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all"
+                  >
+                    <Play className="fill-current" />
+                    ENTRAR AL LABORATORIO INTERACTIVO
+                  </button>
                 </div>
-                <h3 className="font-black text-xl uppercase tracking-tight text-[#1E1E24]">Ejemplos Paso a Paso</h3>
-              </div>
-              
-              <div className="space-y-4">
-                {card.ejemplos.map((ej, idx) => (
-                  <div key={idx} className="bg-white border-2 border-[#1E1E24] rounded-2xl overflow-hidden shadow-[2px_2px_0px_0px_#1E1E24]">
-                    <div className="bg-[#1E1E24] text-white p-4 font-bold text-base flex flex-col gap-2 overflow-x-auto no-scrollbar">
-                      <span className="text-[10px] text-[#BAFF29] uppercase tracking-widest">Ejemplo {idx + 1}</span>
-                      <MathView latex={ej.problem} />
-                    </div>
-                    <div className="p-4 space-y-3 bg-[#f8faf9]">
-                      {ej.steps.map((step, sIdx) => (
-                        <div key={sIdx} className="flex gap-3 text-sm font-bold text-[#4A4E69]">
-                          <span className="shrink-0 w-6 h-6 rounded-full bg-white border-2 border-[#1E1E24] text-[#1E1E24] flex items-center justify-center text-[10px]">
-                            {sIdx + 1}
-                          </span>
-                          <div className="flex-1 mt-0.5 overflow-x-auto no-scrollbar"><MathView latex={step} /></div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Tips / Errores */}
-            <section>
-              <div className="bg-[#FEF2F2] border-2 border-[#EF4444] rounded-2xl p-5 shadow-[4px_4px_0px_0px_#EF4444] relative overflow-hidden">
-                <div className="absolute -right-4 -bottom-4 opacity-10 text-[#EF4444]">
-                  <AlertTriangle size={100} />
-                </div>
-                <div className="flex gap-3 relative z-10">
-                  <div className="w-10 h-10 rounded-full bg-[#EF4444] text-white flex items-center justify-center shrink-0 border-2 border-[#991B1B]">
-                    <AlertTriangle size={20} />
-                  </div>
-                  <div>
-                    <h4 className="font-black text-base text-[#991B1B] uppercase mb-1">¡Ojo con esto!</h4>
-                    <div className="text-sm font-bold text-[#7F1D1D] leading-relaxed overflow-x-auto no-scrollbar">
-                      <MathView latex={card.tips.includes('\\') || card.tips.includes('^') || card.tips.includes('=') ? card.tips : `\\text{${card.tips}}`} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Botón Laboratorio (Opcional) */}
-            {card.widgetType && onOpenLab && (
-              <section className="pt-4 border-t-2 border-dashed border-[#E2E8F0]">
-                <button
-                  onClick={() => { playSound('click'); onOpenLab(card.widgetType!); }}
-                  className="w-full bg-[#38bdf8] hover:bg-[#20a8e8] text-white border-4 border-[#1E1E24] rounded-2xl p-4 flex items-center justify-center gap-3 font-black shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all"
-                >
-                  <Play className="fill-current" />
-                  ENTRAR AL LABORATORIO INTERACTIVO
-                </button>
-              </section>
-            )}
-
-          </div>
+              )}
+            </div>
           )}
         </motion.div>
   );
