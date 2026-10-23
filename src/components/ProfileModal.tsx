@@ -5,6 +5,7 @@ import { supabase } from '../config/supabase';
 import { CatlyneAvatar, StreakCheeringCharacter } from './Illustrations';
 import { UserStats } from '../types';
 import { playSound } from '../utils/sound';
+import { getLevelProgress, XP_PER_LEVEL } from '../utils/levelSystem';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -21,8 +22,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const currentXp = userStats?.xp ?? 0;
-  const progressPercent = Math.min(100, Math.round(((currentXp % 500) / 500) * 100));
+  const { level, currentXp, xpInCurrentLevel, progressPercent } = getLevelProgress(userStats?.xp);
 
   const badges = [
     { id: 'b1', name: 'Super Star', icon: '⭐', bg: '#FEF08A', border: '#FACC15', unlocked: true },
@@ -175,7 +175,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
                     Nivel
                   </span>
                   <span className="text-xs font-black text-[#1E1E24]">
-                    Nivel {userStats?.level ?? 1}
+                    Nivel {level}
                   </span>
                 </div>
               </div>
@@ -198,17 +198,17 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
             {/* Level Progress Capsule */}
             <div className="space-y-1.5 bg-[#F8FAFC] p-3 rounded-2xl border-2 border-[#1E1E24] shadow-2xs">
               <div className="flex items-center justify-between text-xs font-black text-[#1E1E24]">
-                <span>Progreso hacia Nivel {(userStats?.level ?? 1) + 1}</span>
+                <span>Progreso hacia Nivel {level + 1}</span>
                 <span className="text-[#6F78DB] font-extrabold">{progressPercent}%</span>
               </div>
               <div className="w-full bg-[#E2E8F0] h-7 rounded-full p-1 flex items-center border border-[#1E1E24]/20">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${Math.max(25, progressPercent)}%` }}
+                  animate={{ width: `${progressPercent}%` }}
                   transition={{ delay: 0.35, duration: 0.7, ease: 'easeOut' }}
                   className="bg-[#6F78DB] h-full rounded-full flex items-center justify-end px-2.5 text-[10px] font-black text-white shadow-2xs"
                 >
-                  {currentXp % 500} / 500
+                  {xpInCurrentLevel} / {XP_PER_LEVEL}
                 </motion.div>
               </div>
             </div>

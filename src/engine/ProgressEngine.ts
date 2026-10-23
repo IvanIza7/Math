@@ -1,4 +1,5 @@
 import { ProgressEvent, UserStats, AttendanceRecord } from '../types';
+import { calculateLevel } from '../utils/levelSystem';
 
 export class ProgressEngine {
   
@@ -6,18 +7,21 @@ export class ProgressEngine {
    * Reconstruye el UserStats completamente desde cero leyendo una lista de eventos inmutables.
    */
   static calculateStateFromEvents(events: ProgressEvent[], baseStats?: Partial<UserStats>): UserStats {
+    const hasEvents = Array.isArray(events) && events.length > 0;
+
     // Default initial state
+    // Si hay eventos, los datos derivados (xp, trials, topics, counts) se reconstruyen desde 0.
+    // Si NO hay eventos pero existen baseStats, se conservan preservando la asistencia.
     const state: UserStats = {
-      xp: 0,
+      xp: hasEvents ? 0 : Math.max(0, Number(baseStats?.xp) || 0),
       level: 1,
-      streak: 0,
-      trialsCompleted: [],
-      badgesUnlocked: [],
-      perfectTrialsCount: 0,
-      illegalMovesCaughtCount: 0,
-      attendanceRecords: [],
-      completedTopics: [],
-      ...baseStats
+      streak: hasEvents ? 0 : Math.max(0, Number(baseStats?.streak) || 0),
+      trialsCompleted: hasEvents ? [] : [...(baseStats?.trialsCompleted || [])],
+      badgesUnlocked: hasEvents ? [] : [...(baseStats?.badgesUnlocked || [])],
+      perfectTrialsCount: hasEvents ? 0 : Math.max(0, Number(baseStats?.perfectTrialsCount) || 0),
+      illegalMovesCaughtCount: hasEvents ? 0 : Math.max(0, Number(baseStats?.illegalMovesCaughtCount) || 0),
+      attendanceRecords: baseStats?.attendanceRecords ? [...baseStats.attendanceRecords] : [],
+      completedTopics: hasEvents ? [] : [...(baseStats?.completedTopics || [])],
     };
 
     // Sort events by timestamp ascending
@@ -88,8 +92,8 @@ export class ProgressEngine {
       }
     });
 
-    // Level calculation (500 XP per level)
-    state.level = Math.floor(state.xp / 500) + 1;
+    // Level calculation (500 XP per level, starts at level 1 for new users)
+    state.level = calculateLevel(state.xp);
 
     // 7. Evaluate Badge Unlocks
     state.badgesUnlocked = this.evaluateBadges(state, sortedEvents);

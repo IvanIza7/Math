@@ -7,6 +7,7 @@ import { UserStats, UserProfile } from '../types';
 import { playSound } from '../utils/sound';
 import { useTheme } from '../context/ThemeContext';
 import { APP_TEXTS } from '../i18n';
+import { getLevelProgress, XP_PER_LEVEL } from '../utils/levelSystem';
 
 interface ProfileViewProps {
   onBack: () => void;
@@ -45,8 +46,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState<UserProfile>(userProfile);
 
-  const currentXp = userStats?.xp ?? 0;
-  const progressPercent = Math.min(100, Math.round(((currentXp % 500) / 500) * 100)) || 34;
+  const { level, currentXp, xpInCurrentLevel, progressPercent } = getLevelProgress(userStats?.xp);
 
   const badges = [
     { id: 'b1', name: 'Super Star', type: 'super-star' as const },
@@ -292,7 +292,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 Nivel
               </span>
               <span className="text-base font-black text-[#1E1E24] dark:text-white">
-                Niv. {userStats?.level ?? 1}
+                Niv. {level}
               </span>
             </div>
           </div>
@@ -320,13 +320,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               Progreso de Nivel
             </h4>
             <span className="text-xs font-bold text-[#8A909F] dark:text-gray-400">
-              {currentXp % 500} / 500 XP
+              {xpInCurrentLevel} / {XP_PER_LEVEL} XP
             </span>
           </div>
           <div className="w-full bg-[#F1F5F9] dark:bg-[#1E202E] border-2 border-[#1E1E24] dark:border-[#2E3144] h-11 rounded-full p-1 flex items-center overflow-hidden shadow-2xs transition-colors">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${Math.max(28, progressPercent)}%` }}
+              animate={{ width: `${progressPercent}%` }}
               transition={{ delay: 0.3, duration: 0.7, ease: 'easeOut' }}
               className="bg-[#6F78DB] h-full rounded-full flex items-center justify-start px-4 text-xs font-black text-white shadow-xs"
             >

@@ -4,6 +4,7 @@ import { X, Trophy, Award, Lock, Sparkles, Star } from 'lucide-react';
 import { GAME_BADGES } from '../data/badges';
 import { UserStats } from '../types';
 import { playSound } from '../utils/sound';
+import { calculateLevel } from '../utils/levelSystem';
 
 interface BadgesModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface BadgesModalProps {
 
 export const BadgesModal: React.FC<BadgesModalProps> = ({ isOpen, onClose, userStats }) => {
   if (!isOpen) return null;
+  const level = calculateLevel(userStats.xp);
 
   return (
     <AnimatePresence>
@@ -34,7 +36,7 @@ export const BadgesModal: React.FC<BadgesModalProps> = ({ isOpen, onClose, userS
                   Logros y Medallas
                 </h2>
                 <p className="text-xs font-bold text-[#1E1E24]/80">
-                  Nivel {userStats.level} • {userStats.xp} XP Acumulados
+                  Nivel {level} • {userStats.xp} XP Acumulados
                 </p>
               </div>
             </div>
@@ -56,7 +58,7 @@ export const BadgesModal: React.FC<BadgesModalProps> = ({ isOpen, onClose, userS
               <span className="text-[10px] font-black uppercase text-[#8A909F] block">
                 Nivel Actual
               </span>
-              <span className="text-base font-black text-[#1E1E24]">Niv. {userStats.level}</span>
+              <span className="text-base font-black text-[#1E1E24]">Niv. {level}</span>
             </div>
             <div className="p-2.5 bg-white border-2 border-[#1E1E24] rounded-2xl shadow-2xs">
               <span className="text-[10px] font-black uppercase text-[#8A909F] block">

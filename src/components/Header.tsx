@@ -6,6 +6,7 @@ import { UserStats, UserProfile } from '../types';
 import { playSound } from '../utils/sound';
 import { APP_TEXTS } from '../config/appText';
 import { useTheme } from '../context/ThemeContext';
+import { getLevelProgress } from '../utils/levelSystem';
 
 interface HeaderProps {
   userStats: UserStats;
@@ -25,8 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   greetingSubtitle,
 }) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
-  const currentXp = userStats?.xp ?? 0;
-  const progressPercent = Math.min(100, Math.round(((currentXp % 500) / 500) * 100));
+  const { level, currentXp, progressPercent } = getLevelProgress(userStats?.xp);
 
   const firstName = userProfile?.name ? userProfile.name.split(' ')[0] : APP_TEXTS.header.defaultStudentName;
   const subtitleDisplay = greetingSubtitle || `${APP_TEXTS.header.greetingSubtitlePrefix} ${firstName}`;
@@ -55,14 +55,14 @@ export const Header: React.FC<HeaderProps> = ({
               {APP_TEXTS.header.levelProgressLabel}
             </span>
             <span className="text-[11px] font-black text-[#1E1E24] dark:text-white shrink-0 ml-1">
-              {APP_TEXTS.header.levelPrefix} {userStats?.level ?? 1}
+              {APP_TEXTS.header.levelPrefix} {level}
             </span>
           </div>
 
           <div className="w-full bg-[#EBF1FF] dark:bg-[#202334] border-2 border-[#1E1E24] dark:border-[#3E4259] h-3.5 rounded-full overflow-hidden p-0.5 shadow-2xs">
             <div
               className="bg-[#6F78DB] h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.max(12, progressPercent)}%` }}
+              style={{ width: `${progressPercent}%` }}
             />
           </div>
         </div>

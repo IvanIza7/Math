@@ -5,6 +5,7 @@ import { UserStats, UserProfile } from '../../types';
 import { BADGES_LIST } from '../../data/badges';
 import { HexagonBadgeSvg } from '../Illustrations';
 import { playSound } from '../../utils/sound';
+import { getLevelProgress, XP_PER_LEVEL } from '../../utils/levelSystem';
 
 interface ProgresoModuleProps {
   userStats: UserStats;
@@ -19,8 +20,7 @@ export const ProgresoModule: React.FC<ProgresoModuleProps> = ({
   onOpenBadgesModal,
   onOpenAttendanceModal,
 }) => {
-  const currentXpInLevel = userStats.xp % 500;
-  const xpProgressPercent = Math.min(100, Math.round((currentXpInLevel / 500) * 100));
+  const { level, xpInCurrentLevel, progressPercent } = getLevelProgress(userStats?.xp);
 
   return (
     <div className="flex flex-col min-h-screen bg-[#F7CA38] text-[#1E1E24] pb-16 font-jakarta relative overflow-hidden">
@@ -93,21 +93,21 @@ export const ProgresoModule: React.FC<ProgresoModuleProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-xs font-black uppercase text-[#1E1E24] dark:text-white flex items-center gap-1.5">
               <Star className="w-4 h-4 fill-[#F7CA38] text-[#1E1E24]" />
-              Nivel de Maestría {userStats.level}
+              Nivel de Maestría {level}
             </span>
             <span className="bg-white dark:bg-[#282B3E] border border-[#1E1E24] dark:border-[#3E4259] px-2.5 py-0.5 rounded-full text-[10px] font-black text-[#6F78DB] dark:text-[#8D96F5]">
-              {currentXpInLevel} / 500 XP
+              {xpInCurrentLevel} / {XP_PER_LEVEL} XP
             </span>
           </div>
 
           <div className="w-full bg-white dark:bg-[#202334] border-2 border-[#1E1E24] dark:border-[#3E4259] h-6 rounded-full overflow-hidden p-0.5 shadow-2xs">
             <motion.div
               initial={{ width: 0 }}
-              animate={{ width: `${Math.max(15, xpProgressPercent)}%` }}
+              animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.7, ease: 'easeOut' }}
               className="bg-[#6F78DB] h-full rounded-full flex items-center justify-start px-3 text-[10px] font-black text-white"
             >
-              {xpProgressPercent}%
+              {progressPercent}%
             </motion.div>
           </div>
         </div>

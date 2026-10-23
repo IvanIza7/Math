@@ -5,6 +5,7 @@ import { User } from '@supabase/supabase-js';
 import { UserStats, UserProfile, MainTab, AttendanceRecord, ProgressEvent } from './types';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProgressEngine } from './engine/ProgressEngine';
+import { normalizeUserStats } from './utils/levelSystem';
 import { FloatingNav } from './components/FloatingNav';
 import { AttendanceModal } from './components/AttendanceModal';
 import { ArsenalModal } from './components/ArsenalModal';
@@ -141,9 +142,10 @@ function AppContent({ user }: { user: User }) {
           baseStats.attendanceRecords = attendanceRecs;
         }
 
-        // Compute actual state using engine
+        // Compute actual state using engine and normalize
         const computedState = ProgressEngine.calculateStateFromEvents(loadedEvents, baseStats);
-        setUserStats(computedState);
+        const normalized = normalizeUserStats(computedState, loadedEvents);
+        setUserStats(normalized);
         
       } catch (err) {
         console.error('Error fetching data from Supabase', err);
@@ -180,7 +182,10 @@ function AppContent({ user }: { user: User }) {
   const [userStats, setUserStats] = useState<UserStats>(() => {
     try {
       const saved = localStorage.getItem(statsStorageKey);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return normalizeUserStats(parsed);
+      }
     } catch {
       // Fallback
     }
@@ -268,20 +273,12 @@ function AppContent({ user }: { user: User }) {
       if (error) console.error('Error saving event', error);
     });
 
-    // 2. Update local events and recalculate
+    // 2. Update local events and recalculate cleanly
     setEvents(prev => {
       const newEvents = [...prev, evt];
       
-      // Calculate new state
+      // Calculate new state cleanly from events (no compounded base stats)
       const computedState = ProgressEngine.calculateStateFromEvents(newEvents, {
-        xp: userStats.xp,
-        level: userStats.level,
-        streak: userStats.streak,
-        trialsCompleted: userStats.trialsCompleted,
-        badgesUnlocked: userStats.badgesUnlocked,
-        perfectTrialsCount: userStats.perfectTrialsCount,
-        illegalMovesCaughtCount: userStats.illegalMovesCaughtCount,
-        completedTopics: userStats.completedTopics,
         attendanceRecords: userStats.attendanceRecords
       });
 
