@@ -1,4 +1,5 @@
 import { ECUACIONES_ENTERAS, ECUACIONES_FRACCIONES } from './ecuacionesChallenges';
+import { DESAFIO_PORCENTAJES } from './porcentajesChallenges';
 
 export interface ArenaQuestion {
   id: string;
@@ -20,6 +21,7 @@ export interface ArenaChallenge {
   color: string;
   bgGradient: string;
   badgeBg: string;
+  hasDifficulties?: boolean;
   questions: ArenaQuestion[];
 }
 
@@ -1641,5 +1643,6 @@ export const ARENA_CHALLENGES: ArenaChallenge[] = [
       { id: 'd8-99', question: '¿Cuál es el resultado de la reducción?', latex: '4x - (3x - (x + 2))', options: [{ key: 'A', text: '-2x - 2', isCorrect: false }, { key: 'B', text: '2x + 2', isCorrect: true }, { key: 'C', text: '-2x + 2', isCorrect: false }, { key: 'D', text: '2x + 3', isCorrect: false }], correctKey: 'B', explanation: '$ | C) $ $2x -$ | D) $) $4x $$4x - (3x - x - 2) = 4x - (2x - 2) = 2x + 2' },
       { id: 'd8-100', question: '¿Cuál es el resultado de la reducción?', latex: '15 - (6x + 5) + 2x', options: [{ key: 'A', text: '4x - 10', isCorrect: false }, { key: 'B', text: '-4x + 10', isCorrect: true }, { key: 'C', text: '-4x - 10', isCorrect: false }, { key: 'D', text: '4x + 10', isCorrect: false }], correctKey: 'B', explanation: '-4x + 2$ | C) $ $4x + $ | D) $) $-8x +$$15 - 6x - 5 + 2x = -4x + 10' }
     ]
-  }
+  },
+  DESAFIO_PORCENTAJES
 ];

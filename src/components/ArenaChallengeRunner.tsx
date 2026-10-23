@@ -11,17 +11,21 @@ interface ArenaChallengeRunnerProps {
   challenge: ArenaChallenge;
   onClose: () => void;
   onComplete: (score: number, total: number, passed: boolean, timeSeconds: number) => void;
+  questionCount?: number;
 }
 
 export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   challenge,
   onClose,
   onComplete,
+  questionCount,
 }) => {
-  // Select 5 questions from the 50-question bank
+  const desiredCount = questionCount || (challenge as any).sessionQuestionCount || 5;
+
+  // Select questions from the question bank
   const [sessionQuestions, setSessionQuestions] = useState<ArenaQuestion[]>(() => {
     const shuffled = [...challenge.questions].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 5);
+    return shuffled.slice(0, Math.min(desiredCount, shuffled.length));
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -117,7 +121,8 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           isCorrect = selectedKey === currentQ.correctKey;
         }
         const finalScore = score + (isCorrect ? 0 : 0);
-        const passed = finalScore >= challenge.passingScore; // 3/5
+        const passingTarget = challenge.passingScore || Math.ceil(totalQ * 0.6);
+        const passed = finalScore >= passingTarget;
 
         if (passed) {
           playSound('fanfare');
@@ -139,7 +144,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   const handleRestartRound = () => {
     playSound('click');
     const shuffled = [...challenge.questions].sort(() => 0.5 - Math.random());
-    setSessionQuestions(shuffled.slice(0, 5));
+    setSessionQuestions(shuffled.slice(0, Math.min(desiredCount, shuffled.length)));
     setCurrentIndex(0);
     setSelectedKey(null);
     setTextInput('');

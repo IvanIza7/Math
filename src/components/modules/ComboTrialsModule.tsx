@@ -14,6 +14,7 @@ import { saveActiveHeroSession } from '../../utils/activeSession';
 import { IntegrativeExam } from '../IntegrativeExam';
 import { saveChallengeAttempt } from '../../utils/history';
 import { ChallengeHistoryModal } from '../ChallengeHistoryModal';
+import { PorcentajesDifficultyModal } from '../PorcentajesDifficultyModal';
 import { BarChart2 } from 'lucide-react';
 
 interface ComboTrialsModuleProps {
@@ -43,6 +44,7 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
   const [asedioStartLevel, setAsedioStartLevel] = useState<number>(initialAsedioLevel);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [historyFilter, setHistoryFilter] = useState<string | null>(null);
+  const [isPorcentajesModalOpen, setIsPorcentajesModalOpen] = useState<boolean>(false);
 
   // Practice Flow State
   const [activePracticePreset, setActivePracticePreset] = useState<PracticePreset | null>(null);
@@ -117,9 +119,17 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     }
   };
 
-  const completedCount = (Object.values(completedRecords) as ChallengeRecord[]).filter(
-    (r) => r.completed
-  ).length;
+  const completedCount = ARENA_CHALLENGES.filter((c) => {
+    if (c.id === 'desafio-porcentajes') {
+      return (
+        completedRecords['desafio-porcentajes-basico']?.completed ||
+        completedRecords['desafio-porcentajes-intermedio']?.completed ||
+        completedRecords['desafio-porcentajes-avanzado']?.completed ||
+        completedRecords['desafio-porcentajes']?.completed
+      );
+    }
+    return completedRecords[c.id]?.completed;
+  }).length;
 
   if (activeChallenge) {
     return (
@@ -341,29 +351,37 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
             {/* Connecting Line */}
             <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1.5 bg-[#E2E8F0] border border-[#1E1E24]/20 -z-0 rounded-full" />
 
-            {/* 7 Nodes */}
-            {[0, 1, 2, 3, 4, 5, 6].map((nodeIdx) => {
-              const challenge = ARENA_CHALLENGES[nodeIdx];
-              const isCompleted = challenge && completedRecords[challenge.id]?.completed;
+            {/* Dynamic Nodes from ARENA_CHALLENGES */}
+            {ARENA_CHALLENGES.map((challenge, nodeIdx) => {
+              const isCompleted = challenge.id === 'desafio-porcentajes'
+                ? (completedRecords['desafio-porcentajes-basico']?.completed ||
+                   completedRecords['desafio-porcentajes-intermedio']?.completed ||
+                   completedRecords['desafio-porcentajes-avanzado']?.completed ||
+                   completedRecords['desafio-porcentajes']?.completed)
+                : completedRecords[challenge.id]?.completed;
 
               return (
-                <div key={nodeIdx} className="relative z-10 flex flex-col items-center">
+                <div key={challenge.id} className="relative z-10 flex flex-col items-center">
                   <div
-                    className={`w-10 h-10 rounded-full border-2 border-[#1E1E24] flex items-center justify-center transition-all shadow-xs ${
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-[#1E1E24] flex items-center justify-center transition-all shadow-xs ${
                       isCompleted
                         ? 'bg-[#22C55E] text-white font-black'
                         : 'bg-white text-[#8A909F]'
                     }`}
                   >
                     {isCompleted ? (
-                      <CheckCircle className="w-5 h-5" />
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
-                      <span className="font-black text-xs">{nodeIdx + 1}</span>
+                      <span className="font-black text-[11px] sm:text-xs">
+                        {challenge.id === 'desafio-porcentajes' ? '%' : nodeIdx + 1}
+                      </span>
                     )}
                   </div>
 
-                  <span className={`absolute -bottom-4 bg-white border border-[#1E1E24]/30 px-1.5 py-0.2 rounded-md text-[9px] font-black ${nodeIdx === 6 ? 'text-[#F59E0B] border-[#F59E0B]/50' : 'text-[#1E1E24]'}`}>
-                    {nodeIdx === 6 ? 'Final' : `D-${nodeIdx + 1}`}
+                  <span className={`absolute -bottom-4 bg-white border border-[#1E1E24]/30 px-1 py-0.2 rounded-md text-[8px] sm:text-[9px] font-black whitespace-nowrap ${
+                    challenge.id === 'desafio-porcentajes' ? 'text-[#EC4899] border-[#EC4899]/50' : 'text-[#1E1E24]'
+                  }`}>
+                    {challenge.id === 'desafio-porcentajes' ? 'Porc' : `D-${nodeIdx + 1}`}
                   </span>
                 </div>
               );
@@ -373,10 +391,10 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
           {/* Central Counter Large */}
           <div className="text-center pt-2">
             <div className="font-black text-3xl tracking-tight text-[#1E1E24]">
-              {completedCount}/<span className="text-[#8A909F]">7</span>
+              {completedCount}/<span className="text-[#8A909F]">{ARENA_CHALLENGES.length}</span>
             </div>
             <p className="text-[11px] text-[#4A4E69] font-bold mt-0.5">
-              Grandes Desafíos Superados (Banco de 200 Ejercicios)
+              Grandes Desafíos de Arena ({ARENA_CHALLENGES.reduce((sum, c) => sum + c.totalExercises, 0)} Ejercicios)
             </p>
           </div>
           <button
@@ -418,7 +436,12 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
           <div className="grid grid-cols-2 gap-3">
             {ARENA_CHALLENGES.map((challenge, idx) => {
               const record = completedRecords[challenge.id];
-              const isCompleted = record?.completed ?? false;
+              const isCompleted = challenge.id === 'desafio-porcentajes'
+                ? (completedRecords['desafio-porcentajes-basico']?.completed ||
+                   completedRecords['desafio-porcentajes-intermedio']?.completed ||
+                   completedRecords['desafio-porcentajes-avanzado']?.completed ||
+                   completedRecords['desafio-porcentajes']?.completed)
+                : (record?.completed ?? false);
 
               return (
                 <motion.div
@@ -432,9 +455,13 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                   {/* Top Bar */}
                   <div className="flex items-center justify-between text-[11px] font-bold mb-2">
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border border-[#1E1E24] ${
-                      isCompleted ? 'bg-[#22C55E] text-white' : 'bg-[#FFF9E6] text-[#854D0E]'
+                      isCompleted
+                        ? 'bg-[#22C55E] text-white'
+                        : challenge.id === 'desafio-porcentajes'
+                        ? 'bg-[#FDF2F8] text-[#DB2777]'
+                        : 'bg-[#FFF9E6] text-[#854D0E]'
                     }`}>
-                      D-{idx + 1}
+                      {challenge.id === 'desafio-porcentajes' ? 'NUEVO' : `D-${idx + 1}`}
                     </span>
                     {isCompleted && (
                       <CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" />
@@ -442,18 +469,34 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                   </div>
 
                   {/* Artwork Preview Box */}
-                  <div className="my-1 h-20 rounded-2xl bg-[#FFF9E6] border-2 border-[#1E1E24] flex items-center justify-center p-2">
+                  <div className={`my-1 h-20 rounded-2xl border-2 border-[#1E1E24] flex items-center justify-center p-2 ${
+                    challenge.id === 'desafio-porcentajes' ? 'bg-[#FDF2F8]' : 'bg-[#FFF9E6]'
+                  }`}>
                     <div className="flex items-center gap-1">
-                      {[idx === 0 ? '-3' : idx === 1 ? '½' : idx === 2 ? 'x²' : 'a²', idx === 0 ? '×' : idx === 1 ? '+' : idx === 2 ? '·' : '-', idx === 0 ? '-4' : idx === 1 ? '¾' : idx === 2 ? 'x³' : 'b²'].map((val, i) => (
-                        <div
-                          key={i}
-                          className={`w-6 h-6 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black shadow-2xs ${
-                            i === 1 ? 'bg-white text-[#8A909F]' : 'bg-[#F7CA38] text-[#1E1E24]'
-                          }`}
-                        >
-                          {val}
-                        </div>
-                      ))}
+                      {challenge.id === 'desafio-porcentajes' ? (
+                        <>
+                          <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-xs font-black bg-[#EC4899] text-white shadow-2xs">
+                            %
+                          </div>
+                          <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black bg-white text-[#1E1E24] shadow-2xs">
+                            25%
+                          </div>
+                          <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black bg-[#F7CA38] text-[#1E1E24] shadow-2xs">
+                            100
+                          </div>
+                        </>
+                      ) : (
+                        [idx === 0 ? '-3' : idx === 1 ? '½' : idx === 2 ? 'x²' : 'a²', idx === 0 ? '×' : idx === 1 ? '+' : idx === 2 ? '·' : '-', idx === 0 ? '-4' : idx === 1 ? '¾' : idx === 2 ? 'x³' : 'b²'].map((val, i) => (
+                          <div
+                            key={i}
+                            className={`w-6 h-6 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black shadow-2xs ${
+                              i === 1 ? 'bg-white text-[#8A909F]' : 'bg-[#F7CA38] text-[#1E1E24]'
+                            }`}
+                          >
+                            {val}
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
@@ -466,6 +509,10 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                       <button
                         onClick={() => {
                           playSound('click');
+                          if (challenge.hasDifficulties || challenge.id === 'desafio-porcentajes') {
+                            setIsPorcentajesModalOpen(true);
+                            return;
+                          }
                           setActiveChallenge(challenge);
                           saveActiveHeroSession({
                             id: `active-${challenge.id}`,
@@ -486,10 +533,14 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                             lastUpdated: Date.now(),
                           });
                         }}
-                        className="flex-1 min-w-[120px] py-3 bg-white text-[#1E1E24] hover:bg-[#F8FAFC] border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                        className={`flex-1 min-w-[120px] py-3 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                          challenge.id === 'desafio-porcentajes'
+                            ? 'bg-[#EC4899] text-white hover:bg-[#DB2777]'
+                            : 'bg-white text-[#1E1E24] hover:bg-[#F8FAFC]'
+                        }`}
                       >
                         <Play className="w-4 h-4" />
-                        <span>{isCompleted ? 'CONTINUAR' : 'JUGAR'}</span>
+                        <span>{challenge.id === 'desafio-porcentajes' ? 'ELEGIR NIVEL' : isCompleted ? 'CONTINUAR' : 'JUGAR'}</span>
                       </button>
                       <button
                         onClick={() => {
@@ -740,6 +791,34 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         filterChallengeId={historyFilter}
+      />
+
+      <PorcentajesDifficultyModal
+        isOpen={isPorcentajesModalOpen}
+        onClose={() => setIsPorcentajesModalOpen(false)}
+        onStartQuiz={(selectedChallenge, difficulty, questionCount) => {
+          setActiveChallenge(selectedChallenge);
+          saveActiveHeroSession({
+            id: `active-${selectedChallenge.id}`,
+            type: 'arena-challenge',
+            title: selectedChallenge.title,
+            subtitle: `${questionCount} preguntas · Meta ${selectedChallenge.passingScore}/${questionCount}`,
+            badge: `ARENA · ${difficulty.toUpperCase()}`,
+            progressText: `${questionCount} preguntas en juego`,
+            progressPercent: 50,
+            totalSteps: questionCount,
+            currentStep: 1,
+            bgGradient: 'bg-gradient-to-br from-[#EC4899] via-[#F43F5E] to-[#E11D48]',
+            textColor: 'text-white',
+            badgeBg: 'bg-white text-[#1E1E24] font-black',
+            ctaBg: 'bg-[#1E1E24] text-white font-black',
+            theme: 'arithmetic',
+            actionPayload: { challengeId: selectedChallenge.id },
+            lastUpdated: Date.now(),
+          });
+          setIsPorcentajesModalOpen(false);
+        }}
+        completedRecords={completedRecords}
       />
     </div>
   );
