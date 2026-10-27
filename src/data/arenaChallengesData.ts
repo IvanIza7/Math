@@ -1644,5 +1644,30 @@ export const ARENA_CHALLENGES: ArenaChallenge[] = [
       { id: 'd8-100', question: '¿Cuál es el resultado de la reducción?', latex: '15 - (6x + 5) + 2x', options: [{ key: 'A', text: '4x - 10', isCorrect: false }, { key: 'B', text: '-4x + 10', isCorrect: true }, { key: 'C', text: '-4x - 10', isCorrect: false }, { key: 'D', text: '4x + 10', isCorrect: false }], correctKey: 'B', explanation: '-4x + 2$ | C) $ $4x + $ | D) $) $-8x +$$15 - 6x - 5 + 2x = -4x + 10' }
     ]
   },
-  DESAFIO_PORCENTAJES
+  DESAFIO_PORCENTAJES,
+  {
+    id: 'desafio-porcentajes-integradores',
+    title: 'DESAFÍO: PORCENTAJES INTEGRADORES (3 ETAPAS)',
+    shortTitle: 'Porcentajes: Ejercicios Integradores',
+    description: '10 situaciones cotidianas resueltas en 3 etapas: Conversión de unidades, Cálculo de porcentajes y Gráfica circular.',
+    totalExercises: 10,
+    passingScore: 6,
+    color: '#EC4899',
+    bgGradient: 'from-[#EC4899] to-[#DB2777]',
+    badgeBg: 'bg-[#1E1E24] text-white',
+    questions: [],
+  },
+  {
+    id: 'desafio-conversion-unidades',
+    title: 'DESAFÍO: CONVERSIÓN DE UNIDADES (REGLA DE 3)',
+    shortTitle: 'Conversión: Regla de Tres',
+    description: '10 ejercicios básicos en tabla aplicando la regla de tres: unidad más pequeña (multiplicar) vs más grande (dividir).',
+    totalExercises: 10,
+    passingScore: 6,
+    color: '#F59E0B',
+    bgGradient: 'from-[#F59E0B] to-[#D97706]',
+    badgeBg: 'bg-[#1E1E24] text-white',
+    questions: [],
+  }
 ];
+

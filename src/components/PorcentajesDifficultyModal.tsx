@@ -10,6 +10,7 @@ interface PorcentajesDifficultyModalProps {
   onClose: () => void;
   onStartQuiz: (challenge: ArenaChallenge, selectedDifficulty: PorcentajesDifficulty, questionCount: number) => void;
   completedRecords?: Record<string, any>;
+  onOpenIntegradores?: () => void;
 }
 
 export const PorcentajesDifficultyModal: React.FC<PorcentajesDifficultyModalProps> = ({
@@ -17,6 +18,7 @@ export const PorcentajesDifficultyModal: React.FC<PorcentajesDifficultyModalProp
   onClose,
   onStartQuiz,
   completedRecords = {},
+  onOpenIntegradores,
 }) => {
   const [selectedDifficulty, setSelectedDifficulty] = useState<PorcentajesDifficulty>('basico');
   const [questionCount, setQuestionCount] = useState<number>(10);
@@ -222,6 +224,37 @@ export const PorcentajesDifficultyModal: React.FC<PorcentajesDifficultyModalProp
                 <span>Iniciar Quiz de Porcentajes ({questionCount} Preguntas)</span>
               </motion.button>
             </div>
+
+            {/* Sub-Desafío: Ejercicios Integradores Banner */}
+            {onOpenIntegradores && (
+              <div className="pt-3 border-t-2 border-[#1E1E24]/10">
+                <div className="p-3.5 rounded-2xl bg-[#FDF2F8] dark:bg-pink-950/20 border-2 border-[#EC4899] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-[#EC4899] text-white flex items-center justify-center font-black shrink-0 shadow-xs">
+                      <Layers className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-black text-[#1E1E24] dark:text-white uppercase truncate">
+                        ¿Prefieres problemas paso a paso?
+                      </p>
+                      <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400">
+                        10 situaciones cotidianas · 3 etapas (Conversión + Porcentajes + Gráfica)
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      playSound('click');
+                      onClose();
+                      onOpenIntegradores();
+                    }}
+                    className="px-3 py-2 bg-[#EC4899] hover:bg-[#DB2777] text-white font-black text-[11px] uppercase tracking-wider rounded-xl border-2 border-[#1E1E24] shadow-[2px_2px_0px_0px_#1E1E24] active:translate-y-0.5 active:translate-x-0.5 shrink-0 cursor-pointer transition-all"
+                  >
+                    Abrir Reto
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

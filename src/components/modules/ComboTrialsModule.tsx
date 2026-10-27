@@ -15,7 +15,9 @@ import { IntegrativeExam } from '../IntegrativeExam';
 import { saveChallengeAttempt } from '../../utils/history';
 import { ChallengeHistoryModal } from '../ChallengeHistoryModal';
 import { PorcentajesDifficultyModal } from '../PorcentajesDifficultyModal';
-import { BarChart2 } from 'lucide-react';
+import { PorcentajesIntegradoresRunner } from '../PorcentajesIntegradoresRunner';
+import { ConversionUnidadesRunner } from '../ConversionUnidadesRunner';
+import { BarChart2, PieChart, ArrowLeftRight, Percent } from 'lucide-react';
 
 interface ComboTrialsModuleProps {
   onAwardXp: (amount: number, reason?: string, entityId?: string, metadata?: any) => void;
@@ -45,6 +47,8 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const [historyFilter, setHistoryFilter] = useState<string | null>(null);
   const [isPorcentajesModalOpen, setIsPorcentajesModalOpen] = useState<boolean>(false);
+  const [isIntegradoresActive, setIsIntegradoresActive] = useState<boolean>(false);
+  const [isConversionActive, setIsConversionActive] = useState<boolean>(false);
 
   // Practice Flow State
   const [activePracticePreset, setActivePracticePreset] = useState<PracticePreset | null>(null);
@@ -119,7 +123,35 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     }
   };
 
+  const isIntegradorCompleted = (() => {
+    try {
+      const saved = localStorage.getItem('porcentajes_integradores_progress_v1');
+      if (!saved) return false;
+      const data = JSON.parse(saved);
+      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].every((id) => data[id]?.etapa1 && data[id]?.etapa2 && data[id]?.etapa3);
+    } catch {
+      return false;
+    }
+  })();
+
+  const isConversionCompleted = (() => {
+    try {
+      const saved = localStorage.getItem('conversion_unidades_progress_v1');
+      if (!saved) return false;
+      const data = JSON.parse(saved);
+      return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].every((id) => data[id]);
+    } catch {
+      return false;
+    }
+  })();
+
   const completedCount = ARENA_CHALLENGES.filter((c) => {
+    if (c.id === 'desafio-conversion-unidades') {
+      return isConversionCompleted;
+    }
+    if (c.id === 'desafio-porcentajes-integradores') {
+      return isIntegradorCompleted;
+    }
     if (c.id === 'desafio-porcentajes') {
       return (
         completedRecords['desafio-porcentajes-basico']?.completed ||
@@ -130,6 +162,24 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
     }
     return completedRecords[c.id]?.completed;
   }).length;
+
+  if (isConversionActive) {
+    return (
+      <ConversionUnidadesRunner
+        onClose={() => setIsConversionActive(false)}
+        onAwardXp={onAwardXp}
+      />
+    );
+  }
+
+  if (isIntegradoresActive) {
+    return (
+      <PorcentajesIntegradoresRunner
+        onClose={() => setIsIntegradoresActive(false)}
+        onAwardXp={onAwardXp}
+      />
+    );
+  }
 
   if (activeChallenge) {
     return (
@@ -353,7 +403,11 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
 
             {/* Dynamic Nodes from ARENA_CHALLENGES */}
             {ARENA_CHALLENGES.map((challenge, nodeIdx) => {
-              const isCompleted = challenge.id === 'desafio-porcentajes'
+              const isCompleted = challenge.id === 'desafio-conversion-unidades'
+                ? isConversionCompleted
+                : challenge.id === 'desafio-porcentajes-integradores'
+                ? isIntegradorCompleted
+                : challenge.id === 'desafio-porcentajes'
                 ? (completedRecords['desafio-porcentajes-basico']?.completed ||
                    completedRecords['desafio-porcentajes-intermedio']?.completed ||
                    completedRecords['desafio-porcentajes-avanzado']?.completed ||
@@ -372,16 +426,34 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                     {isCompleted ? (
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                     ) : (
-                      <span className="font-black text-[11px] sm:text-xs">
-                        {challenge.id === 'desafio-porcentajes' ? '%' : nodeIdx + 1}
+                      <span className="font-black text-[10px] sm:text-xs">
+                        {challenge.id === 'desafio-conversion-unidades'
+                          ? 'R3'
+                          : challenge.id === 'desafio-porcentajes-integradores'
+                          ? '3E'
+                          : challenge.id === 'desafio-porcentajes'
+                          ? '%'
+                          : nodeIdx + 1}
                       </span>
                     )}
                   </div>
 
                   <span className={`absolute -bottom-4 bg-white border border-[#1E1E24]/30 px-1 py-0.2 rounded-md text-[8px] sm:text-[9px] font-black whitespace-nowrap ${
-                    challenge.id === 'desafio-porcentajes' ? 'text-[#EC4899] border-[#EC4899]/50' : 'text-[#1E1E24]'
+                    challenge.id === 'desafio-conversion-unidades'
+                      ? 'text-[#F59E0B] border-[#F59E0B]/50'
+                      : challenge.id === 'desafio-porcentajes-integradores'
+                      ? 'text-[#3B82F6] border-[#3B82F6]/50'
+                      : challenge.id === 'desafio-porcentajes'
+                      ? 'text-[#EC4899] border-[#EC4899]/50'
+                      : 'text-[#1E1E24]'
                   }`}>
-                    {challenge.id === 'desafio-porcentajes' ? 'Porc' : `D-${nodeIdx + 1}`}
+                    {challenge.id === 'desafio-conversion-unidades'
+                      ? 'Conv'
+                      : challenge.id === 'desafio-porcentajes-integradores'
+                      ? 'Integ'
+                      : challenge.id === 'desafio-porcentajes'
+                      ? 'Porc'
+                      : `D-${nodeIdx + 1}`}
                   </span>
                 </div>
               );
@@ -436,7 +508,11 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
           <div className="grid grid-cols-2 gap-3">
             {ARENA_CHALLENGES.map((challenge, idx) => {
               const record = completedRecords[challenge.id];
-              const isCompleted = challenge.id === 'desafio-porcentajes'
+              const isCompleted = challenge.id === 'desafio-conversion-unidades'
+                ? isConversionCompleted
+                : challenge.id === 'desafio-porcentajes-integradores'
+                ? isIntegradorCompleted
+                : challenge.id === 'desafio-porcentajes'
                 ? (completedRecords['desafio-porcentajes-basico']?.completed ||
                    completedRecords['desafio-porcentajes-intermedio']?.completed ||
                    completedRecords['desafio-porcentajes-avanzado']?.completed ||
@@ -457,11 +533,21 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-black border border-[#1E1E24] ${
                       isCompleted
                         ? 'bg-[#22C55E] text-white'
+                        : challenge.id === 'desafio-conversion-unidades'
+                        ? 'bg-[#FEF3C7] text-[#D97706]'
+                        : challenge.id === 'desafio-porcentajes-integradores'
+                        ? 'bg-[#EFF6FF] text-[#2563EB]'
                         : challenge.id === 'desafio-porcentajes'
                         ? 'bg-[#FDF2F8] text-[#DB2777]'
                         : 'bg-[#FFF9E6] text-[#854D0E]'
                     }`}>
-                      {challenge.id === 'desafio-porcentajes' ? 'NUEVO' : `D-${idx + 1}`}
+                      {challenge.id === 'desafio-conversion-unidades'
+                        ? 'REGLA DE 3'
+                        : challenge.id === 'desafio-porcentajes-integradores'
+                        ? '3 ETAPAS'
+                        : challenge.id === 'desafio-porcentajes'
+                        ? 'NUEVO'
+                        : `D-${idx + 1}`}
                     </span>
                     {isCompleted && (
                       <CheckCircle className="w-3.5 h-3.5 text-[#22C55E]" />
@@ -470,10 +556,40 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
 
                   {/* Artwork Preview Box */}
                   <div className={`my-1 h-20 rounded-2xl border-2 border-[#1E1E24] flex items-center justify-center p-2 ${
-                    challenge.id === 'desafio-porcentajes' ? 'bg-[#FDF2F8]' : 'bg-[#FFF9E6]'
+                    challenge.id === 'desafio-conversion-unidades'
+                      ? 'bg-[#FFFBEB]'
+                      : challenge.id === 'desafio-porcentajes-integradores'
+                      ? 'bg-[#F0FDF4]'
+                      : challenge.id === 'desafio-porcentajes'
+                      ? 'bg-[#FDF2F8]'
+                      : 'bg-[#FFF9E6]'
                   }`}>
-                    <div className="flex items-center gap-1">
-                      {challenge.id === 'desafio-porcentajes' ? (
+                    <div className="flex items-center gap-1.5">
+                      {challenge.id === 'desafio-conversion-unidades' ? (
+                        <>
+                          <div className="w-8 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black bg-blue-100 text-blue-900 shadow-2xs" title="1 metro">
+                            1 m
+                          </div>
+                          <div className="text-xs font-black text-slate-500">
+                            =
+                          </div>
+                          <div className="w-11 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black bg-amber-200 text-amber-950 shadow-2xs" title="100 centímetros">
+                            100 cm
+                          </div>
+                        </>
+                      ) : challenge.id === 'desafio-porcentajes-integradores' ? (
+                        <>
+                          <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black bg-[#3B82F6] text-white shadow-2xs" title="Conversión de Unidades">
+                            m/cm
+                          </div>
+                          <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-xs font-black bg-[#F59E0B] text-[#1E1E24] shadow-2xs" title="Cálculo de Porcentajes">
+                            %
+                          </div>
+                          <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-[10px] font-black bg-[#EC4899] text-white shadow-2xs" title="Gráfica Circular">
+                            <PieChart className="w-3.5 h-3.5" />
+                          </div>
+                        </>
+                      ) : challenge.id === 'desafio-porcentajes' ? (
                         <>
                           <div className="w-7 h-7 rounded-md border border-[#1E1E24] flex items-center justify-center text-xs font-black bg-[#EC4899] text-white shadow-2xs">
                             %
@@ -509,6 +625,14 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                       <button
                         onClick={() => {
                           playSound('click');
+                          if (challenge.id === 'desafio-conversion-unidades') {
+                            setIsConversionActive(true);
+                            return;
+                          }
+                          if (challenge.id === 'desafio-porcentajes-integradores') {
+                            setIsIntegradoresActive(true);
+                            return;
+                          }
                           if (challenge.hasDifficulties || challenge.id === 'desafio-porcentajes') {
                             setIsPorcentajesModalOpen(true);
                             return;
@@ -534,13 +658,25 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
                           });
                         }}
                         className={`flex-1 min-w-[120px] py-3 border-2 border-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none font-black text-[10px] sm:text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                          challenge.id === 'desafio-porcentajes'
+                          challenge.id === 'desafio-conversion-unidades'
+                            ? 'bg-[#F59E0B] text-white hover:bg-[#D97706]'
+                            : challenge.id === 'desafio-porcentajes-integradores'
+                            ? 'bg-[#3B82F6] text-white hover:bg-blue-600'
+                            : challenge.id === 'desafio-porcentajes'
                             ? 'bg-[#EC4899] text-white hover:bg-[#DB2777]'
                             : 'bg-white text-[#1E1E24] hover:bg-[#F8FAFC]'
                         }`}
                       >
                         <Play className="w-4 h-4" />
-                        <span>{challenge.id === 'desafio-porcentajes' ? 'ELEGIR NIVEL' : isCompleted ? 'CONTINUAR' : 'JUGAR'}</span>
+                        <span>
+                          {challenge.id === 'desafio-conversion-unidades'
+                            ? (isCompleted ? 'CONTINUAR' : 'RESOLVER TABLA')
+                            : challenge.id === 'desafio-porcentajes-integradores'
+                            ? (isCompleted ? 'CONTINUAR' : 'RESOLVER 3 ETAPAS')
+                            : challenge.id === 'desafio-porcentajes'
+                            ? 'ELEGIR NIVEL'
+                            : isCompleted ? 'CONTINUAR' : 'JUGAR'}
+                        </span>
                       </button>
                       <button
                         onClick={() => {
@@ -819,6 +955,10 @@ export const ComboTrialsModule: React.FC<ComboTrialsModuleProps> = ({
           setIsPorcentajesModalOpen(false);
         }}
         completedRecords={completedRecords}
+        onOpenIntegradores={() => {
+          setIsPorcentajesModalOpen(false);
+          setIsIntegradoresActive(true);
+        }}
       />
     </div>
   );
