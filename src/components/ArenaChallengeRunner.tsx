@@ -14,6 +14,47 @@ interface ArenaChallengeRunnerProps {
   questionCount?: number;
 }
 
+
+const normalizeValue = (val: string): string => {
+  return val
+    .replace(/[$%]/g, '')
+    .replace(/,/g, '')
+    .replace(/\s+/g, '')
+    .toLowerCase();
+};
+
+const checkSmartAnswer = (
+  userText: string,
+  targetKey: string,
+  acceptableAnswers?: string[]
+): boolean => {
+  const cleanUser = userText.trim();
+  const cleanTarget = targetKey.trim();
+
+  if (!cleanUser) return false;
+  if (cleanUser.toLowerCase() === cleanTarget.toLowerCase()) return true;
+
+  if (acceptableAnswers && acceptableAnswers.some(ans => ans.trim().toLowerCase() === cleanUser.toLowerCase())) {
+    return true;
+  }
+
+  const normUser = normalizeValue(cleanUser);
+  const normTarget = normalizeValue(cleanTarget);
+  if (normUser && normUser === normTarget) return true;
+
+  if (acceptableAnswers && acceptableAnswers.some(ans => normalizeValue(ans) === normUser)) {
+    return true;
+  }
+
+  const fUser = parseFloat(normUser);
+  const fTarget = parseFloat(normTarget);
+  if (!isNaN(fUser) && !isNaN(fTarget) && Math.abs(fUser - fTarget) < 0.0001) {
+    return true;
+  }
+
+  return false;
+};
+
 export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   challenge,
   onClose,
@@ -42,6 +83,30 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
 
   const currentQ = sessionQuestions[currentIndex] || sessionQuestions[0];
   const totalQ = sessionQuestions.length;
+
+  useEffect(() => {
+    if (isFinished || isChecked) return;
+    if (currentQ?.inputType !== 'text') return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore if active element is an input outside
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key >= '0' && e.key <= '9') {
+        setTextInput((prev) => prev + e.key);
+      } else if (e.key === '.' || e.key === ',') {
+        setTextInput((prev) => (prev.includes('.') ? prev : prev + '.'));
+      } else if (e.key === 'Backspace') {
+        setTextInput((prev) => prev.slice(0, -1));
+      } else if (e.key === 'Enter') {
+        handleConfirmOrNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFinished, isChecked, currentQ, textInput]);
+
 
   useEffect(() => {
     if (isFinished) return;
@@ -80,7 +145,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
       let isCorrect = false;
       let userAnswer = '';
       if (isTextInput) {
-        isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+        isCorrect = checkSmartAnswer(textInput, currentQ.correctKey, currentQ.acceptableAnswers);
         userAnswer = textInput;
       } else {
         isCorrect = selectedKey === currentQ.correctKey;
@@ -116,7 +181,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
       } else {
         let isCorrect = false;
         if (currentQ.inputType === 'text') {
-          isCorrect = textInput.trim().toLowerCase() === currentQ.correctKey.toLowerCase();
+          isCorrect = checkSmartAnswer(textInput, currentQ.correctKey, currentQ.acceptableAnswers);
         } else {
           isCorrect = selectedKey === currentQ.correctKey;
         }

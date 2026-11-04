@@ -321,3 +321,4 @@ export const CONVERSION_EXERCISES: ConversionExercise[] = [
     explanation: 'Planteamos: 1000 kg = 1 t. Con 1800 kg: x = (1800 × 1) / 1000 = 1.8 t.'
   }
 ];
+
