@@ -168,7 +168,7 @@ export const VOLUMES_DATA: VolumeData[] = [
     color: '#a78bfa',
     bgShade: '#a78bfa12',
     progress: 1,
-    total: 7,
+    total: 8,
     topics: [
       {
         id: 'vol2-t1',
@@ -331,6 +331,37 @@ export const VOLUMES_DATA: VolumeData[] = [
           'Factorización de polinomios identificando el caso correspondiente'
         ],
         widgetType: 'factoring-blocks'
+      },
+      {
+        id: 'vol2-t9',
+        title: 'Potenciación y Factorización Base',
+        conceptSummary: 'Ruta hacia la Radicación: Anatomía de potencias, leyes de exponentes, descomposición prima y conexión con radicales.',
+        subtopics: [
+          '¿Qué es una Potencia? Anatomía (Base, Exponente, Potencia) y reglas de signos',
+          'Leyes de los Exponentes (Producto, Cociente, Potencia de potencia, Exponente 0, Negativo y Fraccionario)',
+          'Exponentes Negativos y Cómo Operarlos: Método del Ascensor y Expresiones Combinadas',
+          'Factorización Prima: Desarmando Números en Potencias por Divisiones Sucesivas',
+          'Conexión con la Radicación: Raíces exactas y simplificación de radicales'
+        ],
+        latexFormulas: [
+          { title: 'Anatomía de la Potencia', latex: 'b^n = P', explanation: 'Base (b), Exponente (n) y Potencia o resultado (P).' },
+          { title: 'Producto de Bases Iguales', latex: 'a^m \\cdot a^n = a^{m+n}', explanation: 'Se conserva la base y se suman los exponentes.' },
+          { title: 'Cociente de Bases Iguales', latex: '\\frac{a^m}{a^n} = a^{m-n}', explanation: 'Se conserva la base y se restan los exponentes.' },
+          { title: 'Potencia de una Potencia', latex: '(a^m)^n = a^{m \\cdot n}', explanation: 'Se conserva la base y se multiplican los exponentes.' },
+          { title: 'Exponente Negativo e Inverso', latex: 'a^{-n} = \\frac{1}{a^n} \\quad \\text{y} \\quad \\frac{1}{a^{-n}} = a^n', explanation: 'Instrucción de ubicación: traslada la base al lado opuesto de la fracción para volver positivo el exponente.' },
+          { title: 'Puente hacia la Radicación', latex: 'a^{\\frac{m}{n}} = \\sqrt[n]{a^m}', explanation: 'El denominador es el índice de la raíz y el numerador es la potencia interna.' }
+        ],
+        keyConcepts: [
+          { term: 'Base y Exponente', definition: 'La base se multiplica por sí misma tantas veces como indica el exponente.', bgPill: '#a78bfa' },
+          { term: 'Factorización Prima', definition: 'Descomposición única en números primos (2, 3, 5, 7...) usando divisiones sucesivas.', bgPill: '#00e676' },
+          { term: 'Radicación Inversa', definition: 'Dividir el exponente interno entre el índice de la raíz.', bgPill: '#38bdf8' }
+        ],
+        invisibleTrick: 'Multiplicar bases = Sumar exponentes (x² · x³ = x⁵). Exponente negativo NO hace negativo al número: 2⁻³ = 1/8. Para raíces, agrupa en parejas (a²) para √ o tercias (a³) para ∛.',
+        exercisesToPut: [
+          'Aplicación de leyes de exponentes para simplificar expresiones',
+          'Factorización prima de enteros compuestos (72, 216, etc.) en potencias',
+          'Cálculo de raíces exactas y simplificación de radicales extrayendo factores'
+        ]
       }
     ]
   },

@@ -10,6 +10,7 @@ import { TeoriaNumeosModule } from './modules/TeoriaNumeosModule';
 import { DecimalesFraccionesModule } from './modules/DecimalesFraccionesModule';
 import { FundamentosAlgebraModule } from './modules/FundamentosAlgebraModule';
 import { OperacionesAlgebraicasModule } from './modules/OperacionesAlgebraicasModule';
+import { PotenciacionFactorizacionModule } from './modules/PotenciacionFactorizacionModule';
 import { GenericInteractiveModule } from './modules/GenericInteractiveModule';
 
 interface TopicModalProps {
@@ -114,6 +115,10 @@ export const TopicModal: React.FC<TopicModalProps> = ({ isOpen, onClose, card, o
           ) : card.id === 'vol2-t2' ? (
             <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
               <OperacionesAlgebraicasModule />
+            </div>
+          ) : card.id === 'vol2-t9' ? (
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">
+              <PotenciacionFactorizacionModule />
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto p-5 sm:p-6 scroll-smooth">

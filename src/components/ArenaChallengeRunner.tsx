@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Clock, CheckCircle2, XCircle, Trophy, Sparkles, X, RotateCcw, ChevronRight, Delete, Book, Eye } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { ArenaChallenge, ArenaQuestion } from '../data/arenaChallengesData';
+import { AlgebraicKeypad } from './AlgebraicKeypad';
 import { QuizMemphisIllustration } from './Illustrations';
 import { MathView } from '../utils/math';
 import { playSound } from '../utils/sound';
@@ -17,6 +18,9 @@ interface ArenaChallengeRunnerProps {
 
 const normalizeValue = (val: string): string => {
   return val
+    .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, '($1)/($2)')
+    .replace(/\\cdot/g, '*')
+    .replace(/\\times/g, '*')
     .replace(/[$%]/g, '')
     .replace(/,/g, '')
     .replace(/\s+/g, '')
@@ -61,17 +65,20 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
   onComplete,
   questionCount,
 }) => {
-  const desiredCount = questionCount || (challenge as any).sessionQuestionCount || 5;
+  const desiredCount = questionCount || (challenge as any).sessionQuestionCount || challenge.totalExercises || 5;
 
   // Select questions from the question bank
   const [sessionQuestions, setSessionQuestions] = useState<ArenaQuestion[]>(() => {
-    const shuffled = [...challenge.questions].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, Math.min(desiredCount, shuffled.length));
+    const isSequential = (challenge as any).isSequential || challenge.id === 'desafio-reactor-potencias';
+    const list = isSequential ? [...challenge.questions] : [...challenge.questions].sort(() => 0.5 - Math.random());
+    return list.slice(0, Math.min(desiredCount, list.length));
   });
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [textInput, setTextInput] = useState('');
+  const [bonusSelected, setBonusSelected] = useState<number | null>(null);
+  const [bonusPoints, setBonusPoints] = useState<number>(0);
   const [isChecked, setIsChecked] = useState(false);
   const [answerHistory, setAnswerHistory] = useState<('correct' | 'incorrect')[]>([]);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
@@ -178,6 +185,7 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
         setSelectedKey(null);
         setTextInput('');
         setIsChecked(false);
+        setBonusSelected(null);
       } else {
         let isCorrect = false;
         if (currentQ.inputType === 'text') {
@@ -208,13 +216,16 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
 
   const handleRestartRound = () => {
     playSound('click');
-    const shuffled = [...challenge.questions].sort(() => 0.5 - Math.random());
-    setSessionQuestions(shuffled.slice(0, Math.min(desiredCount, shuffled.length)));
+    const isSequential = (challenge as any).isSequential || challenge.id === 'desafio-reactor-potencias';
+    const list = isSequential ? [...challenge.questions] : [...challenge.questions].sort(() => 0.5 - Math.random());
+    setSessionQuestions(list.slice(0, Math.min(desiredCount, list.length)));
     setCurrentIndex(0);
     setSelectedKey(null);
     setTextInput('');
     setIsChecked(false);
     setScore(0);
+    setBonusPoints(0);
+    setBonusSelected(null);
     setAnswerHistory([]);
     setUserAnswers([]);
     setIsFinished(false);
@@ -395,6 +406,17 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
             </div>
           </div>
 
+          {/* Bonus Points Badge */}
+          {bonusPoints > 0 && (
+            <div className="bg-[#FFE600] border-2 border-[#1E1E24] rounded-2xl p-3 flex items-center justify-between shadow-[2px_2px_0px_0px_#1E1E24] text-[#1E1E24] my-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#1E1E24]" />
+                <span className="text-xs font-black uppercase">Insignias de Atención ⭐</span>
+              </div>
+              <span className="text-sm font-black">{bonusPoints} / {totalQ}</span>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="space-y-2 pt-2">
             <button
@@ -524,57 +546,16 @@ export const ArenaChallengeRunner: React.FC<ArenaChallengeRunnerProps> = ({
           </span>
         </div>
 
-        {/* 2x2 Options Grid OR Text Input */}
+        {/* 2x2 Options Grid OR Algebraic Keypad */}
         {currentQ.inputType === 'text' ? (
-          <div className="w-full my-2 flex flex-col items-center gap-4">
-            <div 
-              className={`w-full max-w-sm min-h-[64px] border-4 rounded-2xl flex items-center justify-center px-4 transition-colors shadow-inner text-3xl font-black ${
-                isChecked && isCurrentCorrect
-                  ? 'bg-green-100 border-[#22C55E] text-[#22C55E]'
-                  : isChecked && !isCurrentCorrect
-                  ? 'bg-red-100 border-[#EF4444] text-[#EF4444]'
-                  : 'bg-white border-[#1E1E24] text-[#1E1E24]'
-              }`}
-            >
-              {textInput || (
-                <span className="text-gray-300">?</span>
-              )}
-            </div>
-            
-            {/* Custom Keypad */}
-            <div className="max-w-xs w-full mx-auto grid grid-cols-3 gap-2 mt-2">
-              {[7, 8, 9, 4, 5, 6, 1, 2, 3].map(num => (
-                <button
-                  key={num}
-                  onClick={() => !isChecked && setTextInput(prev => prev + num)}
-                  disabled={isChecked}
-                  className="h-14 bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl text-2xl font-black text-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
-                >
-                  {num}
-                </button>
-              ))}
-              <button
-                onClick={() => !isChecked && setTextInput(prev => prev.slice(0, -1))}
-                disabled={isChecked}
-                className="h-14 bg-red-100 border-2 border-[#1E1E24] rounded-xl flex items-center justify-center text-red-600 shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
-              >
-                <Delete size={24} />
-              </button>
-              <button
-                onClick={() => !isChecked && setTextInput(prev => prev + '0')}
-                disabled={isChecked}
-                className="h-14 bg-[#f8faf9] border-2 border-[#1E1E24] rounded-xl text-2xl font-black text-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
-              >
-                0
-              </button>
-              <button
-                onClick={() => !isChecked && setTextInput(prev => prev.includes('-') ? prev.replace('-', '') : '-' + prev)}
-                disabled={isChecked}
-                className="h-14 bg-gray-200 border-2 border-[#1E1E24] rounded-xl text-2xl font-black text-[#1E1E24] shadow-[4px_4px_0px_0px_#1E1E24] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all disabled:opacity-50"
-              >
-                ±
-              </button>
-            </div>
+          <div className="w-full my-2 flex flex-col items-center">
+            <AlgebraicKeypad
+              value={textInput}
+              onChange={setTextInput}
+              disabled={isChecked}
+              onEnter={handleCheckAnswer}
+              placeholder="Escribe tu respuesta..."
+            />
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 w-full my-2">

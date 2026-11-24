@@ -28,6 +28,7 @@ import { MathView } from '../utils/math';
 import { playSound } from '../utils/sound';
 import { MathFraction } from './MathFraction';
 import { numberToSpanishWords } from '../utils/numberToWords';
+import { PotenciacionFactorizacionModule } from './modules/PotenciacionFactorizacionModule';
 
 interface TopicInteractiveLabProps {
   topic: VolumeTopic;
@@ -1722,8 +1723,15 @@ export const TopicInteractiveLab: React.FC<TopicInteractiveLabProps> = ({
         </div>
       )}
 
+      {/* TOPIC VOL2-T9: POTENCIACIÓN Y FACTORIZACIÓN BASE */}
+      {topicId === 'vol2-t9' && (
+        <div className="space-y-4">
+          <PotenciacionFactorizacionModule />
+        </div>
+      )}
+
       {/* TOPICS IN ALGEBRA & OTHER MODULES */}
-      {topicId.startsWith('vol2') && (
+      {topicId.startsWith('vol2') && topicId !== 'vol2-t9' && (
         <div className="space-y-4">
           <div className="bg-[#F8FAFC] border-2 border-[#1E1E24] rounded-2xl p-4 space-y-3">
             <span className="text-xs font-black uppercase text-[#8A909F] block">

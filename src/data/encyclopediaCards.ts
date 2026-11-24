@@ -470,6 +470,40 @@ export const ENCYCLOPEDIA_CARDS: EncyclopediaCard[] = [
     tips: '¡No olvides la regla crítica! Multiplicar o dividir por un número negativo INVIERTE la boquita de la desigualdad (de < cambia a >).'
   },
 
+    {
+    id: 'vol2-t9',
+    categoria: 'Álgebra',
+    color: '#a78bfa',
+    titulo: 'Potenciación y Factorización Base',
+    resumen: 'Ruta hacia la Radicación: leyes de exponentes, método del ascensor para exponentes negativos y descomposición prima.',
+    teoria: [
+      { title: 'Definición de Potencia', content: 'b^n = P \\quad (b: \\text{base}, \\; n: \\text{exponente}, \\; P: \\text{resultado})', isLatex: true },
+      { title: 'Puente con Radicación', content: 'a^{\\frac{m}{n}} = \\sqrt[n]{a^m} \\iff \\sqrt[n]{a^m} = a^{\\frac{m}{n}}', isLatex: true },
+      { title: 'Factorización Prima', content: '72 = 2^3 \\cdot 3^2, \\quad 216 = 2^3 \\cdot 3^3', isLatex: true }
+    ],
+    ejemplos: [
+      {
+        problem: 'Simplifica \\sqrt{72} usando factorización prima',
+        steps: [
+          'Descomponemos 72 en factores primos: 72 = 2^3 \\cdot 3^2',
+          'Separamos en potencias pares para la raíz cuadrada: 72 = 2^2 \\cdot 2^1 \\cdot 3^2',
+          'Extraemos los factores con exponente divisible entre 2: \\sqrt{2^2 \\cdot 3^2 \\cdot 2} = 2 \\cdot 3 \\sqrt{2}',
+          'Resultado: \\mathbf{6\\sqrt{2}}'
+        ]
+      },
+      {
+        problem: 'Calcula \\sqrt[3]{216} mediante descomposición prima',
+        steps: [
+          'Descomponemos 216 en primos: 216 = 2^3 \\cdot 3^3',
+          'Aplicamos la propiedad radical a potencia fraccionaria: \\sqrt[3]{2^3 \\cdot 3^3} = 2^{3/3} \\cdot 3^{3/3}',
+          'Resolvemos los exponentes: 2^1 \\cdot 3^1 = 6',
+          'Resultado exacto: \\mathbf{6}'
+        ]
+      }
+    ],
+    tips: 'Multiplicar bases = Sumar exponentes. Exponente negativo no cambia el signo del número: 2⁻³ = 1/8. Para extraer de una raíz, forma grupos iguales al índice (parejas para raíz cuadrada, tercias para raíz cúbica).'
+  },
+
   // Geometría Analítica
   {
     id: 'vol3-t1',

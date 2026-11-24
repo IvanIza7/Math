@@ -1,6 +1,7 @@
 import { ECUACIONES_ENTERAS, ECUACIONES_FRACCIONES } from './ecuacionesChallenges';
 import { DESAFIO_PORCENTAJES } from './porcentajesChallenges';
 import { DESAFIO_PORCENTAJES_MIXTO } from './porcentajesMixtoData';
+import { DESAFIO_REACTOR_POTENCIAS } from './reactorPotenciasData';
 
 export interface ArenaQuestion {
   id: string;
@@ -15,6 +16,11 @@ export interface ArenaQuestion {
   correctDisplay?: string;
   acceptableAnswers?: string[];
   optionsAreLatex?: boolean;
+  bonusQuestion?: {
+    question: string;
+    options: string[];
+    correctIndex: number;
+  };
 }
 
 export interface ArenaChallenge {
@@ -28,6 +34,7 @@ export interface ArenaChallenge {
   bgGradient: string;
   badgeBg: string;
   hasDifficulties?: boolean;
+  isSequential?: boolean;
   questions: ArenaQuestion[];
 }
 
@@ -1675,6 +1682,7 @@ export const ARENA_CHALLENGES: ArenaChallenge[] = [
     badgeBg: 'bg-[#1E1E24] text-white',
     questions: [],
   },
-  DESAFIO_PORCENTAJES_MIXTO
+  DESAFIO_PORCENTAJES_MIXTO,
+  DESAFIO_REACTOR_POTENCIAS
 ];
 
